@@ -1,0 +1,69 @@
+# Band cadence configuration for MediPilot
+# Two separate clocks per band: re-score (model) and re-measure (physical).
+# All times in seconds for scheduler precision.
+
+bands:
+  red:
+    rescore_interval_s: 60           # 1 minute
+    remeasure_interval_s: 300        # 5 minutes
+    wait_ceiling_s: 0                # should not be waiting
+    ceiling_breach_action: "page_senior_clinician_and_flag_board"
+    ceiling_breach_delay_s: 300      # page if still queued at 5 min
+    surge_stretch_allowed: false     # Red never stretches under surge
+
+  yellow:
+    rescore_interval_s: 300          # 5 minutes
+    remeasure_interval_s: 1800       # 30 minutes
+    wait_ceiling_s: 3600             # 60 minutes
+    ceiling_breach_action: "force_remeasurement_task"
+    ceiling_breach_delay_s: 900      # if not completed within 15 min → escalate to Red
+    surge_stretch_allowed: true
+    surge_remeasure_interval_s: 2700 # 45 minutes under surge
+
+  green:
+    rescore_interval_s: 300          # 5 minutes
+    remeasure_interval_s: 3600       # 60 minutes
+    wait_ceiling_s: 7200             # 120 minutes
+    ceiling_breach_action: "force_remeasurement_and_wellbeing_contact"
+    consecutive_missed_rechecks_escalate: 2   # → escalate to Yellow
+    surge_stretch_allowed: true
+    surge_remeasure_interval_s: 5400 # 90 minutes under surge
+
+  abstained:
+    rescore_interval_s: 300          # 5 minutes
+    remeasure_interval_s: null       # on human review only
+    wait_ceiling_s: 900              # 15 minutes
+    floor_band: "yellow"             # Invariant 5: abstained patient never Green
+    ceiling_breach_action: "raise_unmet_review_breach"
+
+# Freshness rules (Invariant 4)
+freshness:
+  # Beyond 2x cadence: reading discounted (confidence reduced)
+  discount_multiplier: 2.0
+  # Beyond 3x cadence: treat as missing entirely
+  missing_multiplier: 3.0
+
+# Recheck trust levels
+recheck_trust:
+  recheck_station:
+    trust: full
+    can_close_red: true
+    can_close_yellow: true
+    can_close_green: true
+  nurse_attendant:
+    trust: full
+    can_close_red: true
+    can_close_yellow: true
+    can_close_green: true
+    track_deadline_breaches: true
+  accompanying_family:
+    trust: partial
+    can_close_red: false
+    can_close_yellow: false
+    can_close_green: true
+    raises_flag_for_staff: true
+  patient_self_service:
+    trust: signal_only
+    can_escalate: true
+    can_deescalate: false
+    can_satisfy_recheck: false

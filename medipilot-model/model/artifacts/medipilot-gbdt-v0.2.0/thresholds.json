@@ -1,0 +1,8 @@
+{
+  "p_star_yellow": 0.14457831325301204,
+  "p_star_red": 0.203125,
+  "R_yellow": 5.916666666666667,
+  "R_red": 3.923076923076923,
+  "target_over_triage": 0.3,
+  "target_red_rate": 0.05
+}

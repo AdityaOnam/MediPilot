@@ -1,0 +1,69 @@
+\contentsline {section}{Abstract}{4}{Doc-Start}%
+\contentsline {section}{\numberline {1}Problem Framing: The Triage Failure Is Structural, Not Individual}{4}{section.1}%
+\contentsline {subsection}{\numberline {1.1}The Epidemiology of Waiting Room Deterioration}{4}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}The Indian Healthcare Context}{5}{subsection.1.2}%
+\contentsline {section}{\numberline {2}Why Prior Clinical AI Failed: The Epic Sepsis Model}{5}{section.2}%
+\contentsline {subsection}{\numberline {2.1}External Validation Findings}{5}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}The Leakage Root Cause and MediPilot's Structural Response}{5}{subsection.2.2}%
+\contentsline {section}{\numberline {3}The Decide/Recommend Boundary and Its Justification}{6}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Asymmetric Autonomy Principle}{6}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}The Five Load-Bearing Design Decisions}{6}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Automation Bias and the Override Architecture}{6}{subsection.3.3}%
+\contentsline {section}{\numberline {4}Data Availability Across the First Five Minutes}{7}{section.4}%
+\contentsline {subsection}{\numberline {4.1}T0: Arrival Window (0--60 s)}{7}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}T1: Primary Assessment Window (60--180 s)}{7}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}T2: Enrichment Window (3--10 min)}{7}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Ambient Signal}{7}{subsection.4.4}%
+\contentsline {subsection}{\numberline {4.5}Operational Context}{8}{subsection.4.5}%
+\contentsline {section}{\numberline {5}Labels and the Data Acquisition Plan}{8}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Label Strategy: Outcome-Derived, Not Nurse-Label Imitation}{8}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Counterfactual Censoring and Its Correction}{8}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}Data Acquisition: Four Phases}{9}{subsection.5.3}%
+\contentsline {subsection}{\numberline {5.4}Cold-Start and the Abstention Trajectory}{9}{subsection.5.4}%
+\contentsline {section}{\numberline {6}Model Architecture}{9}{section.6}%
+\contentsline {subsection}{\numberline {6.1}L0: Data Capture and the Temporal Feature Registry}{9}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}L1: The LLM Structurer --- Perception Only}{10}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}L2: The Risk Backbone --- Late Fusion, Three Heads}{10}{subsection.6.3}%
+\contentsline {subsection}{\numberline {6.4}L3: Calibration, Uncertainty, and the Abstention Gate}{10}{subsection.6.4}%
+\contentsline {subsection}{\numberline {6.5}L4: Decision and Routing --- Asymmetric Thresholds and Hard Rules}{11}{subsection.6.5}%
+\contentsline {subsection}{\numberline {6.6}L5: Presentation --- The Single Card}{11}{subsection.6.6}%
+\contentsline {subsection}{\numberline {6.7}Feedback Loops A and B}{11}{subsection.6.7}%
+\contentsline {section}{\numberline {7}Training Methodology}{11}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Self-Supervised Pretraining}{11}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}Unsupervised Analysis}{12}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}Supervised Multi-Task Fine-Tuning}{12}{subsection.7.3}%
+\contentsline {subsection}{\numberline {7.4}Cost-Sensitive Learning}{12}{subsection.7.4}%
+\contentsline {subsection}{\numberline {7.5}Rare-Event Augmentation via Conditional Diffusion Models}{12}{subsection.7.5}%
+\contentsline {subsection}{\numberline {7.6}Federated Learning}{13}{subsection.7.6}%
+\contentsline {subsection}{\numberline {7.7}Active Learning}{13}{subsection.7.7}%
+\contentsline {subsection}{\numberline {7.8}Rollout: Shadow Mode and Stepped-Wedge Design}{13}{subsection.7.8}%
+\contentsline {section}{\numberline {8}Uncertainty, Calibration, and Deferral}{13}{section.8}%
+\contentsline {section}{\numberline {9}Routing and Optimization}{14}{section.9}%
+\contentsline {section}{\numberline {10}System Design, Scale, and Deployment Tiers}{14}{section.10}%
+\contentsline {subsection}{\numberline {10.1}Tiered Hardware Architecture}{14}{subsection.10.1}%
+\contentsline {subsection}{\numberline {10.2}Offline-First Architecture}{14}{subsection.10.2}%
+\contentsline {subsection}{\numberline {10.3}EHR Integration via CDS Hooks}{14}{subsection.10.3}%
+\contentsline {subsection}{\numberline {10.4}Unit Economics and the Cascade Architecture}{15}{subsection.10.4}%
+\contentsline {section}{\numberline {11}Failure-Mode Analysis}{15}{section.11}%
+\contentsline {section}{\numberline {12}Evaluation Framework and Rollout Plan}{15}{section.12}%
+\contentsline {subsection}{\numberline {12.1}Primary Safety Metric}{16}{subsection.12.1}%
+\contentsline {subsection}{\numberline {12.2}Calibration and Decision-Curve Analysis}{16}{subsection.12.2}%
+\contentsline {subsection}{\numberline {12.3}Operational Endpoints}{16}{subsection.12.3}%
+\contentsline {subsection}{\numberline {12.4}Fairness Definition}{16}{subsection.12.4}%
+\contentsline {subsection}{\numberline {12.5}External Validation Requirement}{16}{subsection.12.5}%
+\contentsline {section}{\numberline {13}Governance: India-Specific Regulatory Pathway}{16}{section.13}%
+\contentsline {subsection}{\numberline {13.1}CDSCO SaMD Classification}{17}{subsection.13.1}%
+\contentsline {subsection}{\numberline {13.2}Algorithm Change Protocol}{17}{subsection.13.2}%
+\contentsline {subsection}{\numberline {13.3}ICMR Ethical Guidelines}{17}{subsection.13.3}%
+\contentsline {subsection}{\numberline {13.4}DPDP Act 2023 and Consent Architecture}{17}{subsection.13.4}%
+\contentsline {subsection}{\numberline {13.5}Immutable Audit Log}{17}{subsection.13.5}%
+\contentsline {section}{\numberline {14}Deliberate Anti-Decisions}{18}{section.14}%
+\contentsline {section}{\numberline {15}Impact and Business Case}{18}{section.15}%
+\contentsline {subsection}{\numberline {15.1}Who MediPilot Helps}{18}{subsection.15.1}%
+\contentsline {subsection}{\numberline {15.2}Go-to-Market Wedge}{18}{subsection.15.2}%
+\contentsline {subsection}{\numberline {15.3}The Durable Competitive Moat}{19}{subsection.15.3}%
+\contentsline {subsection}{\numberline {15.4}Unit Economics}{19}{subsection.15.4}%
+\contentsline {section}{References}{20}{subsection.15.4}%
+\contentsline {section}{Appendix A: Worked Cost-Matrix Example}{21}{Item.22}%
+\contentsline {section}{Appendix B: Feature Registry and Leakage Lint}{22}{Item.22}%
+\contentsline {section}{Appendix C: Figure Placeholder Index}{23}{Item.22}%

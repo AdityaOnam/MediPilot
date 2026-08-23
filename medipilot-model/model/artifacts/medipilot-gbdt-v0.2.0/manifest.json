@@ -1,0 +1,50 @@
+{
+  "model_version": "medipilot-gbdt-v0.2.0",
+  "calibration_version": "isotonic-perstratum-v0.2.0",
+  "conformal_version": "mondrian-split-a0.10-v0.2.0",
+  "feature_version": "fx-v1",
+  "sklearn_version": "1.4.2",
+  "horizon_minutes": 180,
+  "label_primary": "critical_composite_h180",
+  "trained_at": "2026-08-23T09:23:20.397331+00:00",
+  "dataset": {
+    "path": "data\\train_set.jsonl",
+    "n_total": 20000,
+    "prevalence": 0.1001,
+    "sha256": "8759c611e475991c",
+    "n": 20000,
+    "seed": 1337,
+    "mean_p_event": 0.09996631080575968,
+    "beta0_solved": -12.76611328125,
+    "n_defined_pairs": 29,
+    "horizon_minutes": 180,
+    "label_primary": "critical_composite_h180",
+    "label_secondary": "derangement_h60"
+  },
+  "splits": {
+    "train": 12000,
+    "calib_iso": 2000,
+    "calib_conf": 1999,
+    "test": 4001
+  },
+  "calibration_methods": {
+    "__pooled__": "isotonic",
+    "adolescent": "platt",
+    "adult": "isotonic",
+    "child": "isotonic",
+    "geriatric": "isotonic",
+    "infant": "platt"
+  },
+  "thresholds": {
+    "p_star_yellow": 0.14457831325301204,
+    "p_star_red": 0.203125,
+    "R_yellow": 5.916666666666667,
+    "R_red": 3.923076923076923,
+    "target_over_triage": 0.3,
+    "target_red_rate": 0.05
+  },
+  "conformal": {
+    "alpha": 0.1,
+    "fallback_strata": []
+  }
+}

@@ -1,0 +1,146 @@
+{
+  "n_test": 4001,
+  "prevalence": 0.09997500624843789,
+  "model": {
+    "auroc": 0.6876877950569287,
+    "auprc": 0.15937013292823082
+  },
+  "baseline_auprc_by_prevalence": 0.09997500624843789,
+  "under_triage_at_over_triage": {
+    "0.10": {
+      "under_triage": 0.85,
+      "achieved_otr": 0.07664537628436545,
+      "threshold": 0.189020087049966,
+      "ci_lo": 0.8158441558441558,
+      "ci_hi": 0.8853691118972259
+    },
+    "0.20": {
+      "under_triage": 0.7075,
+      "achieved_otr": 0.1549569564009997,
+      "threshold": 0.1612656461585508,
+      "ci_lo": 0.6616317692966593,
+      "ci_hi": 0.7516937806491788
+    },
+    "0.30": {
+      "under_triage": 0.4875,
+      "achieved_otr": 0.2843654540405443,
+      "threshold": 0.14483984095068322,
+      "ci_lo": 0.4340991874474643,
+      "ci_hi": 0.5387317724843764
+    },
+    "0.50": {
+      "under_triage": 0.21,
+      "achieved_otr": 0.49986114968064427,
+      "threshold": 0.10654940188208753,
+      "ci_lo": 0.17370830244625649,
+      "ci_hi": 0.2506820096231158
+    }
+  },
+  "calibration": {
+    "ece_overall": 0.012585611371749432,
+    "per_stratum": {
+      "adolescent": {
+        "ece": 0.05221587544725984,
+        "n": 271,
+        "n_pos": 36,
+        "reportable": true
+      },
+      "adult": {
+        "ece": 0.016033461139795688,
+        "n": 2054,
+        "n_pos": 175,
+        "reportable": true
+      },
+      "child": {
+        "ece": 0.03501345920991177,
+        "n": 558,
+        "n_pos": 57,
+        "reportable": true
+      },
+      "geriatric": {
+        "ece": 0.04314296180206595,
+        "n": 845,
+        "n_pos": 83,
+        "reportable": true
+      },
+      "infant": {
+        "ece": 0.0431621682206802,
+        "n": 273,
+        "n_pos": 49,
+        "reportable": true
+      }
+    },
+    "reliability_slope": 0.5582189246782336,
+    "reliability_intercept": -0.8401981584408289
+  },
+  "conformal": {
+    "overall_coverage": 0.9142714321419645,
+    "mean_set_size": 1.1069732566858286,
+    "per_stratum": {
+      "adult": 0.9036027263875365,
+      "infant": 0.9047619047619048,
+      "adolescent": 0.940959409594096,
+      "geriatric": 0.9289940828402367,
+      "child": 0.9229390681003584
+    },
+    "per_stratum_n": {
+      "adult": 2054,
+      "infant": 273,
+      "adolescent": 271,
+      "geriatric": 845,
+      "child": 558
+    }
+  },
+  "fairness_fnr_by_stratum": {
+    "adolescent": {
+      "fnr": 0.4722222222222222,
+      "n_pos": 36,
+      "ci_lo": 0.3157518796992481,
+      "ci_hi": 0.6333333333333333,
+      "underpowered": false
+    },
+    "adult": {
+      "fnr": 0.56,
+      "n_pos": 175,
+      "ci_lo": 0.48862975687103594,
+      "ci_hi": 0.6426128642609089,
+      "underpowered": false
+    },
+    "child": {
+      "fnr": 0.3157894736842105,
+      "n_pos": 57,
+      "ci_lo": 0.18306658130601794,
+      "ci_hi": 0.4313836898395722,
+      "underpowered": false
+    },
+    "geriatric": {
+      "fnr": 0.42168674698795183,
+      "n_pos": 83,
+      "ci_lo": 0.3209175084175084,
+      "ci_hi": 0.5227688470066518,
+      "underpowered": false
+    },
+    "infant": {
+      "fnr": 0.04081632653061224,
+      "n_pos": 49,
+      "ci_lo": 0.0,
+      "ci_hi": 0.10204081632653061,
+      "underpowered": false
+    }
+  },
+  "thresholds": {
+    "p_star_yellow": 0.14457831325301204,
+    "p_star_red": 0.203125,
+    "R_yellow": 5.916666666666667,
+    "R_red": 3.923076923076923,
+    "target_over_triage": 0.3,
+    "target_red_rate": 0.05
+  },
+  "go_live_criteria": {
+    "prevalence_in_range": true,
+    "auroc_in_range": true,
+    "auprc_beats_prevalence": true,
+    "conformal_coverage_ge_090": true,
+    "ece_lt_005_where_reportable": false
+  }
+}
