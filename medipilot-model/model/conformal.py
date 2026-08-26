@@ -26,7 +26,19 @@ from typing import Optional
 
 # Default conformal coverage
 ALPHA = 0.10
-DEFAULT_COST_RATIO_R = 2.0   # deliberately biased toward escalation
+# Sentinel meaning "use the operating point solved at training time".
+#
+# A hardcoded default (previously 2.0) silently overrode the thresholds solved
+# against an under-triage budget on held-out data: it lifted the effective
+# Yellow cut from 0.053 to 0.333. The shipped default must BE the trained
+# operating point; an explicit numeric R is for the demo sweep and for a site
+# that deliberately re-tunes.
+USE_TRAINED_R = None
+DEFAULT_COST_RATIO_R = USE_TRAINED_R
+
+# Used only by the heuristic fallback, which has no artifact to read a trained
+# operating point from. This is the pre-model default, kept for that path alone.
+_HEURISTIC_FALLBACK_R = 2.0
 
 # Band indices
 BAND_TO_IDX = {"green": 0, "yellow": 1, "red": 2}
@@ -53,7 +65,7 @@ class ConformalResult:
 # Real conformal path (artifact-backed)
 # ---------------------------------------------------------------------------
 
-def _thresholds_from_R(art, cost_ratio_R: float) -> tuple[float, float]:
+def _thresholds_from_R(art, cost_ratio_R: float, stratum: str | None = None) -> tuple[float, float]:
     """
     Derive (p*_yellow, p*_red) from the cost ratio R.
 
@@ -66,19 +78,47 @@ def _thresholds_from_R(art, cost_ratio_R: float) -> tuple[float, float]:
     The artifact's solved thresholds are the operating point the judge sees.
     This function lets the demo sweep re-sort the queue with a different R.
     """
-    # p* = 1 / (1 + R) is the Bayes-optimal threshold given cost ratio R.
-    p_yellow = float(np.clip(1.0 / (1.0 + cost_ratio_R), 0.02, 0.60))
-
-    # Red threshold must be > Yellow threshold; use a higher R_red
-    # approximation: p_red = 1 / (1 + R * 3), so Red requires ≥3x cost.
-    p_red = float(np.clip(1.0 / (1.0 + cost_ratio_R * 3.0), 0.005, p_yellow - 0.01))
-
-    # Soft-constrain to stay within ±50% of the artifact's trained operating point.
     t = art.thresholds
     trained_yellow = float(t["p_star_yellow"])
     trained_red = float(t["p_star_red"])
-    p_yellow = float(np.clip(p_yellow, trained_yellow * 0.5, trained_yellow * 2.0))
-    p_red = float(np.clip(p_red, trained_red * 0.5, min(trained_red * 2.0, p_yellow - 0.005)))
+    R_ref = float(t.get("R_yellow", 1.0))
+
+    # Group-differential Yellow cut. Equalising FNR across strata requires
+    # per-group thresholds: one global cut gives equal scores but unequal miss
+    # rates whenever the per-stratum score distributions differ (they do — each
+    # stratum has its own calibrator). Falls back to the global cut for strata
+    # with too few positives to estimate one.
+    if stratum is not None:
+        per = (t.get("per_stratum") or {}).get("per_stratum_yellow") or {}
+        if str(stratum) in per:
+            trained_yellow = float(per[str(stratum)])
+            trained_red = max(trained_red, trained_yellow + 1e-3)
+
+    # None => ship the trained operating point unmodified.
+    if cost_ratio_R is None:
+        return trained_yellow, max(trained_red, trained_yellow + 1e-3)
+
+    # Anchor on the TRAINED operating point. Those thresholds were solved against
+    # an under-triage budget on held-out calibration data; recomputing them from
+    # 1/(1+R) at serve time discards that and silently ships a different, much
+    # laxer cut. (The previous version did exactly that: it raised the effective
+    # Yellow cut from the solved 0.053 to 0.101, which put 42% of critical
+    # patients back into Green.)
+    #
+    # A different R at serve time scales both cut points monotonically:
+    #     p*(R) / p*(R_ref) = (1 + R_ref) / (1 + R)
+    # so R == R_ref reproduces the trained operating point exactly, a larger R
+    # (misses cost relatively more) lowers both cuts, and a smaller R raises them.
+    scale = (1.0 + R_ref) / (1.0 + max(cost_ratio_R, 1e-6))
+
+    p_yellow = float(np.clip(trained_yellow * scale, 0.001, 0.95))
+    p_red = float(np.clip(trained_red * scale, 0.001, 0.98))
+
+    # Red must always require MORE evidence than Yellow. The previous formula
+    # inverted this (p_red was clamped to p_yellow - 0.01), which made the Red
+    # branch the effective Yellow cut.
+    if p_red <= p_yellow:
+        p_red = min(0.98, p_yellow + 1e-3)
 
     return p_yellow, p_red
 
@@ -212,7 +252,11 @@ def _heuristic_confidence(
     else:
         primary_band = "green"
 
-    alpha_effective = max(0.01, min(ALPHA / cost_ratio_R, 0.5))
+    # cost_ratio_R may be the USE_TRAINED_R sentinel (None). On the heuristic
+    # fallback path there is no artifact to read a trained R from, so fall back
+    # to the legacy numeric default rather than dividing by None.
+    effective_R = _HEURISTIC_FALLBACK_R if cost_ratio_R is None else cost_ratio_R
+    alpha_effective = max(0.01, min(ALPHA / effective_R, 0.5))
 
     dist_to_lower = calibrated_score - (0.35 if primary_band == "red" else 0.0)
     dist_to_upper = (0.65 if primary_band == "yellow" else 1.0) - calibrated_score
@@ -332,7 +376,7 @@ def compute_confidence(
             from model.artifact import get_artifact
             art = get_artifact()
             if art is not None:
-                p_yellow, p_red = _thresholds_from_R(art, cost_ratio_R)
+                p_yellow, p_red = _thresholds_from_R(art, cost_ratio_R, stratum)
                 conf, reason, width, pred_set, do_abstain = _confidence_from_conformal(
                     p_calibrated=p_model,
                     stratum=stratum,
@@ -372,8 +416,29 @@ def compute_confidence(
                         score_source="model",
                     )
 
+                # BAND is the POINT decision from the cost-sensitive thresholds.
+                # UNCERTAINTY is carried by the conformal set and the confidence
+                # score — it does not inflate the band.
+                #
+                # Previously band = pred_set[0], i.e. the HIGHEST band in the
+                # conformal set. With a model that is legitimately uncertain on
+                # most patients, that rule pushed 46% of the department into Red
+                # while the raw threshold implied 26% — an alarm flood that
+                # destroys the signal Red exists to carry.
+                #
+                # Escalation-under-uncertainty is still enforced, but by the
+                # mechanisms built for it: abstention floors at Yellow
+                # (Invariant 5), abnormal_vital_floor lifts vulnerable strata,
+                # and the red-flag pass bypasses the model entirely.
+                if p_model >= p_red:
+                    point_band = "red"
+                elif p_model >= p_yellow:
+                    point_band = "yellow"
+                else:
+                    point_band = "green"
+
                 return ConformalResult(
-                    band=pred_set[0] if pred_set else "yellow",
+                    band=point_band,
                     prediction_set=pred_set,
                     confidence=round(conf, 4),
                     confidence_reason=reason,

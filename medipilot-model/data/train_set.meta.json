@@ -2,16 +2,16 @@
   "meta": {
     "n": 20000,
     "seed": 1337,
-    "prevalence": 0.1001,
-    "mean_p_event": 0.09996631080575968,
-    "beta0_solved": -12.76611328125,
-    "n_defined_pairs": 29,
+    "prevalence": 0.0976,
+    "mean_p_event": 0.10009570173810914,
+    "beta0_solved": -12.73681640625,
+    "n_defined_pairs": 32,
     "horizon_minutes": 180,
     "label_primary": "critical_composite_h180",
     "label_secondary": "derangement_h60"
   },
   "label_spec": {
-    "beta0": -12.76611328125,
+    "beta0": -12.73681640625,
     "beta1": 10.0,
     "beta2": 4.0,
     "beta3": 0.4,

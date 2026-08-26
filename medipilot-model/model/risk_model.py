@@ -405,7 +405,7 @@ def score_patient(
         from model.predictor import predict_p_critical
         fi = from_patient_record(record, stratum_result, now)
         feat_row = build_feature_row(fi)
-        p_model, score_source = predict_p_critical(feat_row, stratum_result.stratum)
+        p_model, score_source = predict_p_critical(feat_row, stratum_result.stratum, record)
     except Exception:
         pass  # any failure → heuristic fallback; never raises into triage path
 
@@ -419,7 +419,7 @@ def score_patient(
             art = get_artifact()
             if art is not None:
                 from model.conformal import _thresholds_from_R
-                p_yellow, _ = _thresholds_from_R(art, cost_ratio_R)
+                p_yellow, _ = _thresholds_from_R(art, cost_ratio_R, stratum_result.stratum)
             else:
                 p_yellow = 0.35
         except Exception:
@@ -438,12 +438,55 @@ def score_patient(
             art = get_artifact()
             if art is not None:
                 from model.conformal import _thresholds_from_R
-                p_yellow_mv, _ = _thresholds_from_R(art, cost_ratio_R)
+                p_yellow_mv, _ = _thresholds_from_R(art, cost_ratio_R, stratum_result.stratum)
             else:
                 p_yellow_mv = 0.35
         except Exception:
             p_yellow_mv = 0.35
         p_model = max(p_model, p_yellow_mv + 1e-4)
+
+    # 8e. Hard safety guarantee 3: CRITICAL-DERANGEMENT floor -> Red.
+    #
+    #     Guarantee 2 only lifts to Yellow, which left a real hole: a patient
+    #     with HR 190 / RR 44 / SBP 60 / SpO2 72 / GCS 4 scored YELLOW, because
+    #     the model's probability for a single extreme snapshot sat between the
+    #     Yellow and Red cut points. Single-snapshot extremes are sparse in
+    #     training, so the model is genuinely unsure about them — which is
+    #     exactly when the rule card, not the model, must decide.
+    #
+    #     These are individually life-threatening values, not a composite score.
+    #     Any ONE of them is peri-arrest physiology in any stratum.
+    _CRITICAL_SINGLE_VITAL = {
+        "gcs": lambda v: v <= 8,          # unresponsive / airway at risk
+        "spo2": lambda v: v < 85,         # severe hypoxaemia
+        "bp_sys": lambda v: v < 70,       # decompensated shock
+    }
+    _CRITICAL_MULTI_N = 6                 # near-total derangement
+
+    critical_reasons: list[str] = []
+    for _tr in threshold_results:
+        rule = _CRITICAL_SINGLE_VITAL.get(_tr.vital)
+        if rule is not None and _tr.value is not None:
+            try:
+                if rule(float(_tr.value)):
+                    critical_reasons.append(f"{_tr.vital}={_tr.value:g}")
+            except (TypeError, ValueError):
+                pass
+    if n_abnormal >= _CRITICAL_MULTI_N:
+        critical_reasons.append(f"{n_abnormal}_vitals_abnormal")
+
+    if p_model is not None and critical_reasons:
+        try:
+            from model.artifact import get_artifact
+            art = get_artifact()
+            if art is not None:
+                from model.conformal import _thresholds_from_R
+                _, p_red_crit = _thresholds_from_R(art, cost_ratio_R, stratum_result.stratum)
+            else:
+                p_red_crit = 0.65
+        except Exception:
+            p_red_crit = 0.65
+        p_model = max(p_model, p_red_crit + 1e-4)
 
     # 9. Conformal uncertainty (real when p_model available, heuristic otherwise)
     conf_result = compute_confidence(

@@ -292,3 +292,74 @@ def test_cost_ratio_sweep_changes_bands():
         f"Expected score_source='model' with artifact present, "
         f"got '{result_R2.score_source}'"
     )
+
+
+# ---------------------------------------------------------------------------
+# The two gates that were missing from go_live_criteria
+# ---------------------------------------------------------------------------
+
+def _metrics() -> dict:
+    name = (ARTIFACT_ROOT / "current.txt").read_text(encoding="utf-8").strip()
+    path = ARTIFACT_ROOT / name / "metrics.json"
+    if not path.exists():
+        pytest.skip("metrics.json absent — run `python -m model.evaluate` first")
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+@pytest.mark.skipif(not _artifact_available(), reason="no trained artifact present")
+def test_baseline_and_oracle_are_reported():
+    """
+    The plan required both comparators and they were initially skipped. Without
+    the baseline there is no evidence the trained model beats the rule card it
+    replaced; without the oracle there is no ceiling to read the score against.
+    """
+    m = _metrics()
+    assert m.get("baseline_handcoded") is not None, "hand-coded baseline missing"
+    assert m.get("oracle_severity") is not None, "severity-oracle ceiling missing"
+    for key in ("auprc", "auroc"):
+        assert not np.isnan(m["baseline_handcoded"][key])
+        assert not np.isnan(m["oracle_severity"][key])
+
+
+@pytest.mark.skipif(not _artifact_available(), reason="no trained artifact present")
+def test_model_does_not_exceed_oracle_ceiling():
+    """
+    A model that matches or beats an oracle which knows the true future severity
+    is not a better model — it is a leaking one. This is the mechanical form of
+    the leakage check, independent of any absolute AUROC threshold.
+    """
+    m = _metrics()
+    gap = m.get("oracle_gap")
+    if not gap or np.isnan(gap["auprc_ratio"]):
+        pytest.skip("oracle gap unavailable")
+    assert gap["auprc_ratio"] < 1.0, (
+        f"model AUPRC reaches {gap['auprc_ratio']:.2f}x the severity oracle — "
+        "this indicates leakage, not skill"
+    )
+
+
+@pytest.mark.skipif(not _artifact_available(), reason="no trained artifact present")
+def test_green_miss_rate_is_gated():
+    """
+    The primary safety metric must be a build gate, not a footnote. The first
+    trained model left 42% of critical patients below Yellow while passing every
+    gate that existed at the time.
+    """
+    m = _metrics()
+    assert "green_miss_rate" in m, "green-miss rate not reported"
+    assert "green_miss_rate_within_budget" in m["go_live_criteria"], (
+        "green-miss rate is reported but not gated"
+    )
+
+
+@pytest.mark.skipif(not _artifact_available(), reason="no trained artifact present")
+def test_fairness_is_gated_not_merely_reported():
+    """
+    Equalised FNR across strata is THE fairness criterion in the whitepaper.
+    It was previously computed and printed but never gated, so a 52-point
+    spread passed go-live silently.
+    """
+    m = _metrics()
+    assert "equalised_fnr_across_strata" in m["go_live_criteria"], (
+        "FNR equalisation is not in go_live_criteria"
+    )

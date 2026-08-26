@@ -177,6 +177,51 @@ def test_train_and_serve_adapters_agree():
         )
 
 
+def test_serve_adapter_with_history_populates_trend_features():
+    """
+    B1 guard: when vitals_history is passed through the API path (as
+    PatientRecord.vitals_history), the serving adapter must populate
+    slope_per_hour / delta_30min — the same features the training adapter
+    builds from a trajectory with multiple readings.
+
+    This is the live-API-shaped fixture required by the B1 implementation plan.
+    Without this test, from_patient_record() could silently drop the history
+    dict and the train/serve gap would reopen invisibly.
+    """
+    # Two HR readings 30 minutes apart, rising from 70 -> 100 bpm.
+    ts_old = datetime.datetime(2026, 8, 22, 13, 30, 0, tzinfo=UTC).isoformat()
+    ts_now = NOW.isoformat()
+
+    history_dict = {
+        "hr": [
+            (70.0, ts_old, "recheck_station", "valid"),
+            (100.0, ts_now, "recheck_station", "valid"),
+        ]
+    }
+    rec = PatientRecord(
+        patient_id="P2",
+        age_days=365 * 40,
+        hr=(100.0, ts_now, "recheck_station", "valid"),
+        vitals_history=history_dict,
+    )
+    fi = from_patient_record(rec, resolve_stratum(365 * 40, True), NOW)
+    row = build_feature_row(fi)
+
+    # slope_per_hour for HR: delta = +30 bpm over 30 min = +60 bpm/hr
+    slope_idx = FEATURE_NAMES.index("hr_slope_per_hour")
+    delta_idx = FEATURE_NAMES.index("hr_delta_30min")
+
+    assert not np.isnan(row[slope_idx]), (
+        "slope_per_hour is NaN — vitals_history is not reaching from_patient_record()"
+    )
+    assert row[slope_idx] == pytest.approx(60.0, abs=5.0), (
+        f"slope_per_hour expected ~60 bpm/hr, got {row[slope_idx]:.2f}"
+    )
+    assert not np.isnan(row[delta_idx]), (
+        "delta_30min is NaN — vitals_history is not reaching from_patient_record()"
+    )
+
+
 def test_feature_names_are_frozen_and_ordered():
     assert len(FEATURE_NAMES) == N_FEATURES
     assert len(set(FEATURE_NAMES)) == N_FEATURES, "duplicate feature name"

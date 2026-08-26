@@ -1,146 +1,265 @@
 {
   "n_test": 4001,
-  "prevalence": 0.09997500624843789,
+  "prevalence": 0.09772556860784803,
   "model": {
-    "auroc": 0.6876877950569287,
-    "auprc": 0.15937013292823082
+    "auroc": 0.6894170073184036,
+    "auprc": 0.1739802537331533
   },
-  "baseline_auprc_by_prevalence": 0.09997500624843789,
+  "baseline_handcoded": {
+    "auroc": 0.6301981565840837,
+    "auprc": 0.15610382756302316
+  },
+  "oracle_severity": {
+    "auroc": 0.8658241882806356,
+    "auprc": 0.41043829257253406
+  },
+  "oracle_gap": {
+    "auprc_ratio": 0.4238889423369456,
+    "auroc_ratio": 0.7962551943570166
+  },
   "under_triage_at_over_triage": {
     "0.10": {
-      "under_triage": 0.85,
-      "achieved_otr": 0.07664537628436545,
-      "threshold": 0.189020087049966,
-      "ci_lo": 0.8158441558441558,
-      "ci_hi": 0.8853691118972259
+      "under_triage": 0.7928388746803069,
+      "achieved_otr": 0.1,
+      "threshold": 0.17410003724702536,
+      "ci_lo": 0.7469530788435517,
+      "ci_hi": 0.8302155999812726
     },
     "0.20": {
-      "under_triage": 0.7075,
-      "achieved_otr": 0.1549569564009997,
-      "threshold": 0.1612656461585508,
-      "ci_lo": 0.6616317692966593,
-      "ci_hi": 0.7516937806491788
+      "under_triage": 0.6317135549872123,
+      "achieved_otr": 0.2,
+      "threshold": 0.1512602389289761,
+      "ci_lo": 0.5843280942686587,
+      "ci_hi": 0.6763768066539405
     },
     "0.30": {
-      "under_triage": 0.4875,
-      "achieved_otr": 0.2843654540405443,
-      "threshold": 0.14483984095068322,
-      "ci_lo": 0.4340991874474643,
-      "ci_hi": 0.5387317724843764
+      "under_triage": 0.4859335038363171,
+      "achieved_otr": 0.3,
+      "threshold": 0.13496597243379466,
+      "ci_lo": 0.4351888108811384,
+      "ci_hi": 0.5319705693371802
     },
     "0.50": {
-      "under_triage": 0.21,
-      "achieved_otr": 0.49986114968064427,
-      "threshold": 0.10654940188208753,
-      "ci_lo": 0.17370830244625649,
-      "ci_hi": 0.2506820096231158
+      "under_triage": 0.20971867007672634,
+      "achieved_otr": 0.5,
+      "threshold": 0.09087850075220674,
+      "ci_lo": 0.17045214327657077,
+      "ci_hi": 0.250650511067488
+    }
+  },
+  "under_triage_at_over_triage_baseline": {
+    "0.10": {
+      "under_triage": 0.7953964194373402,
+      "achieved_otr": 0.0997229916897507,
+      "threshold": 0.6522,
+      "ci_lo": 0.7568086984432676,
+      "ci_hi": 0.8316772737312939
+    },
+    "0.20": {
+      "under_triage": 0.6086956521739131,
+      "achieved_otr": 0.2,
+      "threshold": 0.5268,
+      "ci_lo": 0.560748552522746,
+      "ci_hi": 0.6578749038708023
+    },
+    "0.30": {
+      "under_triage": 0.4859335038363171,
+      "achieved_otr": 0.2994459833795014,
+      "threshold": 0.4302,
+      "ci_lo": 0.4366503308012742,
+      "ci_hi": 0.5411809538653367
+    },
+    "0.50": {
+      "under_triage": 0.3989769820971867,
+      "achieved_otr": 0.3991689750692521,
+      "threshold": 0.3601,
+      "ci_lo": 0.3493989283553712,
+      "ci_hi": 0.4509309456096694
     }
   },
   "calibration": {
-    "ece_overall": 0.012585611371749432,
+    "ece_overall": 0.01085238348960452,
     "per_stratum": {
       "adolescent": {
-        "ece": 0.05221587544725984,
-        "n": 271,
-        "n_pos": 36,
+        "ece": 0.032622772515435966,
+        "n": 237,
+        "n_pos": 35,
         "reportable": true
       },
       "adult": {
-        "ece": 0.016033461139795688,
-        "n": 2054,
-        "n_pos": 175,
+        "ece": 0.020101368293437918,
+        "n": 1869,
+        "n_pos": 164,
         "reportable": true
       },
       "child": {
-        "ece": 0.03501345920991177,
-        "n": 558,
-        "n_pos": 57,
+        "ece": 0.020489827756182973,
+        "n": 498,
+        "n_pos": 52,
         "reportable": true
       },
       "geriatric": {
-        "ece": 0.04314296180206595,
-        "n": 845,
-        "n_pos": 83,
+        "ece": 0.02968906569496459,
+        "n": 759,
+        "n_pos": 59,
         "reportable": true
       },
       "infant": {
-        "ece": 0.0431621682206802,
-        "n": 273,
-        "n_pos": 49,
+        "ece": 0.031284649718618794,
+        "n": 250,
+        "n_pos": 40,
+        "reportable": true
+      },
+      "neonate": {
+        "ece": 0.01657804759300796,
+        "n": 388,
+        "n_pos": 41,
         "reportable": true
       }
     },
-    "reliability_slope": 0.5582189246782336,
-    "reliability_intercept": -0.8401981584408289
+    "reliability_slope": 0.9540708834439217,
+    "reliability_intercept": -0.08330763485664763
   },
   "conformal": {
-    "overall_coverage": 0.9142714321419645,
-    "mean_set_size": 1.1069732566858286,
+    "overall_coverage": 0.910272431892027,
+    "mean_set_size": 1.0822294426393402,
     "per_stratum": {
-      "adult": 0.9036027263875365,
-      "infant": 0.9047619047619048,
-      "adolescent": 0.940959409594096,
-      "geriatric": 0.9289940828402367,
-      "child": 0.9229390681003584
+      "adult": 0.8994114499732477,
+      "child": 0.927710843373494,
+      "geriatric": 0.9090909090909091,
+      "neonate": 0.9201030927835051,
+      "adolescent": 0.9282700421940928,
+      "infant": 0.928
     },
     "per_stratum_n": {
-      "adult": 2054,
-      "infant": 273,
-      "adolescent": 271,
-      "geriatric": 845,
-      "child": 558
+      "adult": 1869,
+      "child": 498,
+      "geriatric": 759,
+      "neonate": 388,
+      "adolescent": 237,
+      "infant": 250
     }
   },
   "fairness_fnr_by_stratum": {
     "adolescent": {
-      "fnr": 0.4722222222222222,
-      "n_pos": 36,
-      "ci_lo": 0.3157518796992481,
-      "ci_hi": 0.6333333333333333,
+      "fnr": 0.0,
+      "n_pos": 35,
+      "ci_lo": 0.0,
+      "ci_hi": 0.0,
       "underpowered": false
     },
     "adult": {
-      "fnr": 0.56,
-      "n_pos": 175,
-      "ci_lo": 0.48862975687103594,
-      "ci_hi": 0.6426128642609089,
+      "fnr": 0.1524390243902439,
+      "n_pos": 164,
+      "ci_lo": 0.09749625289548985,
+      "ci_hi": 0.20958823094551635,
       "underpowered": false
     },
     "child": {
-      "fnr": 0.3157894736842105,
-      "n_pos": 57,
-      "ci_lo": 0.18306658130601794,
-      "ci_hi": 0.4313836898395722,
+      "fnr": 0.07692307692307693,
+      "n_pos": 52,
+      "ci_lo": 0.02,
+      "ci_hi": 0.1602452830188677,
       "underpowered": false
     },
     "geriatric": {
-      "fnr": 0.42168674698795183,
-      "n_pos": 83,
-      "ci_lo": 0.3209175084175084,
-      "ci_hi": 0.5227688470066518,
+      "fnr": 0.05084745762711865,
+      "n_pos": 59,
+      "ci_lo": 0.0,
+      "ci_hi": 0.12070271682340647,
       "underpowered": false
     },
     "infant": {
-      "fnr": 0.04081632653061224,
-      "n_pos": 49,
-      "ci_lo": 0.0,
-      "ci_hi": 0.10204081632653061,
+      "fnr": 0.125,
+      "n_pos": 40,
+      "ci_lo": 0.02857142857142857,
+      "ci_hi": 0.23684210526315788,
+      "underpowered": false
+    },
+    "neonate": {
+      "fnr": 0.1951219512195122,
+      "n_pos": 41,
+      "ci_lo": 0.07495426829268292,
+      "ci_hi": 0.325,
       "underpowered": false
     }
   },
   "thresholds": {
-    "p_star_yellow": 0.14457831325301204,
-    "p_star_red": 0.203125,
-    "R_yellow": 5.916666666666667,
-    "R_red": 3.923076923076923,
-    "target_over_triage": 0.3,
-    "target_red_rate": 0.05
+    "p_star_yellow": 0.07602622749578278,
+    "p_star_red": 0.14728962229538992,
+    "R_yellow": 12.153355531884975,
+    "R_red": 5.789344588001564,
+    "basis": "under_triage_budget",
+    "max_green_miss": 0.1,
+    "red_recall": 0.4,
+    "achieved_on_calibration": {
+      "green_miss_rate": 0.10309278350515463,
+      "over_triage_rate": 0.5684210526315789,
+      "red_rate": 0.2366183091545773,
+      "yellow_or_above_rate": 0.6003001500750376
+    },
+    "target_over_triage": 0.5684210526315789,
+    "target_red_rate": 0.2366183091545773,
+    "per_stratum": {
+      "per_stratum_yellow": {
+        "adult": 0.0580614326727455,
+        "child": 0.09194179769175909,
+        "geriatric": 0.05733718513204603,
+        "infant": 0.12693340206727013,
+        "neonate": 0.11699889793237843
+      },
+      "fallback_strata": [
+        "adolescent"
+      ],
+      "n_pos": {
+        "adolescent": 17,
+        "adult": 82,
+        "child": 26,
+        "geriatric": 29,
+        "infant": 20,
+        "neonate": 20
+      },
+      "max_green_miss": 0.1
+    }
+  },
+  "green_miss_rate": 0.11508951406649616,
+  "green_miss_rate_baseline": 0.03836317135549872,
+  "fnr_spread": {
+    "spread": 0.1951219512195122,
+    "strata_compared": [
+      "adolescent",
+      "adult",
+      "child",
+      "geriatric",
+      "infant",
+      "neonate"
+    ],
+    "worst": "neonate",
+    "best": "adolescent"
+  },
+  "baseline_comparison": {
+    "method": "under-triage at matched over-triage, bootstrap-CI significance",
+    "significant_wins": [
+      "0.50"
+    ],
+    "significant_losses": [],
+    "ties_ci_overlap": [
+      "0.10",
+      "0.20",
+      "0.30"
+    ],
+    "auprc_model": 0.1739802537331533,
+    "auprc_baseline": 0.15610382756302316,
+    "note": "green_miss_rate_baseline is NOT comparable to green_miss_rate: they are evaluated at the same numeric cut on different score scales. Use this matched-over-triage comparison instead."
   },
   "go_live_criteria": {
     "prevalence_in_range": true,
     "auroc_in_range": true,
     "auprc_beats_prevalence": true,
     "conformal_coverage_ge_090": true,
-    "ece_lt_005_where_reportable": false
+    "ece_lt_005_where_reportable": true,
+    "green_miss_rate_within_budget": true,
+    "equalised_fnr_across_strata": true,
+    "beats_handcoded_baseline": true
   }
 }

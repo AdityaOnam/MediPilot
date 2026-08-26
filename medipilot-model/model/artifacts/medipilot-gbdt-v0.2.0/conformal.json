@@ -1,19 +1,21 @@
 {
   "alpha": 0.1,
   "q_hat": {
-    "adolescent": 0.8569544567788586,
-    "adult": 0.16080402010050251,
-    "child": 0.8333333333333334,
-    "geriatric": 0.796875,
-    "infant": 0.8041667271034616
+    "adolescent": 0.8542046684597173,
+    "adult": 0.21554266332857575,
+    "child": 0.8231470928234708,
+    "geriatric": 0.15498607651138804,
+    "infant": 0.8333496691581088,
+    "neonate": 0.7810176160101948
   },
-  "pooled_q_hat": 0.6,
+  "pooled_q_hat": 0.2692592094687597,
   "n": {
-    "adolescent": 136,
-    "adult": 1026,
-    "child": 278,
-    "geriatric": 422,
-    "infant": 137
+    "adolescent": 118,
+    "adult": 934,
+    "child": 249,
+    "geriatric": 379,
+    "infant": 125,
+    "neonate": 194
   },
   "fallback_strata": []
 }

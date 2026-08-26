@@ -233,3 +233,61 @@ registry:
     permitted_use: [input_features]
     why: "Out-of-fold prediction from the auxiliary regressor. Safe because it is
           a function of SAFE features only, and is out-of-fold on the train split."
+
+  # ---------------------------------------------------------------------
+  # Derived physiological indices (fx-v2). All are pure functions of SAFE
+  # vitals observable at the bench — no new information, just the ratios and
+  # aggregates that trees cannot construct from axis-aligned splits.
+  # ---------------------------------------------------------------------
+  shock_index:
+    leakage_class: SAFE
+    permitted_use: [input_features]
+    earliest_available: T1
+    why: "HR / SBP. SI >= 1.2 carries OR 11.1 for mortality in ED cohorts."
+
+  shock_index_ratio:
+    leakage_class: SAFE
+    permitted_use: [input_features]
+    earliest_available: T1
+    why: "SI normalised by the stratum's own threshold (SIPA-style). Detects
+          compensated shock earlier than isolated vitals — the exact failure
+          mode behind the paediatric FNR gap."
+
+  age_shock_index:
+    leakage_class: SAFE
+    permitted_use: [input_features]
+    earliest_available: T1
+    why: "SI x age. Strongest of the three shock indices (OR 12.14). Age enters
+          through a clinical index here, not as a raw demographic weight."
+
+  rox_like:
+    leakage_class: SAFE
+    permitted_use: [input_features]
+    earliest_available: T1
+    why: "SpO2 / RR, the room-air simplification of ROX (no FiO2 at triage).
+          ROX beat NEWS2 (AUC 0.848 vs 0.815) and fired ~4h earlier."
+
+  news_like_score:
+    leakage_class: SAFE
+    permitted_use: [input_features]
+    earliest_available: T1
+    why: "Aggregate derangement points from stratum-normalised z-scores. Several
+          mildly abnormal vitals outrank one moderately abnormal vital."
+
+  n_abnormal_vitals:
+    leakage_class: SAFE
+    permitted_use: [input_features]
+
+  max_abs_z:
+    leakage_class: SAFE
+    permitted_use: [input_features]
+
+  mean_abs_z:
+    leakage_class: SAFE
+    permitted_use: [input_features]
+
+  shock_index_delta_30min:
+    leakage_class: SAFE
+    permitted_use: [input_features]
+    why: "Trend on the RATIO. A rising shock index is the compensated-shock
+          signature that individual vital trends hide."

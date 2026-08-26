@@ -121,6 +121,23 @@ def _make_conditions() -> dict[str, ClinicalCondition]:
                     pain_score=VitalDistribution(8, 2, 4, 10),
                     correlations=[("hr", "rr", 0.85), ("bp_sys", "hr", -0.7)],
                 ),
+                # Neonatal sepsis. Added because NO condition defined a neonate
+                # distribution, so bulk.py never sampled one and the trained
+                # model had zero neonate exposure — while config/age_strata.yaml
+                # gives neonates the most aggressive calibration_weight (1.8).
+                # Temperature is deliberately wide and centred near-normal:
+                # neonates decompensate with HYPOthermia at least as often as
+                # with fever, which a fever-centred distribution would hide.
+                "neonate": ConditionVitals(
+                    hr=VitalDistribution(165, 25, 100, 210),
+                    rr=VitalDistribution(58, 10, 30, 85),
+                    bp_sys=VitalDistribution(62, 10, 40, 85),
+                    spo2=VitalDistribution(91, 5, 75, 99),
+                    temp_c=VitalDistribution(37.4, 1.6, 34.5, 41.0),
+                    gcs=VitalDistribution(12, 2, 8, 15),
+                    pain_score=VitalDistribution(7, 2, 3, 10),
+                    correlations=[("hr", "rr", 0.85), ("bp_sys", "hr", -0.7)],
+                ),
             },
         ),
 
@@ -214,6 +231,21 @@ def _make_conditions() -> dict[str, ClinicalCondition]:
                     temp_c=VitalDistribution(39.2, 0.6, 38.0, 41.5),
                     gcs=VitalDistribution(13, 2, 8, 15),
                     pain_score=VitalDistribution(8, 2, 4, 10),
+                    correlations=[("hr", "temp_c", 0.8), ("rr", "temp_c", 0.75)],
+                ),
+                # Febrile neonate. In this stratum fever alone is an emergency
+                # by default (config/age_strata.yaml clinical_notes), so this
+                # exists mainly so the model sees febrile neonates that are NOT
+                # frank sepsis — otherwise every neonate in training is C01 and
+                # the stratum degenerates to a constant.
+                "neonate": ConditionVitals(
+                    hr=VitalDistribution(160, 22, 100, 210),
+                    rr=VitalDistribution(55, 10, 30, 80),
+                    bp_sys=VitalDistribution(66, 10, 42, 90),
+                    spo2=VitalDistribution(94, 4, 80, 99),
+                    temp_c=VitalDistribution(38.6, 1.2, 35.0, 41.0),
+                    gcs=VitalDistribution(14, 1, 10, 15),
+                    pain_score=VitalDistribution(6, 2, 2, 10),
                     correlations=[("hr", "temp_c", 0.8), ("rr", "temp_c", 0.75)],
                 ),
                 "adult": ConditionVitals(   # fallback, rarely used
@@ -522,6 +554,20 @@ def _make_conditions() -> dict[str, ClinicalCondition]:
                     temp_c=VitalDistribution(37.4, 0.5, 36.5, 38.5),
                     gcs=VitalDistribution(15, 0.3, 14, 15),
                     pain_score=VitalDistribution(3, 2, 0, 7),
+                    correlations=[],
+                ),
+                # A WELL neonate. Without this every neonate in the training set
+                # comes from C01/C04 (both unwell), the stratum has no negative
+                # examples, and the model can only learn "neonate => critical" —
+                # which is not a learned stratum effect, it is a constant.
+                "neonate": ConditionVitals(
+                    hr=VitalDistribution(135, 15, 100, 175),
+                    rr=VitalDistribution(42, 7, 30, 58),
+                    bp_sys=VitalDistribution(72, 8, 55, 90),
+                    spo2=VitalDistribution(98, 1, 95, 100),
+                    temp_c=VitalDistribution(36.9, 0.3, 36.4, 37.5),
+                    gcs=VitalDistribution(15, 0.3, 14, 15),
+                    pain_score=VitalDistribution(2, 1.5, 0, 6),
                     correlations=[],
                 ),
                 "geriatric": ConditionVitals(

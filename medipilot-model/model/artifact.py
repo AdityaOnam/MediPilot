@@ -57,6 +57,7 @@ class Artifact:
     conformal: dict
     thresholds: dict
     feature_names: tuple[str, ...] = field(default_factory=tuple)
+    selected_idx: tuple[int, ...] = field(default_factory=tuple)
 
     @property
     def model_version(self) -> str:
@@ -114,6 +115,7 @@ def _load(root: pathlib.Path) -> tuple[Optional[Artifact], str]:
     try:
         spec = json.loads((d / "feature_spec.json").read_text(encoding="utf-8"))
         names = tuple(spec.get("feature_names", []))
+        sel = tuple(spec.get("selected_feature_indices", []) or range(len(names)))
     except Exception as e:
         return None, f"feature_spec_unreadable: {type(e).__name__}"
 
@@ -134,6 +136,7 @@ def _load(root: pathlib.Path) -> tuple[Optional[Artifact], str]:
         path=d, manifest=manifest, clf=clf, aux=aux,
         calibrators=iso["calibrators"], methods=iso["methods"],
         conformal=conformal, thresholds=thresholds, feature_names=names,
+        selected_idx=sel,
     ), "loaded"
 
 

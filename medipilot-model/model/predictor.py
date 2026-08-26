@@ -42,6 +42,7 @@ def _apply_calibration_one(art, p_raw: float, stratum: str) -> float:
 def predict_p_critical(
     feature_row: np.ndarray,
     stratum: str,
+    record = None
 ) -> tuple[Optional[float], str]:
     """
     Calibrated P(critical composite) for one patient.
@@ -54,15 +55,25 @@ def predict_p_critical(
         return None, SOURCE_FALLBACK
 
     try:
-        row = np.asarray(feature_row, dtype=np.float64).reshape(1, -1)
-
-        # The auxiliary (stacked) head fills its own column at serve time.
-        from model.features import FEATURE_NAMES
-        aux_col = FEATURE_NAMES.index("aux_derangement_oof")
-        row[0, aux_col] = float(art.aux.predict(row)[0])
-
-        p_raw = float(art.clf.predict_proba(row)[0, 1])
-        return _apply_calibration_one(art, p_raw, stratum), SOURCE_MODEL
+        if getattr(art.clf, "is_sequence_model", False):
+            if record is None:
+                raise ValueError("Sequence model requires PatientRecord")
+            from model.sequence_data import build_sequence_from_patient_record
+            X_seq = build_sequence_from_patient_record(record)
+            p_raw = float(art.clf.predict_proba(X_seq)[0, 1])
+            return _apply_calibration_one(art, p_raw, stratum), SOURCE_MODEL
+        else:
+            row = np.asarray(feature_row, dtype=np.float64).reshape(1, -1)
+    
+            # The auxiliary (stacked) head fills its own column at serve time.
+            from model.features import FEATURE_NAMES
+            aux_col = FEATURE_NAMES.index("aux_derangement_oof")
+            row[0, aux_col] = float(art.aux.predict(row)[0])
+    
+            # The classifier consumes only the columns selected at training time.
+            sel = list(art.selected_idx) or list(range(row.shape[1]))
+            p_raw = float(art.clf.predict_proba(row[:, sel])[0, 1])
+            return _apply_calibration_one(art, p_raw, stratum), SOURCE_MODEL
     except Exception:
         # A model exception must never 500 the triage API. Count it so
         # /model-status can surface it, then degrade to the rule card.

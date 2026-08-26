@@ -27,12 +27,39 @@ import numpy as np
 from model.feature_registry import assert_features_permitted
 from model.freshness import check_freshness, reading_age_minutes
 
-FEATURE_VERSION = "fx-v1"
+FEATURE_VERSION = "fx-v4"
 
 VITALS = ("hr", "rr", "bp_sys", "spo2", "temp_c", "gcs", "pain_score")
 
 # Order must match config/age_strata.yaml so stratum_ord is meaningful.
 STRATA = ("neonate", "infant", "child", "adolescent", "adult", "geriatric")
+
+# MEASURED OUTCOME (fx-v2 -> fx-v3): the shock/ROX/NEWS ratio block was a NET
+# NEGATIVE on this data and has been removed. Test-set result of adding all nine:
+#
+#     AUPRC      0.174 -> 0.155
+#     FNR spread 0.195 -> 0.317   (fairness gate went from pass to FAIL)
+#     slope      0.954 -> 0.826
+#
+# The reason is not that the physiology is missing. It is there:
+# corr(HR, SBP) = -0.741 in the generated data, which is real shock coupling.
+# The problem is COLLINEARITY — shock index correlates +0.908 with HR and -0.851
+# with SBP, so it re-expresses what the model already has. In real cohorts SI
+# earns its place because the risk surface is non-linear in HR and SBP and a
+# tree needs depth to carve it; here the coupling is strong and near-linear, so
+# nine extra columns bought variance on ~1,170 positives and nothing else.
+#
+# The AGGREGATES were the exception and are kept below: max_abs_z and mean_abs_z
+# ranked 2nd and 3rd of all 68 features on held-out importance, because "how
+# deranged is this patient overall" is genuinely not recoverable from any single
+# column.
+#
+# Do not re-add the ratio block on a whim. Re-add it only against data whose
+# risk surface is non-linear in the component vitals — i.e. real data.
+# EMPTY, and that is the finding. Three feature blocks were tried and every one
+# was a net negative on this data — see the measured table above. The 59-column
+# fx-v1 set is the best configuration found.
+_DERIVED_FEATURES: tuple[str, ...] = ()
 
 _PER_VITAL_SUFFIXES = (
     "value",
@@ -56,6 +83,7 @@ _GLOBAL_FEATURES = (
     "total_readings",
     "frac_readings_sensor_fail",
     "aux_derangement_oof",
+    *_DERIVED_FEATURES,
 )
 
 
@@ -169,6 +197,22 @@ def _delta_30min(hist: Optional[VitalHistory], now_value: Optional[float]) -> fl
         return float("nan")
     _, ref = min(cands, key=lambda t: t[0])
     return float(now_value - ref)
+
+
+def _safe_ratio(num: Optional[float], den: Optional[float],
+                min_den: float = 1e-6) -> float:
+    """Ratio that yields NaN rather than a fabricated number on missing input."""
+    if num is None or den is None:
+        return float("nan")
+    try:
+        n, d = float(num), float(den)
+    except (TypeError, ValueError):
+        return float("nan")
+    if not np.isfinite(n) or not np.isfinite(d) or abs(d) < min_den:
+        return float("nan")
+    return n / d
+
+
 
 
 def _n_readings(hist: Optional[VitalHistory], window_min: float = 60.0) -> float:

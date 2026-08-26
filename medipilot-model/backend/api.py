@@ -65,6 +65,24 @@ class VitalReading(BaseModel):
     source: str        # "recheck_station" | "nurse" | "sensor" | etc.
     validity: str = "valid"
 
+
+class VitalHistoryEntry(BaseModel):
+    """A single historical vital reading for trend-feature extraction.
+
+    Format mirrors PatientRecord.vitals_history internally:
+      {vital_name: [(value, ts_iso, source, validity), ...]}
+
+    Track A should populate this with all readings accumulated since
+    the patient registered — the model's slope/delta features only fire
+    when at least 2 readings exist. A single reading silently degrades
+    to NaN for those columns (native NaN behaviour, not an error).
+    """
+    value: float
+    timestamp: str   # ISO-8601
+    source: str
+    validity: str = "valid"
+
+
 class ScoreRequest(BaseModel):
     patient_id: str
     age_days: Optional[int] = None
@@ -82,6 +100,11 @@ class ScoreRequest(BaseModel):
     current_band: Optional[str] = None
     arrived_at: Optional[str] = None
     ood_flag: bool = False
+    # Within-encounter history for slope/delta trend features.
+    # Keys are vital names; each list is oldest-first.
+    # Absent or empty → trend features stay NaN (model trained with 40%
+    # history dropout handles this gracefully).
+    vitals_history: Optional[dict[str, list[VitalHistoryEntry]]] = None
 
 class OverrideRequest(BaseModel):
     patient_id: str
@@ -107,6 +130,24 @@ def _vital_to_tuple(v: Optional[VitalReading]) -> Optional[tuple]:
     if v is None:
         return None
     return (v.value, v.timestamp, v.source, v.validity)
+
+
+def _history_to_dict(
+    h: Optional[dict[str, list[VitalHistoryEntry]]],
+) -> Optional[dict]:
+    """Convert VitalHistoryEntry lists to the tuple format PatientRecord expects.
+
+    PatientRecord.vitals_history format:
+        {vital: [(value, ts_iso, source, validity), ...]}
+    """
+    if not h:
+        return None
+    out: dict[str, list[tuple]] = {}
+    for vital, entries in h.items():
+        if entries:
+            out[vital] = [(e.value, e.timestamp, e.source, e.validity)
+                          for e in entries]
+    return out or None
 
 
 def _score_to_dict(result: ScoreObject | AbstentionObject) -> dict:
@@ -146,6 +187,11 @@ def score_endpoint(req: ScoreRequest) -> dict:
         spo2_bias_risk=req.spo2_bias_risk,
         current_band=req.current_band,
         arrived_at=req.arrived_at,
+        # B1: wire within-encounter history for slope/delta trend features.
+        # features.py::from_patient_record() already reads this field;
+        # previously the API never populated it, causing a train/serve gap
+        # (RISK_ENGINE.md §5.8, §9.1).
+        vitals_history=_history_to_dict(req.vitals_history),
     )
 
     result = score_patient(record, cost_ratio_R=_current_R, now=now, ood_flag=req.ood_flag)

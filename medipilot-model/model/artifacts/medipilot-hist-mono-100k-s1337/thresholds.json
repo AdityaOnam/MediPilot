@@ -1,0 +1,37 @@
+{
+  "p_star_yellow": 0.0741400903277622,
+  "p_star_red": 0.15457131972717603,
+  "R_yellow": 12.487979250890445,
+  "R_red": 5.469505479833103,
+  "basis": "under_triage_budget",
+  "max_green_miss": 0.1,
+  "red_recall": 0.4,
+  "achieved_on_calibration": {
+    "green_miss_rate": 0.1006036217303823,
+    "over_triage_rate": 0.5659078289838978,
+    "red_rate": 0.22012201220122013,
+    "yellow_or_above_rate": 0.5990599059905991
+  },
+  "target_over_triage": 0.5659078289838978,
+  "target_red_rate": 0.22012201220122013,
+  "per_stratum": {
+    "per_stratum_yellow": {
+      "adolescent": 0.11380667303637552,
+      "adult": 0.062146892655367235,
+      "child": 0.10583265908438359,
+      "geriatric": 0.058792478466925674,
+      "infant": 0.09875333081190603,
+      "neonate": 0.11890538179979854
+    },
+    "fallback_strata": [],
+    "n_pos": {
+      "adolescent": 87,
+      "adult": 411,
+      "child": 128,
+      "geriatric": 166,
+      "infant": 99,
+      "neonate": 103
+    },
+    "max_green_miss": 0.1
+  }
+}
