@@ -1,4 +1,4 @@
-# 🧠 MediPilot — Data & ML Engine
+# MediPilot — Data & ML Engine
 ### Contribution by **Aditya Onam** · Branch: `feat/aditya-onam/data-ml`
 
 ---
@@ -7,7 +7,7 @@
 
 ---
 
-## 📁 Directory Structure
+## Directory Structure
 
 ```
 medipilot-model/
@@ -75,21 +75,21 @@ medipilot-model/
 │   ├── test_reliability_weighting.py# Sensor trust weighting tests
 │   └── test_surge_controller.py     # Surge detection logic tests
 │
-├── 📄 RISK_ENGINE.md                # Full technical specification (8 go-live gates)
-├── 📄 MODEL_EXPANSION_PLAN.md       # Roadmap: sequence models, LLM integration
-├── 📄 FIX_PLAN.md                   # Known issues and resolution tracker
-├── 📄 requirements.txt              # Core Python dependencies
-├── 📄 requirements-experimental.txt # PyTorch / deep learning dependencies
-├── 📄 run_bakeoff.py                # Multi-model bake-off runner
-├── 📄 plot_results.py               # ROC/PR/calibration curve plotting
-├── 📄 train_seq_all.bat             # Windows batch script — train all sequence models
-├── 📄 pytest.ini                    # Test runner configuration
-└── 📄 conftest.py                   # Shared pytest fixtures
+├── RISK_ENGINE.md                # Full technical specification (8 go-live gates)
+├── MODEL_EXPANSION_PLAN.md       # Roadmap: sequence models, LLM integration
+├── FIX_PLAN.md                   # Known issues and resolution tracker
+├── requirements.txt              # Core Python dependencies
+├── requirements-experimental.txt # PyTorch / deep learning dependencies
+├── run_bakeoff.py                # Multi-model bake-off runner
+├── plot_results.py               # ROC/PR/calibration curve plotting
+├── train_seq_all.bat             # Windows batch script — train all sequence models
+├── pytest.ini                    # Test runner configuration
+└── conftest.py                   # Shared pytest fixtures
 ```
 
 ---
 
-## 🏗️ System Architecture
+## System Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -116,7 +116,7 @@ medipilot-model/
 
 ---
 
-## 🔬 Model Pipeline — Step by Step
+## Model Pipeline — Step by Step
 
 ### 1. Data Generation
 Synthetic patient records are generated using `data/generator/` — a modular pipeline that simulates realistic vital sign trajectories, condition-specific distributions, and realistic missingness patterns.
@@ -176,7 +176,7 @@ Cost-sensitive thresholds balance false negatives vs. false positives with confi
 
 ---
 
-## 🚦 8 Go-Live Gates
+## 8 Go-Live Gates
 
 Every model must pass all 8 gates before it is eligible to replace the deployed model:
 
@@ -193,7 +193,7 @@ Every model must pass all 8 gates before it is eligible to replace the deployed 
 
 ---
 
-## 🛡️ Safety Invariants
+## Safety Invariants
 
 The system enforces **9 hard invariants** that cannot be overridden by code:
 
@@ -209,7 +209,7 @@ The system enforces **9 hard invariants** that cannot be overridden by code:
 
 ---
 
-## 🚀 Quickstart
+## Quickstart
 
 ### Prerequisites
 ```bash
@@ -252,19 +252,19 @@ python -m model.leaderboard --artifacts model/artifacts/medipilot-gbdt-v0.2.0 mo
 
 ---
 
-## 📊 Current Model Leaderboard
+## Current Model Leaderboard
 
 | Model | Dataset | AUPRC | AUROC | Gates |
 |---|---|---|---|---|
-| `hist-100k` | 100,000 records | **0.1805** | **0.7123** | ✅ 8/8 |
-| `hist-20k` | 20,000 records | 0.1740 | 0.6894 | ✅ 8/8 |
-| `gbdt-v0.2.0` (baseline) | 20,000 records | 0.1640 | 0.6710 | ✅ 8/8 |
+| `hist-100k` | 100,000 records | **0.1805** | **0.7123** | 8/8 |
+| `hist-20k` | 20,000 records | 0.1740 | 0.6894 | 8/8 |
+| `gbdt-v0.2.0` (baseline) | 20,000 records | 0.1640 | 0.6710 | 8/8 |
 
 > **Current shipped model:** `medipilot-hist-100k-s1337`
 
 ---
 
-## 🖼️ Model Performance & Validation
+## Model Performance & Validation
 
 Our primary models are rigorously evaluated against strict safety and clinical efficacy standards. Below are the core validation curves for the deployed `medipilot-hist-100k-s1337` model:
 
@@ -285,7 +285,7 @@ Due to class imbalance in emergency medicine, the PR curve highlights our model'
 
 ---
 
-## 🔌 API Reference
+## API Reference
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -299,7 +299,7 @@ Due to class imbalance in emergency medicine, the PR curve highlights our model'
 
 ---
 
-## 📈 Output: ScoreObject
+## Output: ScoreObject
 
 ```json
 {
@@ -322,7 +322,7 @@ Due to class imbalance in emergency medicine, the PR curve highlights our model'
 
 ---
 
-## 👤 Contributor
+## Contributor
 
 | Name | Role | Scope |
 |---|---|---|
@@ -330,5 +330,5 @@ Due to class imbalance in emergency medicine, the PR curve highlights our model'
 
 ---
 
-## 📄 License
+## License
 MIT License — See root `LICENSE` file.
