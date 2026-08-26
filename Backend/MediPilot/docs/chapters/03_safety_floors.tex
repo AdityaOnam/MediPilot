@@ -1,0 +1,22 @@
+\section{Hard Clinical Safety Guarantees}
+
+Before the machine learning risk engine evaluates a patient, the system applies a series of deterministic rule-cards. These rules provide clinical floors that the model cannot override.
+
+\subsection{Deterministic Red-Flags}
+Extracted observations (e.g., \texttt{altered\_consciousness}) are matched against a static YAML configuration table. If a match occurs, the patient is immediately assigned a Red band. The ML risk engine is completely bypassed, as these presentations are blatantly life-threatening.
+
+\subsection{Abnormal Vital Floors (Stratum-Specific)}
+Different age strata have distinct physiological norms. The system enforces an \texttt{abnormal\_vital\_floor} that dictates, for example, that a febrile toddler or a geriatric patient with any abnormal vital sign cannot score below a Yellow band, regardless of the model's confidence.
+
+\subsection{Multi-Vital Distress Floor}
+Patients presenting with $\ge 4$ simultaneously abnormal vital signs meet Systemic Inflammatory Response Syndrome (SIRS) or shock criteria by definition. Since the model is trained on data where such extreme, single-snapshot presentations are sparse, it may underestimate the risk. The rule card overrides this by forcing a minimum Yellow band.
+
+\subsection{Critical Derangement Floor (New)}
+If a patient presents with a single vital sign that is deeply deranged—indicating peri-arrest physiology—the system forces an immediate Red band. The critical thresholds across all strata include:
+\begin{itemize}
+    \item \textbf{GCS $\le 8$}: Unresponsive / airway at risk.
+    \item \textbf{SpO2 $< 85\%$}: Severe hypoxaemia.
+    \item \textbf{Systolic BP $< 70$ mmHg}: Decompensated shock.
+    \item \textbf{$\ge 6$ Abnormal Vitals}: Near-total systemic derangement.
+\end{itemize}
+These values represent individually life-threatening states rather than a composite score. The model probability $p_{\text{model}}$ is clamped to exceed the red threshold ($p \ge p^*_{\text{red}}$) unconditionally.

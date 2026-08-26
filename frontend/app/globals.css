@@ -1,0 +1,124 @@
+@import "tailwindcss";
+
+/* =========================================================================
+   MediPilot Design Tokens — from DESIGN_SYSTEM.md
+   ========================================================================= */
+
+:root {
+  /* Brand — from logo */
+  --mp-red: #DF423D;
+  --mp-leather: #926A47;
+  --mp-glass: #C9EBED;
+  --mp-steel: #A7C4CC;
+  --mp-steel-dark: #7F7E7C;
+  --mp-ink: #1C1B1A;
+
+  /* Acuity palette */
+  --acuity-red: #FF5A4E;
+  --acuity-red-fill: #3A1512;
+  --acuity-yellow: #FFB020;
+  --acuity-yellow-fill: #3A2A08;
+  --acuity-green: #3DD68C;
+  --acuity-green-fill: #0E2E20;
+  --acuity-abstained: #9B8CFF;
+  --acuity-abstained-fill: #1C1836;
+}
+
+/* Clinical (dark) surface */
+:root[data-surface="clinical"] {
+  --bg: #0D1117;
+  --bg-raised: #151B23;
+  --bg-card: #1A222C;
+  --line: #263140;
+  --text: #E6EDF3;
+  --text-dim: #8B98A5;
+  --focus: #58A6FF;
+}
+
+/* Patient (light) surface */
+:root[data-surface="patient"] {
+  --bg: #FBF7F2;
+  --bg-raised: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --line: #E7DED2;
+  --text: #1C1B1A;
+  --text-dim: #6B6560;
+  --accent: #DF423D;
+  --focus: #926A47;
+}
+
+@theme inline {
+  --color-background: var(--bg, #0D1117);
+  --color-foreground: var(--text, #E6EDF3);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--bg, #0D1117);
+  color: var(--text, #E6EDF3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Utility: tabular figures for all vitals/numerals */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Glassmorphism */
+.glass {
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.glass-light {
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.3);
+}
+
+/* Gradient borders */
+.gradient-border {
+  background:
+    linear-gradient(var(--bg-card), var(--bg-card)) padding-box,
+    linear-gradient(135deg, #00bfa5, #58A6FF, #9B8CFF) border-box;
+  border: 1px solid transparent;
+}
+
+/* Glow effects */
+.glow-teal { box-shadow: 0 0 30px rgba(0,191,165,0.2), 0 0 60px rgba(0,191,165,0.1); }
+.glow-brand { box-shadow: 0 0 30px rgba(223,66,61,0.2); }
+
+/* Video background */
+.video-bg {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+/* Smooth scroll */
+html { scroll-behavior: smooth; }
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
+
+/* Landing surface */
+:root[data-surface="landing"] {
+  --bg: #0D1117;
+  --bg-raised: #151B23;
+  --bg-card: #1A222C;
+  --line: #263140;
+  --text: #E6EDF3;
+  --text-dim: #8B98A5;
+  --focus: #58A6FF;
+}
+
+
+.hide-scrollbar::-webkit-scrollbar { display: none; }
+.hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+

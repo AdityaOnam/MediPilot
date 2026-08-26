@@ -1,0 +1,19 @@
+\section{Machine Learning Pipeline (Track C)}
+
+When deterministic rules do not fire, the patient's record is evaluated by the Machine Learning risk engine. This engine predicts the probability of a critical outcome using a Gradient Boosted Decision Tree (GBDT) pipeline.
+
+\subsection{Synthetic Data Generation}
+To ensure robust training, a highly realistic synthetic dataset of 20,000 patient records is generated. The generator uses latent health and frailty models combined with Bernoulli outcome sampling to simulate real-world emergency department distributions. The training labels represent clinical outcomes, not heuristic triage bands.
+
+\subsection{Feature Registry and Leakage Prevention}
+The \texttt{HistGradientBoostingClassifier} relies on a strict feature registry that bans data leakage. Features such as \texttt{condition\_id} or \texttt{acuity\_band} are explicitly prohibited. If an unregistered or banned feature attempts to enter the model, the system fails closed.
+
+\subsection{Calibration and Conformal Prediction}
+Raw model scores are often miscalibrated. MediPilot applies Isotonic Regression independently per age stratum to ensure the output probabilities represent true risk. 
+
+Furthermore, Mondrian Split-Conformal Prediction is utilized to provide strict statistical guarantees on uncertainty. Instead of a single point prediction, the model outputs a calibrated probability alongside an uncertainty band, calculated uniquely for each stratum (e.g., infants have different uncertainty bounds than adults).
+
+\subsection{Cost-Ratio ($R$) Sweep}
+The conversion of a continuous risk probability into a discrete triage band (Green, Yellow, Red) is governed by a dynamic cost-ratio, $R$. The threshold $p^*$ is derived using the Bayes-optimal formula:
+\[ p^* = \frac{1}{1 + R} \]
+As a hospital's risk tolerance decreases (higher $R$), the decision boundary shifts downwards, making it easier for a patient to be assigned a higher acuity band. The model’s objective probability remains unchanged, but the policy threshold dynamically adapts to the hospital's current capacity and risk profile.

@@ -1,0 +1,21 @@
+{
+  "alpha": 0.1,
+  "q_hat": {
+    "adolescent": 0.836290248680468,
+    "adult": 0.2894736842105263,
+    "child": 0.7981265129634807,
+    "geriatric": 0.24667724408939873,
+    "infant": 0.8109878065728799,
+    "neonate": 0.7700398542472964
+  },
+  "pooled_q_hat": 0.6,
+  "n": {
+    "adolescent": 618,
+    "adult": 4688,
+    "child": 1238,
+    "geriatric": 1882,
+    "infant": 624,
+    "neonate": 949
+  },
+  "fallback_strata": []
+}

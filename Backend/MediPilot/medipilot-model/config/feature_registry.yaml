@@ -1,0 +1,293 @@
+# Temporal feature registry — the enforcement artifact behind the whitepaper's
+# leakage-lint claim. Every field the generator or the serving path can produce
+# is classified here.
+#
+# leakage_class:
+#   SAFE        — may be a model input feature
+#   CONDITIONAL — may exist, but only for the permitted_use listed
+#   PROHIBITED  — may NEVER be a model input feature
+#
+# FAIL CLOSED: model/feature_registry.py treats any unregistered name as
+# PROHIBITED. Adding a generator field without classifying it here fails the
+# build, which is the point — that is how drift gets caught.
+
+registry:
+
+  # ---------------------------------------------------------------------
+  # PROHIBITED — the generative causes and the label itself
+  # ---------------------------------------------------------------------
+  condition_id:
+    leakage_class: PROHIBITED
+    permitted_use: [dataset_bookkeeping, eval_stratifier]
+    why: "Archetype identity. There are only 15; exposing it collapses the task
+          to a lookup and produced AUROC 0.988 in the naive experiment."
+
+  typical_band:
+    leakage_class: PROHIBITED
+    permitted_use: [dataset_bookkeeping]
+    why: "Per-condition band constant — label-adjacent and read by nothing."
+
+  trajectory_shape:
+    leakage_class: PROHIBITED
+    permitted_use: [dataset_bookkeeping]
+    why: "Determines the FUTURE severity path. A direct future-leak."
+
+  _latent:
+    leakage_class: PROHIBITED
+    permitted_use: [outcome_label_construction]
+    why: "acuity / frailty / inflection_frac / severity_path — the generative
+          cause of both the vitals and the outcome. Never observable in reality."
+
+  severity_path:
+    leakage_class: PROHIBITED
+    permitted_use: [outcome_label_construction]
+
+  acuity:
+    leakage_class: PROHIBITED
+    permitted_use: [outcome_label_construction]
+
+  frailty:
+    leakage_class: PROHIBITED
+    permitted_use: [outcome_label_construction]
+
+  p_event:
+    leakage_class: PROHIBITED
+    permitted_use: [eval_endpoint]
+    why: "The true event probability."
+
+  critical_composite_h180:
+    leakage_class: PROHIBITED
+    permitted_use: [outcome_label]
+
+  derangement_h60:
+    leakage_class: PROHIBITED
+    permitted_use: [outcome_label]
+
+  s_max_future:
+    leakage_class: PROHIBITED
+    permitted_use: [outcome_label_construction, eval_endpoint]
+    why: "Used to compute the severity-oracle ceiling. Never a feature."
+
+  s_mean_future:
+    leakage_class: PROHIBITED
+    permitted_use: [outcome_label_construction, eval_endpoint]
+
+  red_flag_observations:
+    leakage_class: PROHIBITED
+    permitted_use: [rule_input, eval_endpoint]
+    why: "The local Epic-Sepsis analogue — extracted clinician suspicion. It also
+          short-circuits to Red BEFORE the model, so as a feature the model would
+          be learning to predict the rule that pre-empts it."
+
+  current_band:
+    leakage_class: PROHIBITED
+    permitted_use: [rule_input, cadence_input]
+    why: "The system's own prior output. Self-confirming."
+
+  case_id:
+    leakage_class: PROHIBITED
+    permitted_use: [dataset_bookkeeping]
+
+  label:
+    leakage_class: PROHIBITED
+    permitted_use: [dataset_bookkeeping]
+    why: "Free-text description naming the diagnosis."
+
+  notes:
+    leakage_class: PROHIBITED
+    permitted_use: [dataset_bookkeeping]
+
+  force_ood:
+    leakage_class: PROHIBITED
+    permitted_use: [dataset_bookkeeping]
+
+  simulate_missed_rechecks:
+    leakage_class: PROHIBITED
+    permitted_use: [dataset_bookkeeping]
+
+  pending_override:
+    leakage_class: PROHIBITED
+    permitted_use: [dataset_bookkeeping]
+
+  stale_vitals_hours:
+    leakage_class: PROHIBITED
+    permitted_use: [dataset_bookkeeping]
+    why: "Generator parameter. The OBSERVABLE consequence (reading age) is SAFE;
+          the parameter that produced it is not."
+
+  zero_history:
+    leakage_class: PROHIBITED
+    permitted_use: [dataset_bookkeeping]
+
+  spo2_bias_offset_mean:
+    leakage_class: PROHIBITED
+    permitted_use: [dataset_bookkeeping]
+
+  patient_id:
+    leakage_class: PROHIBITED
+    permitted_use: [dataset_bookkeeping, split_key]
+
+  t0:
+    leakage_class: PROHIBITED
+    permitted_use: [dataset_bookkeeping]
+
+  k_step:
+    leakage_class: PROHIBITED
+    permitted_use: [dataset_bookkeeping]
+
+  # ---------------------------------------------------------------------
+  # CONDITIONAL
+  # ---------------------------------------------------------------------
+  spo2_bias_risk:
+    leakage_class: CONDITIONAL
+    permitted_use: [deescalation_guard]
+    why: "A skin-tone proxy. As a risk feature it would make risk a function of
+          skin tone. Permitted only as input to the SpO2 de-escalation guard."
+
+  patient_flags:
+    leakage_class: CONDITIONAL
+    permitted_use: [deescalation_guard]
+
+  reliability_flags:
+    leakage_class: CONDITIONAL
+    permitted_use: [uncertainty_inflation]
+    why: "As score features these would let the model LOWER risk for a stoic
+          geriatric — the exact inverse of reliability.py's stated asymmetry."
+
+  # ---------------------------------------------------------------------
+  # SAFE — observable at the bench, at scoring time
+  # ---------------------------------------------------------------------
+  vital_value:
+    leakage_class: SAFE
+    permitted_use: [input_features]
+    earliest_available: T1
+
+  vital_z_stratum:
+    leakage_class: SAFE
+    permitted_use: [input_features]
+    why: "Deviation from the stratum's own normal range — same thresholds.py
+          ranges the rules layer uses."
+
+  vital_age_minutes:
+    leakage_class: SAFE
+    permitted_use: [input_features]
+    why: "Observable reading age. Makes staleness a learned input, not only a
+          confidence penalty."
+
+  vital_slope_per_hour:
+    leakage_class: SAFE
+    permitted_use: [input_features]
+    why: "The deterioration-while-waiting signal."
+
+  vital_delta_30min:
+    leakage_class: SAFE
+    permitted_use: [input_features]
+
+  vital_n_readings:
+    leakage_class: SAFE
+    permitted_use: [input_features]
+
+  age_days:
+    leakage_class: SAFE
+    permitted_use: [input_features]
+    earliest_available: T0
+
+  stratum:
+    leakage_class: SAFE
+    permitted_use: [input_features, eval_stratifier]
+
+  stratum_inferred:
+    leakage_class: SAFE
+    permitted_use: [input_features]
+
+  n_vitals_present:
+    leakage_class: SAFE
+    permitted_use: [input_features]
+
+  n_vitals_missing:
+    leakage_class: SAFE
+    permitted_use: [input_features]
+
+  n_vitals_stale:
+    leakage_class: SAFE
+    permitted_use: [input_features]
+
+  max_reading_age_minutes:
+    leakage_class: SAFE
+    permitted_use: [input_features]
+
+  history_span_minutes:
+    leakage_class: SAFE
+    permitted_use: [input_features]
+
+  total_readings:
+    leakage_class: SAFE
+    permitted_use: [input_features]
+
+  frac_readings_sensor_fail:
+    leakage_class: SAFE
+    permitted_use: [input_features]
+
+  aux_derangement_oof:
+    leakage_class: SAFE
+    permitted_use: [input_features]
+    why: "Out-of-fold prediction from the auxiliary regressor. Safe because it is
+          a function of SAFE features only, and is out-of-fold on the train split."
+
+  # ---------------------------------------------------------------------
+  # Derived physiological indices (fx-v2). All are pure functions of SAFE
+  # vitals observable at the bench — no new information, just the ratios and
+  # aggregates that trees cannot construct from axis-aligned splits.
+  # ---------------------------------------------------------------------
+  shock_index:
+    leakage_class: SAFE
+    permitted_use: [input_features]
+    earliest_available: T1
+    why: "HR / SBP. SI >= 1.2 carries OR 11.1 for mortality in ED cohorts."
+
+  shock_index_ratio:
+    leakage_class: SAFE
+    permitted_use: [input_features]
+    earliest_available: T1
+    why: "SI normalised by the stratum's own threshold (SIPA-style). Detects
+          compensated shock earlier than isolated vitals — the exact failure
+          mode behind the paediatric FNR gap."
+
+  age_shock_index:
+    leakage_class: SAFE
+    permitted_use: [input_features]
+    earliest_available: T1
+    why: "SI x age. Strongest of the three shock indices (OR 12.14). Age enters
+          through a clinical index here, not as a raw demographic weight."
+
+  rox_like:
+    leakage_class: SAFE
+    permitted_use: [input_features]
+    earliest_available: T1
+    why: "SpO2 / RR, the room-air simplification of ROX (no FiO2 at triage).
+          ROX beat NEWS2 (AUC 0.848 vs 0.815) and fired ~4h earlier."
+
+  news_like_score:
+    leakage_class: SAFE
+    permitted_use: [input_features]
+    earliest_available: T1
+    why: "Aggregate derangement points from stratum-normalised z-scores. Several
+          mildly abnormal vitals outrank one moderately abnormal vital."
+
+  n_abnormal_vitals:
+    leakage_class: SAFE
+    permitted_use: [input_features]
+
+  max_abs_z:
+    leakage_class: SAFE
+    permitted_use: [input_features]
+
+  mean_abs_z:
+    leakage_class: SAFE
+    permitted_use: [input_features]
+
+  shock_index_delta_30min:
+    leakage_class: SAFE
+    permitted_use: [input_features]
+    why: "Trend on the RATIO. A rising shock index is the compensated-shock
+          signature that individual vital trends hide."

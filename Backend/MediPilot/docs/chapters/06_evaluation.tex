@@ -1,0 +1,17 @@
+\section{Validation \& Evaluation Gates}
+
+To ensure clinical and mathematical integrity, MediPilot implements strict honesty gates and a comprehensive invariant testing suite. 
+
+\subsection{Invariant Testing}
+The test suite consists of 90+ tests spanning unit logic, conformal prediction behavior, and clinical rules. The tests ensure that core invariants—such as missing value disciplines (NaN vs. sentinels) and fail-closed behaviors—are preserved under all conditions.
+
+\subsection{Honesty Gates}
+During model evaluation, the build process must pass multiple rigid gates to deploy an artifact:
+\begin{itemize}
+    \item \textbf{Prevalence Gate:} The dataset prevalence must fall within an expected clinical range ($[5\%, 20\%]$).
+    \item \textbf{AUPRC Lift:} The model’s Area Under the Precision-Recall Curve (AUPRC) must beat the baseline prevalence by at least $1.5\times$.
+    \item \textbf{AUROC Canary:} Because the synthetic dataset generates labels with injected frailty and Bernoulli noise, a Bayes-optimal model will never achieve perfect prediction. An AUROC exceeding $0.95$ triggers a failure, flagging potential data leakage (e.g., the model learning a diagnosis rather than outcome risk).
+    \item \textbf{Conformal Coverage:} The Mondrian conformal calibration must guarantee a user-defined coverage threshold (typically $\ge 90\%$) for true outcome inclusion across all age strata.
+\end{itemize}
+
+These gates prevent overtuning, leakage, and unsafe deployment of non-robust machine learning artifacts.

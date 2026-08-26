@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.log
+*.aux
+*.out
+*.synctex.gz
+.pytest_cache/
+.venv/
+venv/
+ENV/
+env/
+.env
+.DS_Store
+*.jsonl
+*.npz
+Varada Branch/
