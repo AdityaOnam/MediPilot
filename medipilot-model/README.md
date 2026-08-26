@@ -264,6 +264,27 @@ python -m model.leaderboard --artifacts model/artifacts/medipilot-gbdt-v0.2.0 mo
 
 ---
 
+## 🖼️ Model Performance & Validation
+
+Our primary models are rigorously evaluated against strict safety and clinical efficacy standards. Below are the core validation curves for the deployed `medipilot-hist-100k-s1337` model:
+
+### 1. Calibration Curve (Isotonic Regression)
+Proper probability calibration is critical for safe triage. The isotonic regression step maps raw probabilities to true clinical risks.
+
+![Calibration Curve](./calib_curve.png)
+
+### 2. ROC Curve
+The Receiver Operating Characteristic demonstrates discrimination power across all thresholds.
+
+![ROC Curve](./roc_curve.png)
+
+### 3. Precision-Recall Curve
+Due to class imbalance in emergency medicine, the PR curve highlights our model's performance on the rare but critical positive class.
+
+![Precision-Recall Curve](./pr_curve.png)
+
+---
+
 ## 🔌 API Reference
 
 | Method | Endpoint | Description |
