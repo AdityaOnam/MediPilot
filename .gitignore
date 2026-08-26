@@ -1,0 +1,49 @@
+﻿# --- Specific Root Files ---
+varada.jpeg
+Onam.jpeg
+Accenture_logo.svg
+Accenture Innovation Challenge - Solution Architecture.pptx
+main.pdf
+01BIT_PatientTriage.mp4
+01BIT_PatientTriage.pptx
+01BIT_PatientTriage.pdf
+1.png
+6a882073d90c9_accenture_innovation_challenge_round_2_detailed_problem_statements_final.pdf
+MediPilot.png
+00_START_HERE.md
+CONTENT_PROMPTS.md
+FRONTEND_PLAN.md
+DESIGN_SYSTEM.md
+SCREENS_SPEC.md
+intake_architecture_part1.svg
+intake_architecture_part2.svg
+intake_architecture_part3.svg
+correction.odt
+
+# --- Specific Folders ---
+6a7c763e089e4_aic_2026/
+tools/
+.agents/
+.claude/
+Backend/MediPilot/.claude/
+
+# --- Frontend (Next.js & Node) ---
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/.env*
+frontend/yarn-error.log
+frontend/npm-debug.log*
+
+# --- Backend (Python & FastAPI) ---
+__pycache__/
+*.py[cod]
+*.class
+.venv/
+venv/
+env/
+.env
+.pytest_cache/
+Backend/MediPilot/medipilot-model/.venv/
+Backend/MediPilot/medipilot-model/__pycache__/
