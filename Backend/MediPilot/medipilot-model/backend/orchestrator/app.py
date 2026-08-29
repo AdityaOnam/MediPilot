@@ -28,6 +28,10 @@ from backend.audit_log import ValidationError
 
 log = logging.getLogger(__name__)
 
+# How many intake desks this site has. Demo value -- a real deployment
+# reads this from site config, not a constant.
+INTAKE_COUNTER_COUNT = 4
+
 world = World()
 
 
@@ -104,6 +108,17 @@ class StructureRequest(BaseModel):
     language: str = "en"
 
 
+class OptionMatchInput(BaseModel):
+    """Only used when the client-side matcher has already given up. The
+    frontend sends the question the patient is on, what they said, and the
+    exact option set on screen -- see backend/orchestrator/option_matcher.py.
+    """
+    question_prompt: str = Field(alias="questionPrompt")
+    patient_text: str = Field(alias="patientText")
+    options: list = Field(default_factory=list)
+    model_config = {"populate_by_name": True}
+
+
 class MeasurementInput(BaseModel):
     code: str
     value: float
@@ -118,22 +133,38 @@ class ClockInput(BaseModel):
     speed: float
 
 
+class TreeStartInput(BaseModel):
+    age_years: Optional[float] = Field(None, alias="ageYears")
+    medical_info_consent: bool = Field(True, alias="medicalInfoConsent")
+    language: str = "en"
+    model_config = {"populate_by_name": True}
+
+
+class TreeAnswerInput(BaseModel):
+    session_id: str = Field(alias="sessionId")
+    text: str
+    model_config = {"populate_by_name": True}
+
+
 # ---------------------------------------------------------------------------
 # Routes
 # ---------------------------------------------------------------------------
 
 @app.get("/v1/config")
 def get_config():
+    from backend.orchestrator import speech_intake
+
     mv, cv = current_versions()
     r_val = world.R
     if r_val is None:
+        r_val = 12.15
         try:
             from model.artifact import get_artifact
             art = get_artifact()
             if art:
                 r_val = float(art.thresholds.get("R_yellow", 12.15))
         except Exception:
-            r_val = 12.15
+            pass
 
     return {
         "costRatioR": round(r_val, 2),
@@ -154,6 +185,10 @@ def get_config():
         ],
         "modelVersion": mv,
         "calibrationVersion": cv,
+        # Which perception backends are actually live. Surfaced so the
+        # judge-facing control panel never implies an LLM is doing the
+        # extraction when the deterministic keyword fallback is.
+        "perception": speech_intake.backend_status(),
     }
 
 
@@ -176,35 +211,43 @@ def get_encounter(encounter_id: str):
 @app.post("/v1/speech/transcribe")
 async def transcribe_audio(file: UploadFile = File(...)):
     """
-    Receives recorded audio from the frontend.
-    Proxy to the Colab Whisper ngrok TCP server.
+    M05 — transcribe one completed Tap-to-Speak recording.
+
+    Delegates to backend/orchestrator/speech_intake.py, which by default
+    calls Groq's hosted whisper-large-v3-turbo (see §16: the demo must not
+    depend on a GPU, a tunnel, or a process staying alive).
+
+    On failure this returns 503 rather than a placeholder string. An earlier
+    version answered every failure with "This is a fallback transcription
+    from the backend." — a fabricated patient utterance entering a clinical
+    pipeline. The intake state machine already handles a failed voice turn by
+    re-prompting or falling back to typed input, which is the honest
+    behaviour and the one §09 assumes.
     """
-    import os
-    host = os.getenv("WHISPER_HOST", "localhost")
-    port = int(os.getenv("WHISPER_PORT", "43007"))
-    
+    from backend.orchestrator import speech_intake
+
+    audio_bytes = await file.read()
+    if not audio_bytes:
+        raise HTTPException(400, "empty audio upload")
+
     try:
-        # Read the entire audio blob (could be webm or wav)
-        audio_bytes = await file.read()
-        
-        # If the Colab proxy is configured, send the bytes over TCP.
-        # NOTE: For webm, the Colab server would need to parse it (Whisper uses ffmpeg).
-        # We'll try to connect to the socket.
-        import socket
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.settimeout(5.0)
-            s.connect((host, port))
-            s.sendall(audio_bytes)
-            # The Colab server responds with text
-            s.settimeout(15.0)
-            data = s.recv(4096)
-            text = data.decode("utf-8").strip()
-            return {"text": text}
-    except Exception as e:
-        # Fallback for the demo if Colab server is offline
-        import logging
-        logging.warning(f"Whisper proxy failed ({e}). Returning fallback text.")
-        return {"text": "This is a fallback transcription from the backend."}
+        result = speech_intake.transcribe(audio_bytes, file.filename or "utterance.webm")
+    except speech_intake.TranscriptionUnavailable as exc:
+        log.warning("transcription unavailable: %s", exc)
+        raise HTTPException(503, f"transcription unavailable: {exc}")
+
+    # `text` first so the frontend's existing {text} contract still holds;
+    # everything else is ASR-observable metadata the intake layer consumes.
+    return {
+        "text": result["text"],
+        "language": result["language"],
+        "languageConfidence": result["language_confidence"],
+        "codeMixed": result["code_mixed"],
+        "asrReliability": result["asr_reliability"],
+        "backend": result["backend"],
+    }
+
+
 @app.post("/v1/score")
 def score_encounter(req: ScoreRequest):
     eid = req.encounter_id
@@ -515,6 +558,17 @@ def submit_intake(req: IntakeSubmission):
     # Generate a flat trajectory
     traj = [{"at_min": 0}]
     
+    # Mid-tree short-circuit. When intake fired a red-flag rule (see
+    # §10 and intake/pipeline.py's needs_immediate_nurse), submit_intake
+    # must NOT queue this patient behind others waiting for a model score:
+    # the rule already decided this is a nurse-now case. So the human-
+    # assigned band is set to RED right here -- it did not come from the
+    # model, and Invariant §1 (asymmetric autonomy) allows a rule-based
+    # ESCALATION without a clinician's signature; only de-escalation
+    # requires one.
+    needs_immediate_nurse = bool(req.red_flags_fired)
+    initial_human_band = "RED" if needs_immediate_nurse else None
+
     s = SeedRecord(
         encounter_id=new_id,
         token=new_token,
@@ -526,7 +580,7 @@ def submit_intake(req: IntakeSubmission):
         sex=req.sex,
         chief_complaint=req.chief_complaint,
         arrival_mode=req.arrival_mode,
-        human_assigned_band=None,
+        human_assigned_band=initial_human_band,
         arrived_at=world.clock.sim_now_iso(),
         assisted=req.assisted,
         medical_info_consent=req.medical_info_consent,
@@ -539,106 +593,145 @@ def submit_intake(req: IntakeSubmission):
         stale_vitals_hours=0.0,
         zero_history=True,
     )
-    
+
     encounter_id, token, initial_band = world.add_patient(s)
-    
+
+    # If a red flag fired, force the returned currentBand to RED regardless
+    # of what world.add_patient() picked from the (empty) initial vitals --
+    # the fixed table is authoritative for the escalation direction, and a
+    # frontend that shows anything but RED here would contradict what the
+    # patient's own words already established.
+    if needs_immediate_nurse:
+        initial_band = "RED"
+
+    # Where the patient physically goes next. A token alone tells someone
+    # they are in a queue but not where to stand -- in a real ED waiting
+    # area that is the difference between the number meaning something and
+    # meaning nothing. Deliberately NOT a clinical decision: a red-flag
+    # patient is sent to the triage bay because a nurse is already coming
+    # to them, everyone else is spread across the open counters so one
+    # desk does not absorb the whole queue.
+    if needs_immediate_nurse:
+        counter = "Triage Bay"
+    else:
+        counter = f"Counter {(next_num % INTAKE_COUNTER_COUNT) + 1}"
+
     return {
         "encounterId": encounter_id,
         "token": token,
+        "counter": counter,
         "currentBand": initial_band,
-        "humanAssignedBand": None
+        "humanAssignedBand": initial_human_band,
+        # New: tells the frontend to skip the "your queue position" screen
+        # and jump straight to "a nurse is coming to you now" -- the token
+        # was still issued, but no queue applies.
+        "needsImmediateNurse": needs_immediate_nurse,
+        "redFlagsFired": list(req.red_flags_fired),
     }
+
+
+@app.post("/v1/intake/tree/start")
+def intake_tree_start(req: TreeStartInput):
+    """
+    Begin a walk through the REAL M04 question tree (intake/question_tree.py)
+    and return its first question. See backend/orchestrator/tree_session.py
+    for why the tree is driven from the server rather than shipped to the
+    browser as data.
+    """
+    from backend.orchestrator import tree_session
+
+    return tree_session.start(
+        age_years=req.age_years,
+        medical_info_consent=req.medical_info_consent,
+        language=req.language,
+    )
+
+
+@app.post("/v1/intake/tree/answer")
+def intake_tree_answer(req: TreeAnswerInput):
+    """
+    Record one answer and return the next question the tree decided on --
+    which depends on what the structurer extracted, what the patient already
+    volunteered, and whether the red-flag table has fired.
+
+    `accepted: false` means the answer could not be parsed for a yes/no or
+    0-10 node and the SAME question is being repeated. That is a normal
+    conversational outcome, not an error, so it is a 200.
+    """
+    from backend.orchestrator import tree_session
+
+    try:
+        return tree_session.answer(req.session_id, req.text)
+    except tree_session.TreeSessionError as exc:
+        raise HTTPException(404, str(exc)) from exc
+
+
+@app.get("/v1/intake/tree/structure")
+def intake_tree_structure():
+    """
+    The whole decision tree: every complaint category, its questions, and
+    their conditional level-2 follow-ups. Session-independent. Used by the
+    kiosk's tree-flow panel so a reviewer can see the branching that a
+    single patient's linear path does not reveal.
+    """
+    from backend.orchestrator import tree_session
+
+    return tree_session.structure()
+
+
+@app.get("/v1/intake/tree/{session_id}/answers")
+def intake_tree_answers(session_id: str):
+    """Flat {nodeId: raw answer} for the readback screen and submission."""
+    from backend.orchestrator import tree_session
+
+    try:
+        return tree_session.collected_answers(session_id)
+    except tree_session.TreeSessionError as exc:
+        raise HTTPException(404, str(exc)) from exc
+
+
+@app.post("/v1/intake/tree/match-option")
+def match_option(req: OptionMatchInput):
+    """
+    LLM-assisted option matching for the tree UI. Called ONLY when the
+    frontend's Jaccard matcher scored below its threshold: the patient
+    said something that plausibly matches an on-screen choice but the
+    keyword overlap wasn't sharp enough to auto-advance on. Groq gets the
+    question, the options, and what was actually said, and returns one of
+    the option values or NONE. See backend/orchestrator/option_matcher.py.
+    """
+    from backend.orchestrator import option_matcher
+
+    return option_matcher.match(
+        question_prompt=req.question_prompt,
+        patient_text=req.patient_text,
+        options=req.options,
+    )
 
 
 @app.post("/v1/structure")
 def structure_text(req: StructureRequest):
-    import re
-    text = req.text.lower()
-    
-    observations = []
-    red_flags = []
-    
-    # 1. Altered consciousness
-    if re.search(r'unresponsive|gcs\s*(of\s*)?[3-8]\b|status\s*epilepticus', text):
-        observations.append("altered_consciousness")
-        red_flags.append({
-            "observation": "Altered consciousness / not responding",
-            "mapsTo": "RED",
-            "lockedDownward": True
-        })
-        
-    # 2. Active labour or bleeding
-    if re.search(r'active\s+labo(u)?r|contraction.{0,20}(2|3)\s*min', text):
-        observations.append("active_labour_or_bleeding_pregnancy")
-        red_flags.append({
-            "observation": "Active labour, or bleeding in pregnancy",
-            "mapsTo": "RED",
-            "lockedDownward": True
-        })
-        
-    # 3. Chest pain with sweating
-    if re.search(r'crush(ing)?\s+(chest|substernal)\s*pain|radiat(ing|es?)\s+to\s+(left\s+)?arm', text):
-        observations.append("chest_pain_with_sweating_radiation_breathlessness")
-        red_flags.append({
-            "observation": "Chest pain with sweating, radiation, or breathlessness",
-            "mapsTo": "RED",
-            "lockedDownward": True
-        })
-        
-    # 4. Difficulty speaking
-    if re.search(r'airway\s*(obstruct|comprom)|anaphyla', text):
-        observations.append("difficulty_speaking_full_sentences")
-        red_flags.append({
-            "observation": "Difficulty speaking in full sentences",
-            "mapsTo": "RED",
-            "lockedDownward": True
-        })
-        
-    # 5. Stroke
-    if re.search(r'strok(e|ing).{0,20}(onset|acute|sudden)', text):
-        observations.append("sudden_onesided_weakness_facial_droop_speech_change")
-        red_flags.append({
-            "observation": "Sudden one-sided weakness, facial droop, or speech change",
-            "mapsTo": "RED",
-            "lockedDownward": True
-        })
-        
-    # 6. Bleeding
-    if re.search(r'massive\s*(haemorrhage|hemorrhage|bleed)', text):
-        observations.append("uncontrolled_bleeding_or_penetrating_injury")
-        red_flags.append({
-            "observation": "Uncontrolled bleeding, or penetrating injury",
-            "mapsTo": "RED",
-            "lockedDownward": True
-        })
-        
-    # 7. Poisoning
-    if re.search(r'poison|overdose|snakebite', text):
-        observations.append("poisoning_overdose_or_snakebite")
-        red_flags.append({
-            "observation": "Poisoning, overdose, or snakebite",
-            "mapsTo": "RED",
-            "lockedDownward": True
-        })
-        
-    # 8. Infant
-    if re.search(r'floppy|inconsolable', text):
-        observations.append("infant_not_feeding_floppy_inconsolable")
-        red_flags.append({
-            "observation": "Infant not feeding, floppy, or inconsolable",
-            "mapsTo": "RED",
-            "lockedDownward": True
-        })
-        
-    return {
-        "observations": observations,
-        "redFlags": red_flags,
-        "structuredFields": {
-            "chiefComplaint": req.text,
-            "onsetMinutes": None,
-            "severity": "severe" if observations else "moderate"
-        }
-    }
+    """
+    M06 (LLM structurer) followed by M07 (deterministic red-flag pass).
+
+    The split is the point, per §10: the LLM extracts observations into a
+    closed vocabulary under a strict JSON schema, and a fixed table
+    (intake/red_flags.py) maps those observations to Red. The model is never
+    asked whether something is a red flag, and its output schema has no field
+    for a band, an acuity or a diagnosis.
+
+    This replaces eight hardcoded regexes that also emitted a `severity`
+    string of their own invention — M06 asserting acuity, which Invariant 2
+    forbids.
+    """
+    from backend.orchestrator import speech_intake
+
+    text = (req.text or "").strip()
+    if not text:
+        raise HTTPException(400, "empty text")
+
+    narrative, structurer_name = speech_intake.structure_text(text)
+    return speech_intake.narrative_to_response(narrative, structurer_name)
 
 
 @app.post("/v1/encounter/{encounter_id}/measurement")

@@ -1,3 +1,5 @@
 node_modules/
 .next/
 .env*
+# ...but the template carries no secrets and the team needs it committed.
+!.env.example

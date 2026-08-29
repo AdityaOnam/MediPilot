@@ -33,6 +33,46 @@ python -c "from backend.api import demo_cost_ratio_sweep; demo_cost_ratio_sweep(
 
 ---
 
+## Perception layer (M05 speech · M06 LLM structurer)
+
+Track A now lives in this repo too: `intake/` (M03–M09 — state machine, question tree, LLM
+structurer, red-flag table, reliability signals, age stratification) and `speech/` (ASR).
+`backend/orchestrator/app.py` calls them at `POST /v1/speech/transcribe` and `POST /v1/structure`.
+
+```bash
+cp .env.example .env    # then put a Groq key in it
+uvicorn backend.orchestrator.app:app --reload --port 8000
+```
+
+Both stages are **local-first with a hosted fallback**, and each walks down its chain on failure:
+
+```
+M05 speech:  faster-whisper (local)   ->  Groq hosted Whisper  ->  503
+M06 extract: Ollama / llama.cpp       ->  Groq hosted LLM      ->  RuleBasedStructurer
+```
+
+Local inference is the destination, not an optimisation — under DPDP 2023 and §13 raw patient data
+stays at the institution. Hosted free-tier APIs are the fallback that keeps a demo alive on
+unfamiliar wifi; there is deliberately no paid-cloud tier. See **[DEPLOYMENT.md](DEPLOYMENT.md)**
+for how to run each tier and what to tell judges.
+
+**The server runs with nothing configured at all.** M06 degrades to `RuleBasedStructurer`, a
+deterministic keyword extractor that is explicitly not an LLM; transcription returns `503` with a
+reason rather than a placeholder string. `GET /v1/config` reports `perception.structurerActive`,
+`structurerIsLLM` and `dataLeavesMachine`, so the demo can never claim local inference or LLM
+extraction it is not performing.
+
+```bash
+pytest                              # tests/ + intake/ (281 tests)
+pytest speech/                      # needs requirements-speech-local.txt
+python -m eval.run_structurer_bakeoff --check-labels
+```
+
+See [`eval/README.md`](eval/README.md) for the ASR and LLM bake-offs — what they measure, how to
+run them on a Kaggle T4, and how to read the rankings.
+
+---
+
 ## Architecture
 
 ```

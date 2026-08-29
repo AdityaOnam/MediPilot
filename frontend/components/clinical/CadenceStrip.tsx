@@ -50,28 +50,28 @@ export function CadenceStrip({ cadence, simNowMs, compact = false }: Props) {
   return (
     <div className="flex flex-col gap-3 font-medium">
       <div className="flex items-center gap-3">
-        <div className="flex items-center justify-center w-4 h-4 rounded-full bg-white/10 text-white/70">
+        <div className="flex items-center justify-center w-4 h-4 rounded-full bg-[var(--bg-raised)] text-[var(--text-dim)]">
           <span className="text-[10px]">●</span>
         </div>
-        <span className="text-xs text-white/50 w-32">Re-scored</span>
-        <span className="text-xs text-white/90">{formatDuration(rescoreAgeSec)} ago</span>
+        <span className="text-xs text-[var(--text-dim)] w-32">Re-scored</span>
+        <span className="text-xs text-[var(--text)]">{formatDuration(rescoreAgeSec)} ago</span>
       </div>
 
       <div className="flex items-center gap-3">
-        <div className="flex items-center justify-center w-4 h-4 rounded-full border border-white/20 text-white/30">
+        <div className="flex items-center justify-center w-4 h-4 rounded-full border border-[var(--line)] text-[var(--text-dim)]">
           <span className="text-[10px]">○</span>
         </div>
-        <span className="text-xs text-white/50 w-32">Next measurement</span>
+        <span className="text-xs text-[var(--text-dim)] w-32">Next measurement</span>
         <span className="text-xs" style={{ color: remeasureBreach ? '#EF4444' : 'rgba(255,255,255,0.9)' }}>
           {remeasureBreach ? 'OVERDUE' : `in ${formatDuration(remeasureRemainSec)}`}
         </span>
       </div>
 
       <div className="flex items-center gap-3">
-        <div className="flex items-center justify-center w-4 h-4 rounded-full border border-white/20 text-white/30">
+        <div className="flex items-center justify-center w-4 h-4 rounded-full border border-[var(--line)] text-[var(--text-dim)]">
           <span className="text-[10px]">○</span>
         </div>
-        <span className="text-xs text-white/50 w-32">Cadence ceiling</span>
+        <span className="text-xs text-[var(--text-dim)] w-32">Cadence ceiling</span>
         <span className="text-xs" style={{ color: ceilingBreach ? '#EF4444' : 'rgba(255,255,255,0.5)' }}>
           {ceilingBreach ? 'EXCEEDED' : `in ${formatDuration(ceilingRemainSec)}`}
         </span>

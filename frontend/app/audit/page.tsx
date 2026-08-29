@@ -66,11 +66,6 @@ export default function AuditPage() {
             </span>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="px-2 py-1 rounded-md border border-white/10 bg-white/[0.02] tracking-widest text-[10px] uppercase text-white/50 font-semibold">
-            SIMULATED DATA
-          </span>
-        </div>
       </header>
 
       <main className="flex-1 p-6 max-w-[1600px] w-full mx-auto">

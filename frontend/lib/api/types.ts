@@ -157,7 +157,55 @@ export interface Encounter {
 
   state: 'waiting' | 'in-assessment' | 'in-treatment' | 'departed';
   lastScoredAt: string | null;
+
+  // -- Intake → counter → board handoff ------------------------------------
+
+  /** Which intake tree branch routed this complaint. Drives which vitals
+   *  the counter is asked to capture. Null for corpus-seeded patients. */
+  intakeBranch?: string | null;
+  /** The ObservationCodes intake fired, kept so a re-score can reproduce
+   *  the RED without re-reading the free text. */
+  redFlagCodes?: string[];
+  /** 0-10 as the patient stated it during intake. Never inferred. */
+  painScore?: number | null;
+  /** Vitals this presentation owes before it can be scored on more than
+   *  words. Empty once every one of them has a fresh reading. */
+  requiredVitals?: VitalCode[];
+  /** True between "token issued" and "counter recorded the vitals". The
+   *  patient is ON the board throughout — they are physically in the
+   *  department — but the board marks the score as provisional. */
+  awaitingVitals?: boolean;
+  /** Which counter the patient was sent to for those vitals. */
+  counter?: string | null;
+
+  // -- Departure -----------------------------------------------------------
+
+  /** Set when a nurse closes the encounter. Until this exists the patient
+   *  stays on the board across reloads — that is the whole point: a
+   *  patient may only leave the queue because a human said so. */
+  disposition?: Disposition | null;
+  dispositionAt?: string | null;
+  dispositionBy?: string | null;
+  dispositionNote?: string | null;
 }
+
+/** How an encounter left the queue. `left-without-being-seen` is recorded
+ *  as explicitly as a discharge — an untracked disappearance is the thing
+ *  a triage board exists to make impossible. */
+export type Disposition =
+  | 'discharged-home'
+  | 'admitted'
+  | 'referred-out'
+  | 'left-without-being-seen'
+  | 'treatment-complete';
+
+export const DISPOSITIONS: { value: Disposition; label: string; hint: string }[] = [
+  { value: 'treatment-complete',      label: 'Treatment complete', hint: 'Seen and treated in the department' },
+  { value: 'discharged-home',         label: 'Discharged home',    hint: 'Sent home after assessment' },
+  { value: 'admitted',                label: 'Admitted',           hint: 'Moved to a ward or ICU bed' },
+  { value: 'referred-out',            label: 'Referred out',       hint: 'Transferred to another facility' },
+  { value: 'left-without-being-seen', label: 'Left without being seen', hint: 'Patient departed before assessment' },
+];
 
 // ---------------------------------------------------------------------------
 // Scoring
@@ -191,6 +239,11 @@ export interface RedFlag {
   observation: string;
   mapsTo: 'RED';
   lockedDownward: true;
+  /** RF-01..RF-08 from the backend's fixed table (intake/red_flags.py).
+   *  Absent when the flag came from the client-side scanner. */
+  ruleId?: string;
+  /** The ObservationCodes that actually matched the rule. */
+  matchedObservations?: string[];
 }
 
 export interface TimelineEvent {
@@ -337,27 +390,173 @@ export interface IntakeSubmission {
   language: string;
   symptomAnswers: Record<string, string>;
   redFlagsFired: string[];
+  /** Intake tree branch, so the counter knows which vitals to capture. */
+  branch?: string | null;
+  /** 0-10 as stated by the patient on the pain screen. */
+  painScore?: number | null;
 }
 
 export interface IntakeResponse {
   encounterId: string;
   token: string;
+  /** Where the patient physically goes ("Counter 3", "Triage Bay"). A
+   *  token says they are queued; this says where to stand. */
+  counter?: string;
   currentBand: Band;
   humanAssignedBand?: Band;
+  /** True when intake fired a red-flag rule mid-conversation. The kiosk
+   *  must skip the queue screen and jump straight to "a nurse is coming to
+   *  you now" with the token, because the fixed table (intake/red_flags.py)
+   *  has already established this is a nurse-now case. */
+  needsImmediateNurse?: boolean;
+  /** RF-01..RF-08 identifiers that fired, in order of appearance. */
+  redFlagsFired?: string[];
+  /** Vitals the counter must capture for this presentation. The kiosk
+   *  renders these as icons on the token screen so the patient knows what
+   *  is about to happen to them before it happens. Empty means the
+   *  complaint needs no measurement and the patient just waits. */
+  requiredVitals?: VitalCode[];
 }
 
 export interface StructureResponse {
+  /** ObservationCodes the structurer (M06) extracted, from a closed vocabulary. */
   observations: string[];
+  /** Verdicts from the deterministic table (M07), never from the model. */
   redFlags: RedFlag[];
   structuredFields: {
     chiefComplaint: string;
     onsetMinutes: number | null;
-    severity: string;
+    /** The 0-10 number the patient stated themselves, or null if they gave none.
+     *  This replaced a `severity: string` the backend used to invent
+     *  ("severe" whenever anything was extracted) — M06 asserting acuity,
+     *  which Invariant 2 forbids. Never estimated from descriptive language. */
+    selfReportedSeverity: number | null;
+    symptoms: string[];
+    medications: string[];
+    pregnancyStatus: boolean | null;
+    relevantHistory: string[];
   };
+  extraction: {
+    status: 'ok' | 'malformed' | 'empty_input' | 'error';
+    /** Which extractor actually ran. "RuleBasedStructurer" means the
+     *  deterministic keyword fallback, NOT an LLM — surfaced so the demo
+     *  never claims LLM extraction it did not perform. */
+    structurer: string;
+    unrecognizedTerms: string[];
+  };
+}
+
+/** POST /v1/speech/transcribe. `text` is the transcript in the language
+ *  spoken — never translated. The rest is ASR-observable metadata only and
+ *  carries no clinical meaning. */
+export interface TranscriptionResponse {
+  text: string;
+  language: string | null;
+  languageConfidence: number | null;
+  codeMixed: boolean;
+  asrReliability: {
+    no_speech: boolean;
+    low_confidence: boolean;
+    possible_hallucination: boolean;
+    unsupported_language: boolean;
+  };
+  backend: string;
+}
+
+/**
+ * One node of the REAL backend question tree (intake/question_tree.py),
+ * served turn-by-turn over /v1/intake/tree/*. Unlike the static frontend
+ * tree in lib/intake/questionTree.ts, which question arrives next is
+ * decided server-side — it depends on what the LLM structurer extracted,
+ * what the patient already volunteered, and whether the red-flag table
+ * has fired. See backend/orchestrator/tree_session.py.
+ */
+export interface TreeQuestion {
+  nodeId: string;
+  prompt: string;
+  /** Null for most nodes today — the backend tree's ~140 clinical prompts
+   *  are not yet translated. Callers must fall back to `prompt`. */
+  promptHi: string | null;
+  kind: 'free_text' | 'yes_no' | 'numeric_0_10';
+  options: { value: string; label: { en: string; hi: string } }[];
+}
+
+export interface TreeState {
+  sessionId: string;
+  question: TreeQuestion | null;
+  complete: boolean;
+  /** The tree truncated itself because red_flags.py confirmed a
+   *  time-critical presentation — route to a nurse, stop asking. */
+  stoppedForRedFlag: boolean;
+  redFlagObservations: string[];
+  progress: { i: number; n: number };
+  chiefComplaint: string | null;
+  symptoms: string[];
+  /** A snapshot of the plan as it currently stands: the ordered questions,
+   *  each labelled as already-answered, the one being asked now, or
+   *  upcoming. The list grows when a branch splices in and truncates when
+   *  the red-flag table fires -- both are correct outcomes to show. */
+  plan?: {
+    nodeId: string;
+    prompt: string;
+    promptHi: string | null;
+    kind: 'free_text' | 'yes_no' | 'numeric_0_10';
+    status: 'done' | 'current' | 'upcoming';
+  }[];
+  /** Which ComplaintCategory the chief complaint routed to, once known. */
+  branch?: string | null;
+  stratum?: string | null;
+  /** False when a yes/no or 0-10 answer could not be parsed: the SAME
+   *  question is repeated and nothing was recorded. Not an error. */
+  accepted?: boolean;
+  note?: string;
+}
+
+/** One node of the tree structure, with its conditional follow-ups. */
+export interface TreeStructureNode {
+  nodeId: string;
+  prompt: string;
+  promptHi: string | null;
+  kind: 'free_text' | 'yes_no' | 'numeric_0_10';
+  requiresConsent: boolean;
+  impliesSymptom: string | null;
+  followUpTriggers: string[];
+  followUps: TreeStructureNode[];
+}
+
+/** The whole decision tree, session-independent — every category and its
+ *  question block. Powers the "All branches" view of the tree panel,
+ *  which is what actually shows the routing; a single patient's linear
+ *  plan does not. */
+export interface TreeStructure {
+  opening: TreeStructureNode[];
+  tails: {
+    adult: TreeStructureNode[];
+    paediatric: TreeStructureNode[];
+    geriatric: TreeStructureNode[];
+  };
+  categories: {
+    name: string;
+    symptomCodes: string[];
+    keywordSample: string[];
+    questions: TreeStructureNode[];
+  }[];
 }
 
 export interface MediPilotApi {
   getConfig(): Promise<SiteConfig>;
+  treeStructure(): Promise<TreeStructure>;
+  treeStart(input: { ageYears?: number; medicalInfoConsent: boolean; language: string }): Promise<TreeState>;
+  treeAnswer(sessionId: string, text: string): Promise<TreeState>;
+  treeAnswers(sessionId: string): Promise<Record<string, string>>;
+  /** LLM-assisted fallback for option questions when the local Jaccard
+   *  matcher couldn't decide. Never called on every keystroke -- only
+   *  when the local score is below its threshold. */
+  matchOption(input: {
+    questionPrompt: string;
+    patientText: string;
+    options: { value: string; label: { en: string; hi: string } }[];
+  }): Promise<{ matched: string | null; source: string; reason: string }>;
   getCensus(): Promise<Encounter[]>;
   getEncounter(id: string): Promise<Encounter>;
   score(id: string): Promise<ScoreResponse>;
@@ -372,7 +571,23 @@ export interface MediPilotApi {
   submitIntake(data: IntakeSubmission): Promise<IntakeResponse>;
   structureText(text: string, language: string): Promise<StructureResponse>;
   addMeasurement(encounterId: string, measurement: { code: string; value: number; source: string; takenAt: string }): Promise<Encounter>;
-  transcribe(audio: Blob): Promise<{ text: string }>;
+  /** Record several readings as ONE counter visit. Distinct from looping
+   *  addMeasurement: the re-score and the cadence reset happen once, after
+   *  the whole set lands, so a patient never transiently scores against a
+   *  half-entered set of vitals. */
+  recordVitals(input: {
+    encounterId: string;
+    source: string;
+    readings: { code: string; value: number; unit?: string }[];
+  }): Promise<Encounter>;
+  /** Close an encounter. The ONLY way a patient leaves the board. */
+  setDisposition(input: {
+    encounterId: string;
+    disposition: Disposition;
+    note?: string;
+    clinicianId: string;
+  }): Promise<Encounter>;
+  transcribe(audio: Blob): Promise<TranscriptionResponse>;
 }
 
 export interface SiteConfig {

@@ -135,11 +135,31 @@ class World:
         )
         d = result.as_dict()
 
-        initial_band = d["band"]
+        scored_band = d["band"]
+
+        # A red-flag rule (intake/red_flags.py) -- or, on a later submission
+        # path, an actual clinician -- may have already set a floor before
+        # this patient's first score ever ran. That floor arrives on
+        # seed.human_assigned_band and MUST NOT be silently overwritten by
+        # this initial model score: the model is being run here on
+        # essentially no real vitals yet (this is arrival, not a
+        # re-measurement), and per Invariant 1 the model may escalate on
+        # its own but may never erase a human/rule-derived floor. Without
+        # this check, add_patient() ignored seed.human_assigned_band
+        # entirely and every red-flag escalation from POST
+        # /v1/intake/submit was overwritten by the very first background
+        # rescore tick a few seconds later.
+        human_floor = seed.human_assigned_band
+        if human_floor and BAND_ORDER.get(human_floor.lower(), 0) > BAND_ORDER.get(scored_band, 0):
+            initial_band = human_floor.lower()
+        else:
+            initial_band = scored_band
+            human_floor = None
+
         es = EncounterState(
             seed=seed,
             current_band=initial_band,
-            human_assigned_band=None,
+            human_assigned_band=human_floor,
             last_scored_at=now.isoformat(),
             last_score_result=d,
             last_p_model=p_model,
@@ -483,6 +503,35 @@ class World:
                 "source": r.get("source", "station"),
                 "validity": validity,
             })
+
+        # Overlay anything a clinician entered by hand. Without this, a
+        # nurse could record a vital, get a 200 back, and never see it on
+        # the card -- the reading was stored in manual_vitals but the DTO
+        # was built only from the seeded trajectory.
+        #
+        # A hand-entered reading REPLACES the trajectory value for the same
+        # vital (it is newer and a human took it), and a code with no
+        # trajectory at all -- including a custom field a nurse typed in
+        # themselves -- is appended. Custom codes carry no unit and are
+        # deliberately not fed to the scorer (see _rescore's hasattr guard):
+        # recorded and visible to the clinician, never silently scored.
+        for code, tup in es.manual_vitals.items():
+            value, taken_at, source, validity = tup
+            fe_code = mapping.vital_code_to_fe(code)
+            entry = {
+                "code": fe_code,
+                "value": value,
+                "unit": mapping.vital_unit(fe_code),
+                "takenAt": taken_at,
+                "source": source,
+                "validity": validity,
+            }
+            for i, existing in enumerate(measurements):
+                if existing["code"] == fe_code:
+                    measurements[i] = entry
+                    break
+            else:
+                measurements.append(entry)
 
         return measurements
 

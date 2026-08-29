@@ -13,7 +13,10 @@
   --mp-steel-dark: #7F7E7C;
   --mp-ink: #1C1B1A;
 
-  /* Acuity palette */
+  /* Acuity palette — tuned for the DARK clinical surface. Every light
+     surface below re-declares all eight, because a colour picked to glow
+     on #0D1117 is unreadable on warm paper. Components only ever read the
+     variable, never a literal, so re-declaring here retints them all. */
   --acuity-red: #FF5A4E;
   --acuity-red-fill: #3A1512;
   --acuity-yellow: #FFB020;
@@ -36,7 +39,8 @@
 }
 
 /* Patient (light) surface */
-:root[data-surface="patient"] {
+:root[data-surface="patient"],
+[data-surface="patient"] {
   --bg: #FBF7F2;
   --bg-raised: #FFFFFF;
   --bg-card: #FFFFFF;
@@ -79,16 +83,18 @@ body {
   border: 1px solid rgba(255,255,255,0.3);
 }
 
-/* Gradient borders */
+/* Gradient borders — the three colours sampled from the logo in
+   DESIGN_SYSTEM.md §1: cross red, aviator leather, goggle steel. */
 .gradient-border {
   background:
     linear-gradient(var(--bg-card), var(--bg-card)) padding-box,
-    linear-gradient(135deg, #00bfa5, #58A6FF, #9B8CFF) border-box;
+    linear-gradient(135deg, #DF423D, #926A47, #A7C4CC) border-box;
   border: 1px solid transparent;
 }
 
-/* Glow effects */
-.glow-teal { box-shadow: 0 0 30px rgba(0,191,165,0.2), 0 0 60px rgba(0,191,165,0.1); }
+/* Glow effects — brand red, not teal. Kept as one class (was "glow-teal")
+   so /hall's token glow and this page's CTA/stat glows repalette together. */
+.glow-teal { box-shadow: 0 0 30px rgba(223,66,61,0.16), 0 0 60px rgba(223,66,61,0.08); }
 .glow-brand { box-shadow: 0 0 30px rgba(223,66,61,0.2); }
 
 /* Video background */
@@ -107,17 +113,60 @@ html { scroll-behavior: smooth; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
 
-/* Landing surface */
-:root[data-surface="landing"] {
-  --bg: #0D1117;
-  --bg-raised: #151B23;
-  --bg-card: #1A222C;
-  --line: #263140;
-  --text: #E6EDF3;
-  --text-dim: #8B98A5;
-  --focus: #58A6FF;
+/* Landing surface — same warm-paper palette as /intake, per the logo
+   colours in DESIGN_SYSTEM.md §1. Selector includes the non-:root form:
+   page.tsx sets data-surface on its own wrapping div, a descendant of the
+   real :root, so ":root[data-surface=...]" alone never matched it — the
+   same bug fixed for "patient" above. */
+:root[data-surface="landing"],
+[data-surface="landing"] {
+  --bg: #FBF7F2;
+  --bg-raised: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --line: #E7DED2;
+  --text: #1C1B1A;
+  --text-dim: #6B6560;
+  --accent: #DF423D;
+  --focus: #926A47;
 }
 
+
+/* Ward surface — the staff-facing warm-paper theme shared by /board,
+   /card/[id] and /counter. Same paper as /intake and the landing page so
+   the whole product reads as one system, but it keeps --bg-card distinct
+   from --bg-raised: the board needs a card to separate from the page
+   behind it, which the kiosk never has to do. */
+:root[data-surface="ward"],
+[data-surface="ward"] {
+  --bg: #FBF7F2;
+  --bg-raised: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --line: #E7DED2;
+  --text: #1C1B1A;
+  --text-dim: #6B6560;
+  --accent: #DF423D;
+  --focus: #926A47;
+}
+
+/* Acuity on paper. The dark palette's colours are chosen to glow against
+   #0D1117 and turn washed-out and low-contrast on #FBF7F2 — amber #FFB020
+   in particular fails contrast badly on white. These are the same three
+   semantic steps darkened to carry their meaning on a light ground, with
+   the fills flipped from near-black tints to pale washes. Band meaning is
+   never carried by colour alone (BandChip prints the word), but the
+   colour still has to be legible across a ward at a glance. */
+[data-surface="ward"],
+[data-surface="patient"],
+[data-surface="landing"] {
+  --acuity-red: #C62D26;
+  --acuity-red-fill: #FBE7E5;
+  --acuity-yellow: #9A6206;
+  --acuity-yellow-fill: #FCF1DC;
+  --acuity-green: #1B7A4B;
+  --acuity-green-fill: #E4F4EB;
+  --acuity-abstained: #5B4BC4;
+  --acuity-abstained-fill: #ECE9FB;
+}
 
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

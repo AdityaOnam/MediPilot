@@ -14,17 +14,24 @@ interface Props {
   density?: 'comfortable' | 'compact';
 }
 
+/** Foreground/background pairs that hold up on the warm-paper ward
+ *  surface. The previous values were tuned for the dark clinical theme —
+ *  #B9AEFF on a 15%-opacity wash reads fine on #0D1117 and disappears on
+ *  #FBF7F2 — so each is now a darker ink over a pale tint. */
 const BADGE_STYLES: Record<string, { bg: string; fg: string; label: string }> = {
-  unaccompanied:   { bg: 'rgba(155,140,255,0.15)', fg: '#B9AEFF', label: 'unaccompanied' },
-  inferredAge:     { bg: 'rgba(255,176,32,0.15)',  fg: '#FFC868', label: 'inferred age' },
-  zeroHistory:     { bg: 'rgba(88,166,255,0.15)',  fg: '#7CB6FF', label: 'zero history' },
-  humanLane:       { bg: 'rgba(146,106,71,0.20)',  fg: '#D0A585', label: 'human lane' },
-  pediatric:       { bg: 'rgba(61,214,140,0.15)',  fg: '#7EE0AE', label: 'pediatric' },
-  geriatric:       { bg: 'rgba(61,214,140,0.15)',  fg: '#7EE0AE', label: 'geriatric' },
+  unaccompanied:   { bg: 'rgba(91,75,196,0.10)',  fg: '#4C3EA8', label: 'unaccompanied' },
+  inferredAge:     { bg: 'rgba(154,98,6,0.10)',   fg: '#8A5705', label: 'inferred age' },
+  zeroHistory:     { bg: 'rgba(30,90,168,0.10)',  fg: '#1E5AA8', label: 'zero history' },
+  humanLane:       { bg: 'rgba(146,106,71,0.14)', fg: '#7A5636', label: 'human lane' },
+  pediatric:       { bg: 'rgba(27,122,75,0.10)',  fg: '#166840', label: 'pediatric' },
+  geriatric:       { bg: 'rgba(27,122,75,0.10)',  fg: '#166840', label: 'geriatric' },
+  awaitingVitals:  { bg: 'rgba(223,66,61,0.10)',  fg: '#B5322D', label: 'at counter' },
 };
 
 function badgesFor(e: Encounter): string[] {
   const b: string[] = [];
+  // First, because it tells the nurse this band is words-only so far.
+  if (e.awaitingVitals) b.push('awaitingVitals');
   if (!e.assisted) b.push('unaccompanied');
   if (e.ageStratumInferred) b.push('inferredAge');
   if (!e.hasPriorRecord) b.push('zeroHistory');
@@ -37,7 +44,7 @@ function badgesFor(e: Encounter): string[] {
 export function QueueCard({ encounter, simNowMs, abstained = false, justEscalated = false, density = 'comfortable' }: Props) {
   let badges = badgesFor(encounter);
   if (density === 'compact') {
-    badges = badges.filter(b => b === 'unaccompanied' || b === 'pediatric');
+    badges = badges.filter(b => b === 'unaccompanied' || b === 'pediatric' || b === 'awaitingVitals');
   }
 
   const isBreached = encounter.cadence.breached ||

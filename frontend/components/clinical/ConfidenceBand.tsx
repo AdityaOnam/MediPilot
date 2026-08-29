@@ -21,8 +21,8 @@ export function ConfidenceBand({ confidence, conformalSet, coverage = 0.9, reduc
   const confColor = confidence === 'high' ? '#10B981' : confidence === 'moderate' ? '#F59E0B' : '#EF4444';
 
   return (
-    <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
-      <h3 className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-4">
+    <div className="p-4 rounded-xl border border-[var(--line)] bg-[var(--bg-card)]">
+      <h3 className="text-xs font-semibold text-[var(--text-dim)] uppercase tracking-wider mb-4">
         Model Confidence
       </h3>
       
@@ -32,17 +32,17 @@ export function ConfidenceBand({ confidence, conformalSet, coverage = 0.9, reduc
                style={{ color: confColor, borderColor: `${confColor}40`, backgroundColor: `${confColor}10` }}>
             {confidence}
           </div>
-          <p className="text-xs text-white/60">
+          <p className="text-xs text-[var(--text-dim)]">
             True level falls in conformal set {Math.round(coverage * 10)} times in 10.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="text-xs font-medium text-white/50">Set:</span>
-          <div className="flex items-center gap-1.5 font-mono text-sm text-white/40">
+          <span className="text-xs font-medium text-[var(--text-dim)]">Set:</span>
+          <div className="flex items-center gap-1.5 font-mono text-sm text-[var(--text-dim)]">
             {'{'}
             {conformalSet.map((b, i) => (
-              <span key={i} className="text-white/80 font-semibold">{b}</span>
+              <span key={i} className="text-[var(--text)] font-semibold">{b}</span>
             ))}
             {'}'}
           </div>
@@ -50,13 +50,13 @@ export function ConfidenceBand({ confidence, conformalSet, coverage = 0.9, reduc
         </div>
 
         {reducers && reducers.length > 0 && (
-          <div className="pt-3 border-t border-white/10">
-            <span className="text-[11px] font-medium text-white/40 uppercase tracking-wider block mb-2">
+          <div className="pt-3 border-t border-[var(--line)]">
+            <span className="text-[11px] font-medium text-[var(--text-dim)] uppercase tracking-wider block mb-2">
               Reduced By
             </span>
             <div className="flex flex-wrap gap-2">
               {reducers.map(r => (
-                <span key={r} className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-white/5 border border-white/10 text-[11px] text-white/70 capitalize">
+                <span key={r} className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-[var(--bg-raised)] border border-[var(--line)] text-[11px] text-[var(--text-dim)] capitalize">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]" />
                   {r.replace(/-/g, ' ')}
                 </span>

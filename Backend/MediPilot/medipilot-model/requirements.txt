@@ -8,3 +8,15 @@ pyyaml==6.0.1
 pytest==8.2.0
 httpx==0.27.0
 python-dateutil==2.9.0
+
+# --- Perception layer (M05 speech / M06 LLM structurer) ---------------------
+# Hosted Whisper ASR *and* the LLM structurer both go through Groq, so this is
+# one dependency and one credential (GROQ_API_KEY) for both. Chosen over a
+# local GPU path because the dev hardware is AMD (no CUDA/ROCm-on-Windows) and
+# §16 requires the demo not to depend on a tunnel or a live GPU session.
+groq==1.7.0
+# Decodes ogg/wav/flac in-process for the pre-flight RMS silence gate in
+# speech/groq_asr.py, so a silent recording never reaches the API. webm/opus
+# still needs ffmpeg on PATH; without either, the gate reports itself skipped
+# rather than silently passing.
+soundfile==0.13.1

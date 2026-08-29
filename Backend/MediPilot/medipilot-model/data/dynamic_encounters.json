@@ -29,5 +29,356 @@
     },
     "stale_vitals_hours": 0.0,
     "zero_history": true
+  },
+  {
+    "encounter_id": "P-22",
+    "token": "222",
+    "display_name": "Anonymous Patient",
+    "age_years": 20.0,
+    "age_days": 7305,
+    "stratum": "adult",
+    "stratum_inferred": false,
+    "sex": "M",
+    "chief_complaint": "Chest Pain",
+    "arrival_mode": "walk-in",
+    "human_assigned_band": null,
+    "arrived_at": "2026-08-27T12:00:47.223011+00:00",
+    "assisted": true,
+    "medical_info_consent": true,
+    "has_prior_record": false,
+    "red_flag_observations": [],
+    "reliability_flags": {},
+    "force_ood": false,
+    "spo2_bias_risk": false,
+    "trajectory": {
+      "steps": [
+        {
+          "at_min": 0
+        }
+      ],
+      "final_outcome_band": "UNKNOWN"
+    },
+    "stale_vitals_hours": 0.0,
+    "zero_history": true
+  },
+  {
+    "encounter_id": "P-23",
+    "token": "223",
+    "display_name": "A",
+    "age_years": 30.0,
+    "age_days": 10957,
+    "stratum": "adult",
+    "stratum_inferred": false,
+    "sex": "M",
+    "chief_complaint": "headache",
+    "arrival_mode": "walk-in",
+    "human_assigned_band": null,
+    "arrived_at": "2026-08-27T21:14:46.602135+00:00",
+    "assisted": false,
+    "medical_info_consent": true,
+    "has_prior_record": false,
+    "red_flag_observations": [],
+    "reliability_flags": {},
+    "force_ood": false,
+    "spo2_bias_risk": false,
+    "trajectory": {
+      "steps": [
+        {
+          "at_min": 0
+        }
+      ],
+      "final_outcome_band": "UNKNOWN"
+    },
+    "stale_vitals_hours": 0.0,
+    "zero_history": true
+  },
+  {
+    "encounter_id": "P-24",
+    "token": "224",
+    "display_name": "B",
+    "age_years": 50.0,
+    "age_days": 18262,
+    "stratum": "adult",
+    "stratum_inferred": false,
+    "sex": "M",
+    "chief_complaint": "chest pain and sweating",
+    "arrival_mode": "walk-in",
+    "human_assigned_band": "RED",
+    "arrived_at": "2026-08-27T21:14:46.605144+00:00",
+    "assisted": true,
+    "medical_info_consent": true,
+    "has_prior_record": false,
+    "red_flag_observations": [
+      "RF-03"
+    ],
+    "reliability_flags": {},
+    "force_ood": false,
+    "spo2_bias_risk": false,
+    "trajectory": {
+      "steps": [
+        {
+          "at_min": 0
+        }
+      ],
+      "final_outcome_band": "UNKNOWN"
+    },
+    "stale_vitals_hours": 0.0,
+    "zero_history": true
+  },
+  {
+    "encounter_id": "P-25",
+    "token": "225",
+    "display_name": "Anonymous Patient",
+    "age_years": 34.0,
+    "age_days": 12418,
+    "stratum": "adult",
+    "stratum_inferred": false,
+    "sex": "F",
+    "chief_complaint": "I have a mild headache since this morning",
+    "arrival_mode": "walk-in",
+    "human_assigned_band": "RED",
+    "arrived_at": "2026-08-28T14:46:42.065585+00:00",
+    "assisted": false,
+    "medical_info_consent": true,
+    "has_prior_record": false,
+    "red_flag_observations": [
+      "Crushing chest pain"
+    ],
+    "reliability_flags": {},
+    "force_ood": false,
+    "spo2_bias_risk": false,
+    "trajectory": {
+      "steps": [
+        {
+          "at_min": 0
+        }
+      ],
+      "final_outcome_band": "UNKNOWN"
+    },
+    "stale_vitals_hours": 0.0,
+    "zero_history": true
+  },
+  {
+    "encounter_id": "P-26",
+    "token": "226",
+    "display_name": "Test",
+    "age_years": 34.0,
+    "age_days": 12418,
+    "stratum": "adult",
+    "stratum_inferred": false,
+    "sex": "F",
+    "chief_complaint": "crushing chest pain",
+    "arrival_mode": "walk-in",
+    "human_assigned_band": "RED",
+    "arrived_at": "2026-08-28T14:47:15.011657+00:00",
+    "assisted": false,
+    "medical_info_consent": true,
+    "has_prior_record": false,
+    "red_flag_observations": [
+      "Crushing chest pain"
+    ],
+    "reliability_flags": {},
+    "force_ood": false,
+    "spo2_bias_risk": false,
+    "trajectory": {
+      "steps": [
+        {
+          "at_min": 0
+        }
+      ],
+      "final_outcome_band": "UNKNOWN"
+    },
+    "stale_vitals_hours": 0.0,
+    "zero_history": true
+  },
+  {
+    "encounter_id": "P-27",
+    "token": "227",
+    "display_name": "Test2",
+    "age_years": 34.0,
+    "age_days": 12418,
+    "stratum": "adult",
+    "stratum_inferred": false,
+    "sex": "F",
+    "chief_complaint": "crushing chest pain",
+    "arrival_mode": "walk-in",
+    "human_assigned_band": "RED",
+    "arrived_at": "2026-08-28T14:50:17.022542+00:00",
+    "assisted": false,
+    "medical_info_consent": true,
+    "has_prior_record": false,
+    "red_flag_observations": [
+      "Crushing chest pain"
+    ],
+    "reliability_flags": {},
+    "force_ood": false,
+    "spo2_bias_risk": false,
+    "trajectory": {
+      "steps": [
+        {
+          "at_min": 0
+        }
+      ],
+      "final_outcome_band": "UNKNOWN"
+    },
+    "stale_vitals_hours": 0.0,
+    "zero_history": true
+  },
+  {
+    "encounter_id": "P-28",
+    "token": "228",
+    "display_name": "Anonymous Patient",
+    "age_years": 20.0,
+    "age_days": 7305,
+    "stratum": "adult",
+    "stratum_inferred": false,
+    "sex": "M",
+    "chief_complaint": "Chest pain",
+    "arrival_mode": "walk-in",
+    "human_assigned_band": null,
+    "arrived_at": "2026-08-28T18:09:44.214438+00:00",
+    "assisted": true,
+    "medical_info_consent": true,
+    "has_prior_record": false,
+    "red_flag_observations": [],
+    "reliability_flags": {},
+    "force_ood": false,
+    "spo2_bias_risk": false,
+    "trajectory": {
+      "steps": [
+        {
+          "at_min": 0
+        }
+      ],
+      "final_outcome_band": "UNKNOWN"
+    },
+    "stale_vitals_hours": 0.0,
+    "zero_history": true
+  },
+  {
+    "encounter_id": "P-29",
+    "token": "229",
+    "display_name": "Anonymous Patient",
+    "age_years": 20.0,
+    "age_days": 7305,
+    "stratum": "adult",
+    "stratum_inferred": false,
+    "sex": "M",
+    "chief_complaint": "Chest pain",
+    "arrival_mode": "walk-in",
+    "human_assigned_band": null,
+    "arrived_at": "2026-08-28T18:09:46.589188+00:00",
+    "assisted": true,
+    "medical_info_consent": true,
+    "has_prior_record": false,
+    "red_flag_observations": [],
+    "reliability_flags": {},
+    "force_ood": false,
+    "spo2_bias_risk": false,
+    "trajectory": {
+      "steps": [
+        {
+          "at_min": 0
+        }
+      ],
+      "final_outcome_band": "UNKNOWN"
+    },
+    "stale_vitals_hours": 0.0,
+    "zero_history": true
+  },
+  {
+    "encounter_id": "P-30",
+    "token": "230",
+    "display_name": "Vitals Test",
+    "age_years": 40.0,
+    "age_days": 14610,
+    "stratum": "adult",
+    "stratum_inferred": false,
+    "sex": "M",
+    "chief_complaint": "headache",
+    "arrival_mode": "walk-in",
+    "human_assigned_band": null,
+    "arrived_at": "2026-08-28T18:22:16.654669+00:00",
+    "assisted": false,
+    "medical_info_consent": true,
+    "has_prior_record": false,
+    "red_flag_observations": [],
+    "reliability_flags": {},
+    "force_ood": false,
+    "spo2_bias_risk": false,
+    "trajectory": {
+      "steps": [
+        {
+          "at_min": 0
+        }
+      ],
+      "final_outcome_band": "UNKNOWN"
+    },
+    "stale_vitals_hours": 0.0,
+    "zero_history": true
+  },
+  {
+    "encounter_id": "P-31",
+    "token": "231",
+    "display_name": "Counter Test",
+    "age_years": 40.0,
+    "age_days": 14610,
+    "stratum": "adult",
+    "stratum_inferred": false,
+    "sex": "M",
+    "chief_complaint": "headache",
+    "arrival_mode": "walk-in",
+    "human_assigned_band": null,
+    "arrived_at": "2026-08-28T18:35:31.943585+00:00",
+    "assisted": false,
+    "medical_info_consent": true,
+    "has_prior_record": false,
+    "red_flag_observations": [],
+    "reliability_flags": {},
+    "force_ood": false,
+    "spo2_bias_risk": false,
+    "trajectory": {
+      "steps": [
+        {
+          "at_min": 0
+        }
+      ],
+      "final_outcome_band": "UNKNOWN"
+    },
+    "stale_vitals_hours": 0.0,
+    "zero_history": true
+  },
+  {
+    "encounter_id": "P-32",
+    "token": "232",
+    "display_name": "Anonymous Patient",
+    "age_years": 20.0,
+    "age_days": 7305,
+    "stratum": "adult",
+    "stratum_inferred": false,
+    "sex": "M",
+    "chief_complaint": "Pain in hand",
+    "arrival_mode": "walk-in",
+    "human_assigned_band": "RED",
+    "arrived_at": "2026-08-28T19:44:38.119127+00:00",
+    "assisted": true,
+    "medical_info_consent": true,
+    "has_prior_record": false,
+    "red_flag_observations": [
+      "active_labour"
+    ],
+    "reliability_flags": {},
+    "force_ood": false,
+    "spo2_bias_risk": false,
+    "trajectory": {
+      "steps": [
+        {
+          "at_min": 0
+        }
+      ],
+      "final_outcome_band": "UNKNOWN"
+    },
+    "stale_vitals_hours": 0.0,
+    "zero_history": true
   }
 ]

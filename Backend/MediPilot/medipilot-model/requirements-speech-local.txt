@@ -1,0 +1,24 @@
+# Optional: the LOCAL ASR path (MEDIPILOT_ASR_BACKEND=local/whisper) and the
+# hands-free VAD recorder.
+#
+# faster-whisper (CTranslate2, int8) is the one that actually serves
+# MEDIPILOT_ASR_BACKEND=local (speech/faster_whisper_stt.py) — it is the only
+# engine fast enough on CPU-only hardware. AMD hardware (e.g. Radeon RX 6500M)
+# has no CUDA/ROCm-on-Windows, so this always runs on CPU here.
+faster-whisper==1.1.1
+soundfile==0.13.1
+# faster_whisper/utils.py imports requests directly but its own package
+# metadata does not declare it as a dependency (verified: `pip show
+# faster-whisper` lists av/ctranslate2/huggingface-hub/onnxruntime/
+# tokenizers/tqdm only) -- without this line, import faster_whisper raises
+# ModuleNotFoundError on a clean install.
+requests
+
+# openai-whisper serves MEDIPILOT_ASR_BACKEND=whisper, kept only for the
+# eval/kaggle/asr_bakeoff.ipynb bake-off comparison and as an alternate
+# fallback -- it is several seconds per utterance on this CPU, not a serving
+# default. torch is CPU-only here regardless of what pip resolves.
+openai-whisper==20250625
+torch>=2.2
+silero-vad==5.1.2
+sounddevice==0.5.1

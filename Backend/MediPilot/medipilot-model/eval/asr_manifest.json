@@ -1,0 +1,107 @@
+{
+  "_about": [
+    "Evaluation manifest for the ASR bake-off (round2-implementation-plan.html §16:",
+    "'Whisper-class ASR, quantised, evaluated on Indian-accented and code-mixed speech",
+    "before we depend on it').",
+    "",
+    "Paths are relative to medipilot-model/. Each case is scored by eval/metrics.py.",
+    "",
+    "REFERENCES: `references` is a list of ACCEPTABLE transcriptions, not one truth.",
+    "A Hinglish utterance has more than one faithful written form — the English words",
+    "may land in Latin or in Devanagari depending on the model — and metrics.py scores",
+    "against whichever reference the hypothesis is closest to. Penalising a model for",
+    "picking the other valid orthography would measure taste, not accuracy.",
+    "",
+    "A case with an empty `references` list is NOT scored for WER; it is transcribed",
+    "and reported for cross-model comparison only, and `needs_reference` marks it as",
+    "owing a hand-written transcript. Run eval/run_asr_bakeoff.py --write-reference-template",
+    "to emit a pre-filled template from the strongest model's output, correct it by ear,",
+    "and paste it back here. Do NOT let a model's own output stand as its reference —",
+    "that scores a model against itself and reports 0.000 WER for free."
+  ],
+  "cases": [
+    {
+      "id": "EN-01",
+      "path": "speech/test2.ogg",
+      "kind": "speech",
+      "language": "en",
+      "accept_languages": ["en"],
+      "notes": "Indian-accented English, clinical vocabulary. The RF-03 pairing (chest pain + sweating) rides on this transcript, so a word dropped here is a red flag lost downstream.",
+      "references": [
+        "I am having chest pain and I am sweating as well."
+      ]
+    },
+    {
+      "id": "HI-01",
+      "path": "speech/test.ogg",
+      "kind": "speech",
+      "language": "hi",
+      "accept_languages": ["hi"],
+      "notes": "Plain Hindi, non-clinical. Present to check that a non-clinical Hindi utterance is not force-fitted to a symptom, and that language detection returns 'hi' rather than 'en'.",
+      "references": [
+        "यह बस टेस्टिंग के लिए है",
+        "ye bas testing ke liye hai"
+      ]
+    },
+    {
+      "id": "HINGLISH-01",
+      "path": "speech/test3.ogg",
+      "kind": "speech",
+      "language": "hi",
+      "accept_languages": ["hi", "en"],
+      "notes": "The hard case, and the one the whole §12 talk-first decision rests on: Hindi grammar carrying English clinical loanwords. Whisper commonly renders 'chest pain' in Devanagari here, which is why two references are listed and why speech/asr_common.looks_code_mixed() is documented as unable to catch this form. Reference confirmed by ear (not accepted from model output — see _about).",
+      "references": [
+        "मुझे चेस्ट में पेन हो रहा है और पसीना भी आ रहा है",
+        "mujhe chest mein pain ho raha hai aur paseena bhi aa raha hai"
+      ]
+    },
+    {
+      "id": "F-01",
+      "path": "speech/f_test1.ogg",
+      "kind": "speech",
+      "language": "en",
+      "accept_languages": ["en"],
+      "notes": "Second speaker (Varada, team member). Needed because a bake-off run on one voice measures that voice, not the model. Every candidate misheard the name as 'Varda'; confirmed by ear as 'Varada'.",
+      "references": [
+        "I am Varada and I have been having chest pain since this morning."
+      ]
+    },
+    {
+      "id": "F-02",
+      "path": "speech/f_test2.ogg",
+      "kind": "speech",
+      "language": "hi",
+      "accept_languages": ["hi"],
+      "notes": "Second speaker. Reference confirmed by ear.",
+      "references": [
+        "मुझे कल से बुखार है और शरीर में बहुत कमजोरी लग रही है"
+      ]
+    },
+    {
+      "id": "F-03",
+      "path": "speech/f_test3.ogg",
+      "kind": "speech",
+      "language": "hi",
+      "accept_languages": ["hi", "en"],
+      "notes": "Second speaker, code-mixed. Candidates split here: smaller/turbo models heard it as pure English, larger models heard a Hindi opening matching F-02's pattern ('mujhe kal se ... hai'). Confirmed by ear as mixed -- this is itself a data point, since it is exactly the fixture design intent (§01 D12 talk-first / Hinglish).",
+      "references": [
+        "मुझे कल से fever है and I am really feeling very tired and exhausted and weak as well.",
+        "mujhe kal se fever hai and I am really feeling very tired and exhausted and weak as well."
+      ]
+    },
+    {
+      "id": "SILENCE-01",
+      "path": "speech/test_silence.wav",
+      "kind": "silence",
+      "expect_silence": true,
+      "notes": "Digital silence (ffmpeg anullsrc). The documented Whisper failure: it emits 'Thank you.' here with no_speech_prob ~= 0, i.e. its own confidence signal does not catch it. The only correct output is an empty transcript. A model that speaks here is disqualified regardless of its WER, because in this system a hallucinated utterance becomes a patient's own words."
+    },
+    {
+      "id": "SILENCE-02",
+      "path": "speech/test_near_silence.wav",
+      "kind": "silence",
+      "expect_silence": true,
+      "notes": "Low-amplitude room noise (ffmpeg anoisesrc), RMS ~= 0.0005. Sits below speech/asr_common.SILENCE_RMS_THRESHOLD (0.01), so the energy gate should fire before any decode. Running this WITH the gate disabled is what tells you whether the gate is carrying the model or the model can stand on its own."
+    }
+  ]
+}

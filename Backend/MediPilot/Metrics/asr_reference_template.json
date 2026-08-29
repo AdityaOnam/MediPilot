@@ -1,0 +1,69 @@
+{
+  "_instructions": "LISTEN to each fixture and write the correct transcript into `references`, then paste the entry into eval/asr_manifest.json. The `candidates` below are model OUTPUT, shown only to save typing. Accepting one unheard scores that model against itself. For a code-mixed utterance, list every faithful orthography as a separate reference — metrics.py takes the best match.",
+  "fixtures": {
+    "HINGLISH-01": {
+      "candidates": {
+        "whisper-local:turbo": "मुझे चेस्ट में पेन हो रहा है और पसीना भी आ रहा है",
+        "groq:whisper-large-v3-turbo": "मुझे चेस्ट में पेन हो रहा है और पसीना भी आ रहा है",
+        "whisper-local:large-v3": "मुझे चेस्ट में पेन हो रहा है और पसीना भी आ रहा है",
+        "faster-whisper:large-v3/int8_float16": "मुझे चेस्ट में पेन हो रहा है और पसीना भी आ रहा है",
+        "faster-whisper:large-v3/float16": "मुझे चेस्ट में पेन हो रहा है और पसीना भी आ रहा है",
+        "groq:whisper-large-v3": "मुझे चेस्ट में पेन हो रहा है और पसीना भी आ रहा है।",
+        "whisper-local:medium": "मुझे चेस्ट में पेन हो रहा है और पसीना भी आरहा है।",
+        "whisper-local:tiny": "مجد just me being holdaha hai and basina vi aara ha hai",
+        "whisper-local:base": "mjj est me bhein hu raha hai aur basina bhe raha hai",
+        "whisper-local:small": "बच्छद बच्छद बच्छद बच्छद बच्छद बच्छद बच्छद बच्छद बच्छद बच्छद बच्छद बच्छद बच्छद बच्छद बच्छद बच्छद बच्छद बच्छद बच्छद बच्छद बच्छद बच्छद बच्छद बच्छद बच्छ",
+        "faster-whisper:small/int8": "मुझे चेस्ट में पेन हो रहा है, और पसीना भी आरहा है."
+      },
+      "references": []
+    },
+    "F-01": {
+      "candidates": {
+        "whisper-local:turbo": "I am Varda and I have been having chest pain since this morning.",
+        "groq:whisper-large-v3-turbo": "I am Varda and I have been having chest pain since this morning.",
+        "whisper-local:large-v3": "I am Varda and I have been having chest pain since this morning.",
+        "faster-whisper:large-v3/int8_float16": "I am Varda and I have been having chest pain since this morning.",
+        "faster-whisper:large-v3/float16": "I am Varda and I have been having chest pain since this morning.",
+        "groq:whisper-large-v3": "I am Varda and I have been having chest pain since this morning.",
+        "whisper-local:medium": "I am Varda and I have been having chest pain since this morning.",
+        "whisper-local:tiny": "I am Vardine, I've been having just been since this morning.",
+        "whisper-local:base": "I am Warda and I have been having just paint since this morning.",
+        "whisper-local:small": "I am Varda and I have been having chest pain since this morning.",
+        "faster-whisper:small/int8": "I am Varda and I have been having chest pain since this morning."
+      },
+      "references": []
+    },
+    "F-02": {
+      "candidates": {
+        "whisper-local:turbo": "मुझे कल से बुखार है और शरीर में बहुत कमजोरी लग रही है",
+        "groq:whisper-large-v3-turbo": "मुझे कल से बुखार है और शरीर में बहुत कमजोरी लग रही है",
+        "whisper-local:large-v3": "मुझे कल से बुखार है और शरीर में बहुत कमजोरी लग रही है।",
+        "faster-whisper:large-v3/int8_float16": "मुझे कल से बुखार है और शरीर में बहुत कमजोरी लग रही है",
+        "faster-whisper:large-v3/float16": "मुझे कल से बुखार है और शरीर में बहुत कमजोरी लग रही है",
+        "groq:whisper-large-v3": "मुझे कल से बुखार है और शरीर में बहुत कमजोरी लग रही है।",
+        "whisper-local:medium": "मुझे कल से बुखार है और शरीर में बहुत कम्जोरी लग रही है।",
+        "whisper-local:tiny": "Moji Kalsya Bhukhar is a very beautiful city in Sharia.",
+        "whisper-local:base": "مجھے طل سے بکھا رہے اور شرید میں بہت کمزوری لگر لیے",
+        "whisper-local:small": "मुझे कल से बुखार है और शरीज में बहुत खम्जोरी लगरे है",
+        "faster-whisper:small/int8": "मुझे कल से बुखार है और शरीद में बहुत कमजोरी लग रही है"
+      },
+      "references": []
+    },
+    "F-03": {
+      "candidates": {
+        "whisper-local:turbo": "I have fever yesterday and I am really feeling very tired and exhausted and weak as well.",
+        "groq:whisper-large-v3-turbo": "I have fever yesterday and I am feeling very tired and exhausted and weak as well.",
+        "whisper-local:large-v3": "मुझे कल से fever है and I am really feeling very tired and exhausted and weak as well.",
+        "faster-whisper:large-v3/int8_float16": "मुझे कल से fever है and I am really feeling very tired and exhausted and weak as well.",
+        "faster-whisper:large-v3/float16": "मुझे कल से fever है and I am really feeling very tired and exhausted and weak as well.",
+        "groq:whisper-large-v3": "मुझे कल से fever है and I am really feeling very tired and exhausted and weak as well.",
+        "whisper-local:medium": "मुझे कल से फीवर हैं और में पाइवार पाइवार पाइवार पाइवार पाइवार पाइवार पाइवार पाइवार पाइवार पाइवार पाइवार पाइवार पाइवार पाइवार पाइवार पाइवार पाइवार पाइवार पाइवार पाइवार पाइवार पाइवार",
+        "whisper-local:tiny": "I am a very tired and exhausted and weak as well.",
+        "whisper-local:base": "mj kalsi fever and i am really feeling very tired and exhausted and weak as well",
+        "whisper-local:small": "मुझे कल से पीवर है और और लिएगा पीवर ताएड और इंगजोस्टर्ट और वीक एजवेर.",
+        "faster-whisper:small/int8": "मुझे कल से पीवर हैं आं आम दीली फीलिं वेरी ताएड आं इखजोस्टेड आं वीक आजवेर."
+      },
+      "references": []
+    }
+  }
+}

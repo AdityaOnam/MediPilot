@@ -16,3 +16,17 @@ __pycache__/
 .venv/
 venv/
 *.egg-info/
+
+# Perception layer: the API key lives here and must never be committed.
+.env
+
+# Bake-off outputs. Regenerate with:
+#   python -m eval.run_asr_bakeoff --backends groq --out <path>
+#   python -m eval.run_structurer_bakeoff --candidates groq --out <path>
+# The eval SETS (eval/*.json manifests and cases) are committed; the RESULTS
+# are not, because they are machine- and date-specific and quoting a stale one
+# in the report is worse than having none.
+eval/results/
+*_bakeoff_results.json
+*_bakeoff_table.md
+asr_reference_template.json

@@ -8,6 +8,7 @@
 import type {
   MediPilotApi,
   SiteConfig,
+  Disposition,
   Encounter,
   ScoreResponse,
   RecheckTask,
@@ -16,6 +17,11 @@ import type {
   RControlResponse,
   DecisionInput,
   StreamEvent,
+  IntakeResponse,
+  StructureResponse,
+  TranscriptionResponse,
+  TreeState,
+  TreeStructure,
 } from '../types';
 
 const BASE = process.env.NEXT_PUBLIC_API_BASE ?? 'http://localhost:8000';
@@ -45,6 +51,22 @@ async function post<T>(path: string, body?: unknown): Promise<T> {
 export function createLiveAdapter(): MediPilotApi {
   return {
     getConfig: () => get<SiteConfig>('/v1/config'),
+
+    treeStructure: () => get<TreeStructure>('/v1/intake/tree/structure'),
+
+    treeStart: (input) => post<TreeState>('/v1/intake/tree/start', input),
+
+    treeAnswer: (sessionId: string, text: string) =>
+      post<TreeState>('/v1/intake/tree/answer', { sessionId, text }),
+
+    treeAnswers: (sessionId: string) =>
+      get<Record<string, string>>(`/v1/intake/tree/${sessionId}/answers`),
+
+    matchOption: (input) =>
+      post<{ matched: string | null; source: string; reason: string }>(
+        '/v1/intake/tree/match-option',
+        input,
+      ),
 
     getCensus: () => get<Encounter[]>('/v1/census'),
 
@@ -78,14 +100,44 @@ export function createLiveAdapter(): MediPilotApi {
     addMeasurement: (encounterId: string, measurement: { code: string; value: number; source: string; takenAt: string }) =>
       post<Encounter>(`/v1/encounter/${encounterId}/measurement`, measurement),
 
-    transcribe: async (audio: Blob) => {
+    /** One counter visit, one round trip — so the backend re-scores once
+     *  against the complete set rather than once per reading. */
+    recordVitals: (input: {
+      encounterId: string;
+      source: string;
+      readings: { code: string; value: number; unit?: string }[];
+    }) =>
+      post<Encounter>(`/v1/encounter/${input.encounterId}/vitals`, {
+        source: input.source,
+        readings: input.readings,
+      }),
+
+    setDisposition: (input: {
+      encounterId: string;
+      disposition: Disposition;
+      note?: string;
+      clinicianId: string;
+    }) =>
+      post<Encounter>(`/v1/encounter/${input.encounterId}/disposition`, {
+        disposition: input.disposition,
+        note: input.note ?? null,
+        clinicianId: input.clinicianId,
+      }),
+
+    transcribe: async (audio: Blob): Promise<TranscriptionResponse> => {
       const fd = new FormData();
       fd.append('file', audio, 'audio.webm');
       const res = await fetch(`${BASE}/v1/speech/transcribe`, {
         method: 'POST',
-        body: fd
+        body: fd,
       });
-      if (!res.ok) throw new Error('Transcription failed');
+      if (!res.ok) {
+        // The orchestrator answers 503 with a reason when ASR is
+        // unavailable. Surface it — it must never be swallowed into a
+        // placeholder transcript.
+        const detail = await res.text().catch(() => '');
+        throw new Error(`Transcription failed (${res.status}): ${detail}`);
+      }
       return res.json();
     },
 

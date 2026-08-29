@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import { motion, LayoutGroup } from 'motion/react';
 import { api } from '@/lib/api/client';
 import type { Encounter, StreamEvent, SurgeState } from '@/lib/api/types';
@@ -78,25 +79,34 @@ export default function BoardPage() {
       return new Date(a.arrivedAt).getTime() - new Date(b.arrivedAt).getTime();
     });
 
+  // Counted for the header only — these patients stay in their normal
+  // acuity section rather than being pulled into a separate list. They are
+  // physically in the department and their provisional band still governs
+  // their queue position; the card just marks the score as provisional.
+  const awaitingVitals = waiting.filter(e => e.awaitingVitals);
+
   const longestWaitMin = Math.max(0, ...waiting.map(e => (simNowMs - new Date(e.arrivedAt).getTime()) / 60000));
 
-  const isCompact = waiting.length > 18;
-
   return (
-    <div data-surface="clinical" className="min-h-screen p-6" style={{ background: 'var(--bg)', color: 'var(--text)' }}>
-      <header className="flex items-center justify-between mb-6 pb-4 border-b" style={{ borderColor: 'var(--line)' }}>
-        <div className="flex items-baseline gap-6">
+    <div data-surface="ward" className="min-h-screen p-6" style={{ background: 'var(--bg)', color: 'var(--text)' }}>
+      <header className="flex items-center justify-between gap-6 flex-wrap mb-6 pb-4 border-b" style={{ borderColor: 'var(--line)' }}>
+        <div className="flex items-baseline gap-6 flex-wrap">
           <h1 className="text-2xl font-bold">Nurse Board</h1>
           <div className="flex items-baseline gap-4 text-sm" style={{ color: 'var(--text-dim)' }}>
             <span>Waiting: <span className="text-[var(--text)] font-semibold tabular-nums">{waiting.length}</span></span>
             <span>Longest wait: <span className="text-[var(--text)] font-semibold tabular-nums">{Math.round(longestWaitMin)}m</span></span>
             <span>Breaches: <span className="text-[var(--acuity-red)] font-semibold tabular-nums">{breaches.length}</span></span>
             <span>Abstained: <span className="text-[var(--acuity-abstained)] font-semibold tabular-nums">{abstained.length}</span></span>
+            {awaitingVitals.length > 0 && (
+              <span>At counter: <span className="text-[var(--focus)] font-semibold tabular-nums">{awaitingVitals.length}</span></span>
+            )}
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
+          <Link href="/counter" className="text-sm font-medium hover:underline" style={{ color: 'var(--focus)' }}>
+            Vitals Counter →
+          </Link>
           <span className="text-xs" style={{ color: 'var(--text-dim)' }}>medipilot-v0.3-demo</span>
-          <span className="px-2 py-0.5 rounded text-xs border" style={{ borderColor: 'var(--line)', color: 'var(--text-dim)' }}>SIMULATED DATA</span>
         </div>
       </header>
 

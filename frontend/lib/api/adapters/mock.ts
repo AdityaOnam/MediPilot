@@ -1,13 +1,18 @@
 import type {
   MediPilotApi, Encounter, ScoreResponse, SurgeState, RecheckTask,
   OverrideRecord, RControlResponse, SiteConfig, DecisionInput,
-  StreamEvent, Band, Factor, Explanation,
+  StreamEvent, Band, Factor, Explanation, AgeStratum, VitalCode, MeasurementSource,
+  IntakeSubmission, IntakeResponse, StructureResponse, TranscriptionResponse, TreeState,
+  Disposition,
 } from '../types';
 import { BAND_RANK } from '../types';
 import { CORPUS } from '../../seed/corpus';
 import { scanRedFlags } from '../../clinical/redFlags';
 import { CADENCE_TABLE, SURGE_CADENCE_TABLE } from '../../clinical/safeWait';
 import { generateSurgeFillers } from '../../seed/surgeFillers';
+import { computeRisk } from '../../clinical/riskEngine';
+import { normaliseVitalCode, bandForStratum, requiredVitals, VITALS } from '../../clinical/vitals';
+import { resolveStratum } from '../../clinical/ageBands';
 
 /**
  * Mock adapter — the full demo running offline.
@@ -59,8 +64,118 @@ function canonical(r: OverrideRecord): string {
   });
 }
 
+// ---------------------------------------------------------------------------
+// Persistence
+// ---------------------------------------------------------------------------
+
+/**
+ * The board has to survive a page reload.
+ *
+ * Everything here used to live in module scope only, so a patient who
+ * finished intake vanished the moment anyone refreshed /board — and in dev
+ * a hot-module reload was enough to lose them. That is the opposite of the
+ * requirement: an encounter leaves the queue when a nurse dispositions it
+ * and at no other time.
+ *
+ * Only encounters that did NOT come from the seed corpus are written, plus
+ * a per-id patch of the mutable fields for corpus patients. Persisting the
+ * whole array would freeze the seed data, so editing corpus.ts would stop
+ * having any visible effect until someone cleared their browser storage.
+ */
+const STORE_KEY = 'medipilot.board.v1';
+
+/** The fields a nurse or the counter can change. Everything else is seed. */
+interface EncounterPatch {
+  currentBand: Band | null;
+  humanAssignedBand: Band | null;
+  measurements: Encounter['measurements'];
+  state: Encounter['state'];
+  awaitingVitals?: boolean;
+  requiredVitals?: VitalCode[];
+  disposition?: Disposition | null;
+  dispositionAt?: string | null;
+  dispositionBy?: string | null;
+  dispositionNote?: string | null;
+}
+
+interface PersistedShape {
+  version: 1;
+  /** Encounters created through intake, stored whole. */
+  created: Encounter[];
+  /** Mutations applied to seed-corpus encounters, keyed by id. */
+  patches: Record<string, EncounterPatch>;
+}
+
+const isBrowser = typeof window !== 'undefined' && typeof localStorage !== 'undefined';
+
+function patchOf(e: Encounter): EncounterPatch {
+  return {
+    currentBand: e.currentBand,
+    humanAssignedBand: e.humanAssignedBand,
+    measurements: e.measurements,
+    state: e.state,
+    awaitingVitals: e.awaitingVitals,
+    requiredVitals: e.requiredVitals,
+    disposition: e.disposition ?? null,
+    dispositionAt: e.dispositionAt ?? null,
+    dispositionBy: e.dispositionBy ?? null,
+    dispositionNote: e.dispositionNote ?? null,
+  };
+}
+
+const CORPUS_IDS = new Set(CORPUS.map(e => e.encounterId));
+
+function persist(): void {
+  if (!isBrowser) return;
+  try {
+    const payload: PersistedShape = { version: 1, created: [], patches: {} };
+    for (const e of state.encounters) {
+      if (CORPUS_IDS.has(e.encounterId)) {
+        // Only store a patch when something actually diverged from seed,
+        // so an untouched demo writes nothing and stays fully re-seedable.
+        const seed = CORPUS.find(c => c.encounterId === e.encounterId)!;
+        const changed =
+          e.currentBand !== seed.currentBand ||
+          e.humanAssignedBand !== seed.humanAssignedBand ||
+          e.state !== seed.state ||
+          e.measurements.length !== seed.measurements.length ||
+          !!e.disposition;
+        if (changed) payload.patches[e.encounterId] = patchOf(e);
+      } else {
+        payload.created.push(e);
+      }
+    }
+    localStorage.setItem(STORE_KEY, JSON.stringify(payload));
+  } catch {
+    // A full or disabled localStorage must never break the board. The
+    // in-memory state is still correct for this tab.
+  }
+}
+
+function hydrate(): Encounter[] {
+  const base = CORPUS.map(e => ({ ...e, cadence: { ...e.cadence } }));
+  if (!isBrowser) return base;
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (!raw) return base;
+    const saved = JSON.parse(raw) as PersistedShape;
+    if (saved.version !== 1) return base;
+
+    for (const e of base) {
+      const p = saved.patches?.[e.encounterId];
+      if (p) Object.assign(e, p);
+    }
+    for (const created of saved.created ?? []) {
+      base.push({ ...created, cadence: { ...created.cadence } });
+    }
+    return base;
+  } catch {
+    return base;
+  }
+}
+
 const state: State = {
-  encounters: CORPUS.map(e => ({ ...e, cadence: { ...e.cadence } })),
+  encounters: hydrate(),
   R: 500,
   clockSpeed: 1,
   simEpochMs: Date.now(),
@@ -347,7 +462,185 @@ function generateExplanation(enc: Encounter): Explanation {
   return c;
 }
 
+/**
+ * Score a patient who arrived through /intake.
+ *
+ * The seeded records below are driven by a hand-authored PROBABILITY table
+ * so the demo board is reproducible. Intake patients have no entry there,
+ * and the lookup's `?? 0` fallback meant every real intake scored GREEN
+ * regardless of what the patient said — a chest-pain-with-sweating red
+ * flag included. These go through the deterministic risk engine instead.
+ */
+function generateIntakeScore(enc: Encounter): ScoreResponse {
+  const pStar = 1 / (1 + state.R);
+  const risk = computeRisk({
+    ageStratum: enc.ageStratum,
+    ageStratumInferred: enc.ageStratumInferred,
+    redFlagCodes: enc.redFlagCodes ?? [],
+    painScore: enc.painScore ?? null,
+    measurements: enc.measurements,
+    branch: enc.intakeBranch ?? null,
+    humanAssignedBand: enc.humanAssignedBand,
+  });
+
+  // The conformal set widens exactly where the evidence is thin: a patient
+  // still walking to the counter has no vitals, so the set spans the bands
+  // those vitals would have separated.
+  const conformalSet: Band[] =
+    risk.band === 'RED' ? ['RED']
+    : risk.confidence === 'low' ? ['GREEN', 'YELLOW', 'RED']
+    : risk.band === 'YELLOW' ? ['YELLOW', 'RED']
+    : ['GREEN', 'YELLOW'];
+
+  return {
+    encounterId: enc.encounterId,
+    serverTime: new Date().toISOString(),
+    simTime: new Date(simNowMs()).toISOString(),
+    abstained: false,
+    effectiveBand: risk.band,
+    band: risk.band,
+    probability: risk.probability,
+    conformalSet,
+    coverage: 0.9,
+    confidence: risk.confidence,
+    confidenceReducedBy: risk.confidenceReducedBy.length > 0 ? risk.confidenceReducedBy : undefined,
+    inputsUsed: risk.inputsUsed,
+    redFlags: risk.redFlags.length > 0 ? risk.redFlags : undefined,
+    explanation: {
+      channel1: risk.factors.slice(0, 3),
+      channel2: {
+        considered: risk.missingVitals.length > 0
+          ? [`Awaiting at counter: ${risk.missingVitals.join(', ')}`]
+          : ['All required vitals recorded'],
+        discounts: [],
+      },
+      channel3: { narrative: [], timeline: [] },
+    },
+    suggestsReview: risk.missingVitals.length > 0,
+    suggestsReviewReason: risk.missingVitals.length > 0
+      ? `Scored without ${risk.missingVitals.join(', ')} — provisional until the counter records them.`
+      : undefined,
+    thresholdUsed: pStar,
+    costRatioR: state.R,
+    modelVersion: 'medipilot-v0.3-demo',
+    calibrationVersion: 'site-aiims-2024Q4',
+    auditId: `audit-${enc.encounterId}-${Date.now()}`,
+  };
+}
+
+/**
+ * Store one reading, normalising the code and computing everything that is
+ * derived from it. Replaces the previous inline push, which stored the
+ * caller's raw code (the dialog sent 'hr', 'bp_sys', 'temp_c') and left
+ * `unit` empty for everything but temperature and `bandForStratum` unset
+ * entirely — so no reading a nurse entered by hand was ever banded against
+ * the patient's age stratum.
+ *
+ * A reading whose code is not one of the nine known vitals is still stored
+ * and still rendered. It simply carries no band, and the risk engine skips
+ * it: scoring a field the model has never seen would be worse than not
+ * scoring it.
+ */
+function applyReading(
+  e: Encounter,
+  rawCode: string,
+  value: number,
+  source: string,
+  takenAt: string,
+  unitOverride?: string,
+): void {
+  const canonical = normaliseVitalCode(rawCode);
+  const code = (canonical ?? rawCode.trim().toLowerCase().replace(/\s+/g, '_')) as VitalCode;
+  const unit = unitOverride ?? (canonical ? VITALS[canonical].unit : '');
+  const band = canonical ? bandForStratum(canonical, value, e.ageStratum) : undefined;
+
+  // One current reading per code — the previous one is history, and the
+  // card shows the latest. Superseded values stay out of the array so a
+  // stale number can never be mistaken for a second sensor agreeing.
+  const existing = e.measurements.findIndex(m => m.code === code);
+  const reading = {
+    code,
+    value,
+    unit,
+    takenAt,
+    source: source as MeasurementSource,
+    validity: 'fresh' as const,
+    bandForStratum: band,
+  };
+  if (existing >= 0) e.measurements[existing] = reading;
+  else e.measurements.push(reading);
+}
+
+/**
+ * Close out a counter visit: clear what is still owed, reset the
+ * re-measure clock, and re-score.
+ *
+ * The re-score is escalate-only. Fresh vitals may raise a band; they may
+ * never lower one, so a patient who came in on a red flag stays RED even
+ * if every number now reads normal. Only a nurse override moves a band
+ * down, and that goes through decide() with its 16-field record.
+ */
+function finishVitalVisit(e: Encounter): void {
+  const now = simNowMs();
+
+  const measured = new Set(
+    e.measurements
+      .filter(m => m.value !== null)
+      .map(m => normaliseVitalCode(m.code))
+      .filter((c): c is VitalCode => !!c),
+  );
+  const stillOwed = (e.requiredVitals ?? []).filter(c => !measured.has(c));
+  e.requiredVitals = stillOwed;
+  e.awaitingVitals = stillOwed.length > 0;
+
+  if (e.intakeBranch !== undefined) {
+    const risk = computeRisk({
+      ageStratum: e.ageStratum,
+      ageStratumInferred: e.ageStratumInferred,
+      redFlagCodes: e.redFlagCodes ?? [],
+      painScore: e.painScore ?? null,
+      measurements: e.measurements,
+      branch: e.intakeBranch ?? null,
+      humanAssignedBand: e.humanAssignedBand,
+    });
+
+    const prev = e.currentBand ?? 'GREEN';
+    if (BAND_RANK[risk.band] > BAND_RANK[prev]) {
+      e.currentBand = risk.band;
+      emit({
+        type: 'escalation',
+        encounterId: e.encounterId,
+        from: prev,
+        to: risk.band,
+        cause: 'MODEL',
+        auditId: `audit-${e.encounterId}-${Date.now()}`,
+      });
+    }
+  }
+
+  const table = state.surgeActive ? SURGE_CADENCE_TABLE : CADENCE_TABLE;
+  const c = table[e.currentBand ?? 'GREEN'];
+  e.cadence.rescoreSec = c.rescoreSec;
+  e.cadence.remeasureSec = c.remeasureSec;
+  e.cadence.ceilingSec = c.ceilingSec;
+  e.cadence.nextRemeasureAt = new Date(now + c.remeasureSec * 1000).toISOString();
+  e.cadence.nextRescoreAt = new Date(now + c.rescoreSec * 1000).toISOString();
+  // The ceiling has to move with the band too. Leaving it at the value set
+  // when the patient was GREEN would let an escalated RED keep a two-hour
+  // wait ceiling — under-reporting the exact breach the ceiling exists to
+  // surface. RED's ceilingSec is 0, so a RED breaches immediately by
+  // design: there is no acceptable wait.
+  e.cadence.ceilingBreachesAt = new Date(now + c.ceilingSec * 1000).toISOString();
+  e.cadence.breached = false;
+  e.cadence.breachKind = undefined;
+  e.lastScoredAt = new Date(now).toISOString();
+}
+
 function generateScore(enc: Encounter): ScoreResponse {
+  // Anything that came through intake carries a branch field; seeded
+  // corpus records never do.
+  if (enc.intakeBranch !== undefined) return generateIntakeScore(enc);
+
   const isAbstained = enc.encounterId === 'P-15';
   const band = enc.currentBand ?? 'YELLOW';
   const redFlags = enc.chiefComplaint ? scanRedFlags(enc.chiefComplaint) : [];
@@ -402,10 +695,96 @@ function generateScore(enc: Encounter): ScoreResponse {
   };
 }
 
+// -- mock question-tree session state (see treeStart above) ---------------
+let mockTreeSeq = 0;
+const mockTreeSessions: Record<string, { stratum: AgeStratum; index: number; answers: Record<string, string> }> = {};
+
+function mockTreeState(
+  sessionId: string,
+  qs: { id: string; label: { en: string; hi: string }; kind: string; options?: { value: string; label: { en: string; hi: string } }[] }[],
+  index: number,
+  answers: Record<string, string>,
+): TreeState {
+  const q = qs[index];
+  const kindMap: Record<string, TreeState['question'] extends null ? never : 'free_text' | 'yes_no' | 'numeric_0_10'> = {
+    text: 'free_text', yesno: 'yes_no', number: 'numeric_0_10', options: 'free_text',
+  } as never;
+  return {
+    sessionId,
+    question: q
+      ? {
+          nodeId: q.id,
+          prompt: q.label.en,
+          promptHi: q.label.hi,
+          kind: (kindMap as Record<string, 'free_text' | 'yes_no' | 'numeric_0_10'>)[q.kind] ?? 'free_text',
+          options: q.options ?? [],
+        }
+      : null,
+    complete: index >= qs.length,
+    stoppedForRedFlag: false,
+    redFlagObservations: [],
+    progress: { i: Math.min(index + 1, qs.length), n: qs.length },
+    chiefComplaint: answers['chief-complaint'] ?? null,
+    symptoms: [],
+    accepted: true,
+  };
+}
+
 export function createMockAdapter(): MediPilotApi {
   ensureTicker();
 
   return {
+    // The real question tree lives in Python and is driven server-side
+    // (see backend/orchestrator/tree_session.py). The mock cannot
+    // reproduce it — branch selection needs the LLM structurer and the
+    // red-flag table. Rather than fake a second tree that would drift
+    // from the real one, the mock walks the static frontend tree in
+    // lib/intake/questionTree.ts, which is what the kiosk falls back to
+    // when the backend is unreachable.
+    // The real tree lives in Python; the mock has no equivalent to expose.
+    // Return an empty structure so the panel shows nothing rather than a
+    // fabricated tree that would misrepresent the system.
+    async treeStructure() {
+      return { opening: [], tails: { adult: [], paediatric: [], geriatric: [] }, categories: [] };
+    },
+
+    async treeStart(input: { ageYears?: number; medicalInfoConsent: boolean; language: string }): Promise<TreeState> {
+      const { questionsFor } = await import('../../intake/questionTree');
+      const { resolveStratum } = await import('../../clinical/ageBands');
+      const stratum = resolveStratum(input.ageYears ?? null).stratum;
+      const qs = questionsFor(stratum);
+      mockTreeSessions[`mock-${++mockTreeSeq}`] = { stratum, index: 0, answers: {} };
+      const sessionId = `mock-${mockTreeSeq}`;
+      return mockTreeState(sessionId, qs, 0, {});
+    },
+
+    async treeAnswer(sessionId: string, text: string): Promise<TreeState> {
+      const { questionsFor } = await import('../../intake/questionTree');
+      const s = mockTreeSessions[sessionId];
+      if (!s) throw new Error(`unknown mock tree session: ${sessionId}`);
+      const qs = questionsFor(s.stratum);
+      const current = qs[s.index];
+      if (current) s.answers[current.id] = text;
+      s.index += 1;
+      return mockTreeState(sessionId, qs, s.index, s.answers);
+    },
+
+    async treeAnswers(sessionId: string): Promise<Record<string, string>> {
+      return mockTreeSessions[sessionId]?.answers ?? {};
+    },
+
+    // Mock never simulates the LLM matcher: unless one of the option
+    // labels appears verbatim in the patient text, we return no match, so
+    // the "please choose one below" hint shows just like the live path
+    // would when Groq is unavailable.
+    async matchOption(input) {
+      const spoken = input.patientText.toLowerCase();
+      const hit = input.options.find(o =>
+        spoken.includes(o.label.en.toLowerCase()) || spoken.includes(o.label.hi.toLowerCase())
+      );
+      return { matched: hit?.value ?? null, source: 'mock', reason: hit ? 'label_in_text' : 'no_hit' };
+    },
+
     async getConfig(): Promise<SiteConfig> {
       return {
         costRatioR: state.R,
@@ -468,6 +847,12 @@ export function createMockAdapter(): MediPilotApi {
         enc.currentBand = input.band;
         enc.humanAssignedBand = input.band;
       }
+      if (input.action === 'accept' && input.band) {
+        // Accepting pins the band as human-assigned, so a later re-score
+        // cannot quietly drift it back down.
+        enc.humanAssignedBand = input.band;
+      }
+      persist();
 
       const inputsHash = djb2Hex(JSON.stringify(enc.measurements.map(m => [m.code, m.value, m.takenAt])));
       const factorsShown = input.factorsShown ?? generateExplanation(enc).channel1;
@@ -620,85 +1005,187 @@ export function createMockAdapter(): MediPilotApi {
     },
 
     async submitIntake(data: IntakeSubmission): Promise<IntakeResponse> {
-      const id = `P-${state.encounters.length + 1}`;
-      const token = `${200 + state.encounters.length}`;
+      // Ids and tokens must not collide with anything already on the board,
+      // including patients restored from a previous session.
+      const usedIds = new Set(state.encounters.map(e => e.encounterId));
+      let n = state.encounters.length + 1;
+      while (usedIds.has(`P-${n}`)) n++;
+      const id = `P-${n}`;
+
+      const usedTokens = new Set(state.encounters.map(e => e.token));
+      let tokenNum = 200 + state.encounters.length;
+      while (usedTokens.has(String(tokenNum))) tokenNum++;
+      const token = String(tokenNum);
+
       const now = new Date(simNowMs()).toISOString();
-      const newEncounter = {
-        id,
-        token,
-        displayName: data.displayName,
-        ageYears: data.ageYears,
-        ageStratum: data.ageYears ? 'adult' as AgeStratum : 'adult' as AgeStratum,
-        ageStratumInferred: !data.ageYears,
-        sex: data.sex,
-        chiefComplaint: data.chiefComplaint,
-        arrivedAt: now,
-        state: 'waiting' as const,
-        currentBand: 'GREEN' as Band,
-        humanAssignedBand: undefined,
+      const { stratum, inferred } = resolveStratum(data.ageYears ?? null);
+      const flagged = data.redFlagsFired.length > 0;
+
+      // What this presentation owes the counter before it can be scored on
+      // anything but the patient's own words.
+      const owed = requiredVitals({
+        branch: data.branch ?? null,
+        redFlagCount: data.redFlagsFired.length,
+        ageStratum: stratum,
+      });
+
+      // The band the patient enters the board with, from the same engine
+      // that will re-score them once the counter reports back. With no
+      // measurements yet this is words-only — hence awaitingVitals.
+      const risk = computeRisk({
+        ageStratum: stratum,
+        ageStratumInferred: inferred,
+        redFlagCodes: data.redFlagsFired,
+        painScore: data.painScore ?? null,
         measurements: [],
-        cadence: {
-          rescoreSec: 300,
-          remeasureSec: 3600,
-          ceilingSec: 7200,
-          nextRescoreAt: now,
-          nextRemeasureAt: now,
-          ceilingBreachesAt: now,
-          breached: false,
-        },
-        redFlagObservations: data.redFlagsFired,
-        reliabilityFlags: {},
-      };
-      state.encounters.push(newEncounter);
-      
-      const res: IntakeResponse = {
+        branch: data.branch ?? null,
+      });
+
+      const cadence = CADENCE_TABLE[risk.band];
+      const counter = flagged ? 'Triage Bay' : `Counter ${(state.encounters.length % 4) + 1}`;
+
+      const newEncounter: Encounter = {
         encounterId: id,
         token,
-        currentBand: 'GREEN',
-        humanAssignedBand: undefined,
+        displayName: data.displayName,
+        ageYears: data.ageYears ?? null,
+        ageStratum: stratum,
+        ageStratumInferred: inferred,
+        sex: (data.sex as Encounter['sex']) ?? null,
+        chiefComplaint: data.chiefComplaint,
+        arrivedAt: now,
+        arrivalMode: (data.arrivalMode as Encounter['arrivalMode']) ?? 'walk-in',
+        humanAssignedBand: flagged ? 'RED' : null,
+        currentBand: risk.band,
+        measurements: [],
+        cadence: {
+          rescoreSec: cadence.rescoreSec,
+          remeasureSec: cadence.remeasureSec,
+          ceilingSec: cadence.ceilingSec,
+          nextRescoreAt: new Date(simNowMs() + cadence.rescoreSec * 1000).toISOString(),
+          nextRemeasureAt: new Date(simNowMs() + cadence.remeasureSec * 1000).toISOString(),
+          ceilingBreachesAt: new Date(simNowMs() + cadence.ceilingSec * 1000).toISOString(),
+          breached: false,
+        },
+        hasPriorRecord: false,
+        assisted: data.assisted,
+        humanAssistanceRequested: data.humanAssistanceRequested,
+        medicalInfoConsent: data.medicalInfoConsent,
+        state: 'waiting',
+        lastScoredAt: now,
+
+        intakeBranch: data.branch ?? null,
+        redFlagCodes: data.redFlagsFired,
+        painScore: data.painScore ?? null,
+        requiredVitals: owed,
+        awaitingVitals: owed.length > 0,
+        counter,
+        disposition: null,
       };
-      return res;
+
+      state.encounters.push(newEncounter);
+      persist();
+
+      return {
+        encounterId: id,
+        token,
+        counter,
+        // Mirror the live contract: a red-flag intake never enters as GREEN.
+        currentBand: risk.band,
+        humanAssignedBand: flagged ? 'RED' : undefined,
+        needsImmediateNurse: flagged,
+        redFlagsFired: data.redFlagsFired,
+        requiredVitals: owed,
+      };
     },
 
     async structureText(text: string, language: string): Promise<StructureResponse> {
       const { scanRedFlags } = await import('@/lib/clinical/redFlags');
       const redFlags = scanRedFlags(text);
       return {
-        observations: redFlags.length > 0 ? ['mock_observation_1'] : [],
+        observations: redFlags.flatMap(f => f.matchedObservations ?? []),
         redFlags,
         structuredFields: {
           chiefComplaint: text,
           onsetMinutes: null,
-          severity: redFlags.length > 0 ? 'severe' : 'moderate',
-        }
+          // Null, not an invented band. The mock mirrors the live contract:
+          // only a number the patient stated themselves belongs here.
+          selfReportedSeverity: null,
+          symptoms: redFlags.flatMap(f => f.matchedObservations ?? []),
+          medications: [],
+          pregnancyStatus: null,
+          relevantHistory: [],
+        },
+        extraction: {
+          status: 'ok',
+          structurer: 'MockAdapter (client-side regex, NOT an LLM)',
+          unrecognizedTerms: [],
+        },
       };
     },
 
     async addMeasurement(encounterId: string, measurement: { code: string; value: number; source: string; takenAt: string }): Promise<Encounter> {
-      const e = state.encounters.find(x => x.id === encounterId);
-      if (!e) throw new Error('Not found');
-      
-      const valStr = String(measurement.value);
-      e.measurements.push({
-        code: measurement.code,
-        value: valStr,
-        unit: measurement.code === 'TEMP_C' ? '°C' : '',
-        takenAt: measurement.takenAt,
-        source: measurement.source,
-        validity: 'fresh'
-      });
-      
-      const now = simNowMs();
-      if (e.cadence) {
-        e.cadence.nextRemeasureAt = new Date(now + e.cadence.remeasureSec * 1000).toISOString();
-      }
-      return e;
+      const e = findEnc(encounterId);
+      applyReading(e, measurement.code, measurement.value, measurement.source, measurement.takenAt);
+      finishVitalVisit(e);
+      persist();
+      return { ...e, cadence: { ...e.cadence } };
     },
 
-    async transcribe(audio: Blob): Promise<{ text: string }> {
+    async recordVitals(input: {
+      encounterId: string;
+      source: string;
+      readings: { code: string; value: number; unit?: string }[];
+    }): Promise<Encounter> {
+      const e = findEnc(input.encounterId);
+      const takenAt = new Date(simNowMs()).toISOString();
+
+      for (const r of input.readings) {
+        if (!Number.isFinite(r.value)) continue;
+        applyReading(e, r.code, r.value, input.source, takenAt, r.unit);
+      }
+
+      finishVitalVisit(e);
+      persist();
+      return { ...e, cadence: { ...e.cadence } };
+    },
+
+    async setDisposition(input: {
+      encounterId: string;
+      disposition: Disposition;
+      note?: string;
+      clinicianId: string;
+    }): Promise<Encounter> {
+      const e = findEnc(input.encounterId);
+      e.disposition = input.disposition;
+      e.dispositionAt = new Date(simNowMs()).toISOString();
+      e.dispositionBy = input.clinicianId;
+      e.dispositionNote = input.note ?? null;
+      // 'departed' is what removes them from the board's waiting list.
+      e.state = 'departed';
+      e.awaitingVitals = false;
+      e.cadence.breached = false;
+      e.cadence.breachKind = undefined;
+      persist();
+      return { ...e, cadence: { ...e.cadence } };
+    },
+
+    async transcribe(audio: Blob): Promise<TranscriptionResponse> {
       // Simulate network delay
       await new Promise(r => setTimeout(r, 1500));
-      return { text: "This is a mock transcription from the frontend adapter." };
+      return {
+        text: "This is a mock transcription from the frontend adapter.",
+        language: 'en',
+        languageConfidence: null,
+        codeMixed: false,
+        asrReliability: {
+          no_speech: false,
+          low_confidence: false,
+          possible_hallucination: false,
+          unsupported_language: false,
+        },
+        backend: 'mock',
+      };
     },
 
     subscribe(handler: (e: StreamEvent) => void): () => void {
