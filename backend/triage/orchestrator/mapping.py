@@ -87,6 +87,10 @@ def vital_code_to_fe(be_code: str) -> str:
 
 
 # Vital units for frontend display
+# Must stay in step with VITALS in frontend/lib/clinical/vitals.ts. A unit
+# mismatch between the two is silent and clinically serious -- a rate
+# rendered in mmHg is the kind of thing that makes a clinician distrust
+# every other number on the card.
 _VITAL_UNITS = {
     "HR": "bpm",
     "RR": "/min",
@@ -95,6 +99,7 @@ _VITAL_UNITS = {
     "SPO2": "%",
     "TEMP": "°C",
     "GCS": "/15",
+    "RBS": "mg/dL",
     "PAIN": "/10",
 }
 

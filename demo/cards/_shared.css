@@ -1,0 +1,129 @@
+/* MediPilot Pixel Triage Reel — card stylesheet, v2.
+   Rebuilt on the REAL token values from frontend/app/globals.css and the
+   REAL treatments from components/ui/SectionHeading.tsx and GlassCard.tsx
+   — not an invented palette. Verified against the running app:
+     frontend/app/globals.css        --bg/--text/--accent/--focus etc.
+     frontend/app/page.tsx           the landing page's own hero/CTA colours
+     frontend/components/ui/*.tsx    the underline-bar and glass-card patterns
+
+   `landing`/`patient`/`ward` are the SAME warm-paper theme in the shipped
+   app (confirmed by grepping data-surface across every page) — only
+   /audit stays on the dark `clinical` surface. These cards use the warm
+   theme because it is what the product actually looks like almost
+   everywhere now, not a landing-page-only choice.
+
+   Not used via <link> (file:// stylesheet loads are unreliable across
+   browsers) — each card HTML file inlines this same block. Edit here
+   first, then copy into each card's <style> if a token changes. */
+
+:root {
+  /* Warm paper — data-surface="landing" / "ward" / "patient" in globals.css */
+  --bg:        #FBF7F2;
+  --bg-card:   #FFFFFF;
+  --line:      #E7DED2;
+  --text:      #1C1B1A;
+  --text-dim:  #6B6560;
+  --accent:    #DF423D;   /* brand red — --mp-red, allowed here: this is a patient/marketing surface, not clinical */
+  --focus:     #926A47;   /* --mp-leather */
+  --steel:     #A7C4CC;   /* --mp-steel, used in the gradient-border 3rd stop */
+  --glass:     #C9EBED;   /* --mp-glass */
+  --cta-dark:  #C23833;   /* the CTA button's gradient end, from page.tsx's "Try Intake Demo" */
+
+  /* Acuity on paper — same hex values as globals.css lines 161-168.
+     Only card G-02 uses these; every other card is acuity-free. */
+  --acuity-red:        #C62D26;
+  --acuity-red-fill:   #FBE7E5;
+  --acuity-yellow:     #9A6206;
+  --acuity-yellow-fill:#FCF1DC;
+  --acuity-green:      #1B7A4B;
+  --acuity-green-fill: #E4F4EB;
+  --acuity-abstained:      #5B4BC4;
+  --acuity-abstained-fill: #ECE9FB;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 1920px;
+  height: 1080px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, 'Segoe UI', Inter, Helvetica, Arial, sans-serif;
+  font-variant-numeric: tabular-nums;  /* DESIGN_SYSTEM.md §4 — mandatory on any measurement/number */
+  overflow: hidden;
+}
+
+.stage {
+  position: relative;
+  width: 1920px;
+  height: 1080px;
+  padding: 120px 160px;
+}
+
+/* The SectionHeading.tsx underline-bar treatment, verbatim. */
+.heading {
+  position: relative;
+  display: inline-block;
+  font-size: 56px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  padding-bottom: 22px;
+}
+.heading::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: 0;
+  height: 5px;
+  width: 40%;
+  border-radius: 999px;
+  background: linear-gradient(to right, var(--accent), var(--focus));
+}
+
+.kicker {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 24px;
+}
+
+/* GlassCard.tsx's rounded-xl + gradient-border, on a light surface (the
+   dark glassmorph blur reads muddy on cream, so this is a solid
+   equivalent: same radius, same three-colour gradient border). */
+.card {
+  border-radius: 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--line);
+  box-shadow: 0 1px 3px rgba(28,27,26,0.06), 0 8px 24px rgba(28,27,26,0.05);
+  padding: 36px 44px;
+}
+.card.gradient-border {
+  background:
+    linear-gradient(var(--bg-card), var(--bg-card)) padding-box,
+    linear-gradient(135deg, var(--accent), var(--focus), var(--steel)) border-box;
+  border: 2px solid transparent;
+}
+
+.chip {
+  position: absolute;
+  right: 64px;
+  bottom: 48px;
+  border: 1.5px solid var(--steel);
+  color: var(--focus);
+  padding: 9px 18px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  background: rgba(167, 196, 204, 0.14);
+}
+
+.rule { width: 100%; height: 1px; background: var(--line); margin: 32px 0; }
+.dim { color: var(--text-dim); }
+.brand-grad {
+  background: linear-gradient(to right, var(--accent), var(--focus));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}

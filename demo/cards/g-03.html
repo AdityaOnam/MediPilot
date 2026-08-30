@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>G-03 — The refusal card</title>
+<style>
+:root {
+  --bg:#FBF7F2; --bg-card:#FFFFFF; --line:#E7DED2; --text:#1C1B1A; --text-dim:#6B6560;
+  --accent:#DF423D; --focus:#926A47; --steel:#A7C4CC; --glass:#C9EBED;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:1920px; height:1080px; background:var(--bg); color:var(--text);
+  font-family:-apple-system,'Segoe UI',Inter,Helvetica,Arial,sans-serif;
+  font-variant-numeric:tabular-nums; overflow:hidden; }
+.stage { position:relative; width:1920px; height:1080px; padding:110px 160px; }
+.kicker { font-size:16px; font-weight:700; letter-spacing:3px; text-transform:uppercase;
+  color:var(--text-dim); margin-bottom:24px; }
+.chip { position:absolute; right:64px; bottom:48px; border:1.5px solid var(--steel); color:var(--focus);
+  padding:9px 18px; border-radius:999px; font-size:13px; font-weight:700; letter-spacing:2px;
+  background:rgba(167,196,204,0.14); }
+.rule { width:100%; height:1px; background:var(--line); margin:36px 0; }
+
+.headline { font-size:44px; font-weight:800; line-height:1.4; max-width:1500px; letter-spacing:-0.01em; }
+
+.refusal { display:flex; align-items:center; gap:24px; margin-top:26px; padding:24px 32px;
+  border-radius:16px; background:var(--bg-card); border:1px solid var(--line);
+  box-shadow:0 1px 3px rgba(28,27,26,0.05); }
+.refusal .mark { width:36px; height:36px; border-radius:10px; flex:none;
+  background:rgba(223,66,61,0.10); color:var(--accent); font-weight:800; font-size:22px;
+  display:flex; align-items:center; justify-content:center; }
+.refusal .txt { font-size:30px; font-weight:600; }
+
+.tag { margin-top:52px; font-size:22px; color:var(--text-dim); border-top:1px solid var(--line);
+  padding-top:26px; font-weight:600; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="kicker">Under 3&times; load</div>
+
+  <div class="headline">This is what the system refuses to do to cope.</div>
+
+  <div class="rule"></div>
+
+  <div class="refusal"><div class="mark">&times;</div><div class="txt">may not raise R to reduce alarm volume</div></div>
+  <div class="refusal"><div class="mark">&times;</div><div class="txt">may not resolve abstentions by guessing</div></div>
+  <div class="refusal"><div class="mark">&times;</div><div class="txt">may not de-escalate anyone to free capacity</div></div>
+
+  <div class="tag">each is blocked in code, not in policy.</div>
+
+  <div class="chip">SIMULATED DATA</div>
+</div>
+</body>
+</html>

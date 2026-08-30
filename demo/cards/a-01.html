@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>A-01 — The split</title>
+<style>
+:root {
+  --bg:#FBF7F2; --bg-card:#FFFFFF; --line:#E7DED2; --text:#1C1B1A; --text-dim:#6B6560;
+  --accent:#DF423D; --focus:#926A47; --steel:#A7C4CC; --glass:#C9EBED;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:1920px; height:1080px; background:var(--bg); color:var(--text);
+  font-family:-apple-system,'Segoe UI',Inter,Helvetica,Arial,sans-serif;
+  font-variant-numeric:tabular-nums; overflow:hidden; }
+.stage { position:relative; width:1920px; height:1080px; display:flex; flex-direction:column;
+  justify-content:center; align-items:center; padding:100px 160px; }
+.kicker { position:absolute; top:96px; left:160px; font-size:16px; font-weight:700;
+  letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; }
+
+.block { width:1420px; border-radius:20px; background:var(--bg-card); border:1px solid var(--line);
+  box-shadow:0 1px 3px rgba(28,27,26,0.05), 0 8px 24px rgba(28,27,26,0.04);
+  padding:38px 48px; font-size:32px; font-weight:700; text-align:center; }
+.block.end {
+  background:linear-gradient(#FFFFFF,#FFFFFF) padding-box,
+             linear-gradient(135deg,var(--accent),var(--focus),var(--steel)) border-box;
+  border:2px solid transparent;
+  color:var(--focus);
+}
+
+.arrow { font-size:36px; color:var(--text-dim); margin:22px 0; font-weight:700; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="kicker">The split</div>
+
+  <div class="block">the model reports what was said</div>
+  <div class="arrow">&darr;</div>
+  <div class="block">a fixed table decides what it means</div>
+  <div class="arrow">&darr;</div>
+  <div class="block end">the band engine assigns, and can only escalate</div>
+</div>
+</body>
+</html>

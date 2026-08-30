@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>A-03 — The six invariants</title>
+<style>
+:root {
+  --bg:#FBF7F2; --bg-card:#FFFFFF; --line:#E7DED2; --text:#1C1B1A; --text-dim:#6B6560;
+  --accent:#DF423D; --focus:#926A47; --steel:#A7C4CC; --glass:#C9EBED;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:1920px; height:1080px; background:var(--bg); color:var(--text);
+  font-family:-apple-system,'Segoe UI',Inter,Helvetica,Arial,sans-serif;
+  font-variant-numeric:tabular-nums; overflow:hidden; }
+.stage { position:relative; width:1920px; height:1080px; padding:90px 160px; }
+.kicker { font-size:16px; font-weight:700; letter-spacing:3px; color:var(--text-dim);
+  text-transform:uppercase; margin-bottom:30px; }
+
+.inv { display:flex; align-items:flex-start; gap:22px; margin-bottom:19px; }
+.inv .n { width:34px; height:34px; border-radius:9px; flex:none; background:rgba(146,106,71,0.10);
+  color:var(--focus); font-size:18px; font-weight:800; display:flex; align-items:center;
+  justify-content:center; margin-top:2px; }
+.inv .t { font-size:26px; font-weight:600; line-height:1.45; }
+
+.footer { margin-top:34px; border-top:1px solid var(--line); padding-top:22px;
+  font-size:20px; color:var(--text-dim); font-weight:600; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="kicker">The six invariants</div>
+
+  <div class="inv"><div class="n">1</div><div class="t">Asymmetric autonomy — may escalate on its own, may never lower a human-assigned band.</div></div>
+  <div class="inv"><div class="n">2</div><div class="t">No naked scores — every value carries a confidence indicator and the inputs it used.</div></div>
+  <div class="inv"><div class="n">3</div><div class="t">Age is never assumed — no threshold applies before a stratum resolves.</div></div>
+  <div class="inv"><div class="n">4</div><div class="t">Freshness is part of the value — a stale reading renders as missing, not as a number.</div></div>
+  <div class="inv"><div class="n">5</div><div class="t">Abstention is loud, and never Green — holds at the Yellow floor.</div></div>
+  <div class="inv"><div class="n">6</div><div class="t">The human closes every loop — override, one touch, always recorded with a reason.</div></div>
+
+  <div class="footer">6 invariant tests &middot; tests/test_invariants.py</div>
+</div>
+</body>
+</html>

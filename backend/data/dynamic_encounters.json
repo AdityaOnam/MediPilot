@@ -380,5 +380,67 @@
     },
     "stale_vitals_hours": 0.0,
     "zero_history": true
+  },
+  {
+    "encounter_id": "P-33",
+    "token": "233",
+    "display_name": "Anonymous Patient",
+    "age_years": null,
+    "age_days": null,
+    "stratum": "adult",
+    "stratum_inferred": true,
+    "sex": null,
+    "chief_complaint": "Human lane \u2014 details to be taken in person",
+    "arrival_mode": "walk-in",
+    "human_assigned_band": null,
+    "arrived_at": "2026-08-30T13:19:13.849984+00:00",
+    "assisted": true,
+    "medical_info_consent": true,
+    "has_prior_record": false,
+    "red_flag_observations": [],
+    "reliability_flags": {},
+    "force_ood": false,
+    "spo2_bias_risk": false,
+    "trajectory": {
+      "steps": [
+        {
+          "at_min": 0
+        }
+      ],
+      "final_outcome_band": "UNKNOWN"
+    },
+    "stale_vitals_hours": 0.0,
+    "zero_history": true
+  },
+  {
+    "encounter_id": "P-34",
+    "token": "234",
+    "display_name": "Anonymous Patient",
+    "age_years": 22.0,
+    "age_days": 8035,
+    "stratum": "adult",
+    "stratum_inferred": false,
+    "sex": "M",
+    "chief_complaint": "I am I have chest pain.",
+    "arrival_mode": "walk-in",
+    "human_assigned_band": null,
+    "arrived_at": "2026-08-30T13:38:27.832323+00:00",
+    "assisted": false,
+    "medical_info_consent": true,
+    "has_prior_record": false,
+    "red_flag_observations": [],
+    "reliability_flags": {},
+    "force_ood": false,
+    "spo2_bias_risk": false,
+    "trajectory": {
+      "steps": [
+        {
+          "at_min": 0
+        }
+      ],
+      "final_outcome_band": "UNKNOWN"
+    },
+    "stale_vitals_hours": 0.0,
+    "zero_history": true
   }
 ]

@@ -1,0 +1,191 @@
+{
+  "benchmark": "Risk Engine bake-off",
+  "generated_utc": "2026-08-29T20:44:56.088984+00:00",
+  "test_split": {
+    "n_rows": 20000,
+    "prevalence": 0.1028,
+    "generator_seed": 4242,
+    "training_seed": 1337,
+    "note": "common held-out split; seed differs from training so every row is unseen by every artifact"
+  },
+  "excluded": {
+    "medipilot-last-obs-100k-s1337": "sequence baseline; unpickles through model/sequence_models.py which imports torch. torch is installed but its DLL fails to initialise in this environment (WinError 1114), so the row could not be produced."
+  },
+  "rows": [
+    {
+      "artifact": "model\\artifacts\\medipilot-gbdt-v0.2.0",
+      "model_kind": "hist",
+      "model_version": "medipilot-gbdt-v0.2.0",
+      "data_n": 20000,
+      "seed": 1337,
+      "history_available": false,
+      "auprc": 0.1637297200392637,
+      "auroc": 0.668929457469065,
+      "oracle_auprc": 0.40831591888779695,
+      "oracle_auroc": 0.8700726378955019,
+      "oracle_gap_pct": 40.098784413119034,
+      "green_miss_rate": 0.09484435797665369,
+      "fnr_spread": 0.205,
+      "worst_stratum": "neonate",
+      "best_stratum": "adolescent",
+      "calib_slope": 1.1608925536312515,
+      "calib_intercept": 0.2861137280879739,
+      "ece": 0.011027114973813808,
+      "conformal_coverage": 0.906,
+      "mean_set_size": 1.08205,
+      "sig_wins_vs_baseline": [
+        "0.50"
+      ],
+      "sig_losses_vs_baseline": [
+        "0.20"
+      ],
+      "ties_vs_baseline": [
+        "0.10",
+        "0.30"
+      ],
+      "gates": {
+        "prevalence_in_range": true,
+        "auroc_in_range": true,
+        "auprc_beats_prevalence": true,
+        "conformal_coverage_ge_090": true,
+        "ece_lt_005_where_reportable": true,
+        "green_miss_rate_within_budget": true,
+        "equalised_fnr_across_strata": true,
+        "beats_handcoded_baseline": false
+      },
+      "gates_pass": "7/8",
+      "all_gates_pass": false
+    },
+    {
+      "artifact": "model\\artifacts\\medipilot-hist-100k-s1337",
+      "model_kind": "hist",
+      "model_version": "medipilot-hist-100k-s1337",
+      "data_n": 100000,
+      "seed": 1337,
+      "history_available": false,
+      "auprc": 0.1570299700517151,
+      "auroc": 0.648908376969595,
+      "oracle_auprc": 0.40831591888779695,
+      "oracle_auroc": 0.8700726378955019,
+      "oracle_gap_pct": 38.45795933684038,
+      "green_miss_rate": 0.03745136186770428,
+      "fnr_spread": 0.145,
+      "worst_stratum": "neonate",
+      "best_stratum": "adult",
+      "calib_slope": 1.7615749315361149,
+      "calib_intercept": 1.0811075422449612,
+      "ece": 0.043045679405257935,
+      "conformal_coverage": 0.8986,
+      "mean_set_size": 1.01,
+      "sig_wins_vs_baseline": [
+        "0.50"
+      ],
+      "sig_losses_vs_baseline": [
+        "0.30"
+      ],
+      "ties_vs_baseline": [
+        "0.10",
+        "0.20"
+      ],
+      "gates": {
+        "prevalence_in_range": true,
+        "auroc_in_range": true,
+        "auprc_beats_prevalence": true,
+        "conformal_coverage_ge_090": false,
+        "ece_lt_005_where_reportable": true,
+        "green_miss_rate_within_budget": true,
+        "equalised_fnr_across_strata": true,
+        "beats_handcoded_baseline": false
+      },
+      "gates_pass": "6/8",
+      "all_gates_pass": false
+    },
+    {
+      "artifact": "model\\artifacts\\medipilot-hist-mono-100k-s1337",
+      "model_kind": "hist-mono",
+      "model_version": "medipilot-hist-mono-100k-s1337",
+      "data_n": 100000,
+      "seed": 1337,
+      "history_available": false,
+      "auprc": 0.15664130179574545,
+      "auroc": 0.6668217056827034,
+      "oracle_auprc": 0.40831591888779695,
+      "oracle_auroc": 0.8700726378955019,
+      "oracle_gap_pct": 38.36277121460691,
+      "green_miss_rate": 0.02091439688715953,
+      "fnr_spread": 0.07954545454545454,
+      "worst_stratum": "adolescent",
+      "best_stratum": "adult",
+      "calib_slope": 1.7940416943521906,
+      "calib_intercept": 1.1607237041189498,
+      "ece": 0.03514628466998397,
+      "conformal_coverage": 0.89605,
+      "mean_set_size": 1.0063,
+      "sig_wins_vs_baseline": [
+        "0.50"
+      ],
+      "sig_losses_vs_baseline": [
+        "0.20",
+        "0.30"
+      ],
+      "ties_vs_baseline": [
+        "0.10"
+      ],
+      "gates": {
+        "prevalence_in_range": true,
+        "auroc_in_range": true,
+        "auprc_beats_prevalence": true,
+        "conformal_coverage_ge_090": false,
+        "ece_lt_005_where_reportable": true,
+        "green_miss_rate_within_budget": true,
+        "equalised_fnr_across_strata": true,
+        "beats_handcoded_baseline": false
+      },
+      "gates_pass": "6/8",
+      "all_gates_pass": false
+    },
+    {
+      "artifact": "model\\artifacts\\medipilot-xgboost-100k-s1337",
+      "model_kind": "xgboost",
+      "model_version": "medipilot-xgboost-100k-s1337",
+      "data_n": 100000,
+      "seed": 1337,
+      "history_available": false,
+      "auprc": 0.1549445877485422,
+      "auroc": 0.6469252698841707,
+      "oracle_auprc": 0.40831591888779695,
+      "oracle_auroc": 0.8700726378955019,
+      "oracle_gap_pct": 37.9472316853559,
+      "green_miss_rate": 0.007782101167315175,
+      "fnr_spread": 0.028409090909090908,
+      "worst_stratum": "adolescent",
+      "best_stratum": "geriatric",
+      "calib_slope": 0.6202231634340446,
+      "calib_intercept": -1.123990274281766,
+      "ece": 0.07285746572458214,
+      "conformal_coverage": 0.89745,
+      "mean_set_size": 1.08275,
+      "sig_wins_vs_baseline": [
+        "0.50"
+      ],
+      "sig_losses_vs_baseline": [],
+      "ties_vs_baseline": [
+        "0.10",
+        "0.20",
+        "0.30"
+      ],
+      "gates": {
+        "prevalence_in_range": true,
+        "auroc_in_range": true,
+        "auprc_beats_prevalence": true,
+        "conformal_coverage_ge_090": false,
+        "ece_lt_005_where_reportable": false,
+        "green_miss_rate_within_budget": true,
+        "equalised_fnr_across_strata": true,
+        "beats_handcoded_baseline": false
+      },
+      "gates_pass": "5/8",
+      "all_gates_pass": false
+    }
+  ]
+}

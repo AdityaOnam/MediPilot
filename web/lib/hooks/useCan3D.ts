@@ -9,9 +9,7 @@ export function useCan3D() {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     
-    if (reducedMotion) {
-      setCan3D(false);
-    } else if (isMobile && navigator.hardwareConcurrency < 6) {
+    if (isMobile && navigator.hardwareConcurrency < 6) {
       setCan3D(false);
     } else {
       setCan3D(true);

@@ -1,0 +1,16 @@
+{
+  "purpose": "common held-out benchmark split for the Risk Engine bake-off",
+  "source_data": "data\\bench_set.jsonl",
+  "n_rows": 20000,
+  "prevalence": 0.1028,
+  "generator_seed": 4242,
+  "training_seed": 1337,
+  "note": "seed differs from training, so every row is unseen by every artifact",
+  "artifacts": [
+    "medipilot-gbdt-v0.2.0",
+    "medipilot-hist-100k-s1337",
+    "medipilot-hist-mono-100k-s1337",
+    "medipilot-xgboost-100k-s1337",
+    "medipilot-last-obs-100k-s1337"
+  ]
+}

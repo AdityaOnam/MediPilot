@@ -1,0 +1,77 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Implementation Approach}{1}{section.1}\protected@file@percent }
+\newlabel{sec:approach}{{1}{1}{Implementation Approach}{section.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.1}1 --- One type contract, mirrored on both sides}{1}{subsection.1.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.2}2 --- A tiered fallback ladder, never a single model}{1}{subsection.1.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.3}3 --- Clinical behaviour lives in YAML}{1}{subsection.1.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.4}4 --- The two-clock resource model}{1}{subsection.1.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.5}5 --- Offline-first, including the demonstration}{1}{subsection.1.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.6}6 --- Violations are exceptions, not warnings}{2}{subsection.1.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}Directory Structure}{2}{section.2}\protected@file@percent }
+\newlabel{sec:tree}{{2}{2}{Directory Structure}{section.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Paths that moved}{2}{subsection.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Technology Stack and Dependencies}{2}{section.3}\protected@file@percent }
+\newlabel{sec:stack}{{3}{2}{Technology Stack and Dependencies}{section.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Web (Track B)}{2}{subsection.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Backend (Track C) --- a deliberate three-file split}{2}{subsection.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Perception (Track A)}{2}{subsection.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Model}{3}{subsection.3.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}Solution Architecture}{3}{section.4}\protected@file@percent }
+\newlabel{sec:arch}{{4}{3}{Solution Architecture}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Track B --- the clinical interfaces}{3}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Track C --- the triage engine}{3}{subsection.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Two ASGI applications, not one}{3}{subsection.4.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Config is the clinical surface}{3}{subsection.4.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Runtime workflow, end to end}{3}{subsection.4.5}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces The six-layer pipeline across three tracks. Track~A (perception) may only report; Track~B (interfaces) may only render; Track~C (the risk engine) is the only track permitted to assign a band. The dashed returns are the two feedback loops: re-triage every five minutes, and overrides plus outcomes becoming training labels.}}{4}{figure.caption.1}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:arch}{{1}{4}{The six-layer pipeline across three tracks. Track~A (perception) may only report; Track~B (interfaces) may only render; Track~C (the risk engine) is the only track permitted to assign a band. The dashed returns are the two feedback loops: re-triage every five minutes, and overrides plus outcomes becoming training labels}{figure.caption.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}Degradation, and what the model may not do}{5}{subsection.4.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}Synthetic Data Generation}{5}{section.5}\protected@file@percent }
+\newlabel{sec:data}{{5}{5}{Synthetic Data Generation}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Conditions --- joint, not independent, vitals}{5}{subsection.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Trajectories --- 37 timesteps per patient}{5}{subsection.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Missingness --- three mechanisms, plus device bias}{5}{subsection.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Labels --- and why they are not circular}{5}{subsection.5.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}Honest stratum coverage}{5}{subsection.5.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.6}The two datasets}{5}{subsection.5.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}Model Training}{5}{section.6}\protected@file@percent }
+\newlabel{sec:train}{{6}{5}{Model Training}{section.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces The four lanes out of the triage bench, and what each one guarantees. The abstention lane ("not sure") is a first-class outcome: no colour is offered, the queue is never auto-sorted, and a human decides.}}{6}{figure.caption.2}\protected@file@percent }
+\newlabel{fig:lanes}{{2}{6}{The four lanes out of the triage bench, and what each one guarantees. The abstention lane ("not sure") is a first-class outcome: no colour is offered, the queue is never auto-sorted, and a human decides}{figure.caption.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Two heads, honestly described}{6}{subsection.6.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Split discipline}{6}{subsection.6.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Features}{6}{subsection.6.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.4}The sequence track}{6}{subsection.6.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}Evaluation}{6}{section.7}\protected@file@percent }
+\newlabel{sec:eval}{{7}{6}{Evaluation}{section.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Every metric, three ways}{6}{subsection.7.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces The post-engine decision path. Calibration, then a range rather than a point, then an explicit confidence gate that may step back entirely; only past that gate does the system pick a level, and even then the nurse's call is the record.}}{7}{figure.caption.3}\protected@file@percent }
+\newlabel{fig:boundary}{{3}{7}{The post-engine decision path. Calibration, then a range rather than a point, then an explicit confidence gate that may step back entirely; only past that gate does the system pick a level, and even then the nurse's call is the record}{figure.caption.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}The shipped artifact's committed numbers}{8}{subsection.7.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.3}The standing rule for model results}{8}{subsection.7.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.4}Perception bake-offs}{8}{subsection.7.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.5}The invariant suite}{8}{subsection.7.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {8}Using This Repository}{8}{section.8}\protected@file@percent }
+\newlabel{sec:use}{{8}{8}{Using This Repository}{section.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.1}Mock mode --- the zero-dependency demonstration}{8}{subsection.8.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.2}Live mode --- the full pipeline}{8}{subsection.8.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.3}The test suite}{8}{subsection.8.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.4}Regenerating data and artifacts}{9}{subsection.8.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.5}Production execution}{9}{subsection.8.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.6}Which adapter is running?}{9}{subsection.8.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.7}Privacy and the audit ledger}{9}{subsection.8.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {9}Scaling: the Target Stack}{9}{section.9}\protected@file@percent }
+\newlabel{sec:scale}{{9}{9}{Scaling: the Target Stack}{section.9}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces The target deployment tiers. The bottom row is the invariant: only model updates travel between sites, and per-site calibration stays local.}}{10}{figure.caption.4}\protected@file@percent }
+\newlabel{fig:stack}{{4}{10}{The target deployment tiers. The bottom row is the invariant: only model updates travel between sites, and per-site calibration stays local}{figure.caption.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {10}Verification State and Known Issues}{10}{section.10}\protected@file@percent }
+\newlabel{sec:state}{{10}{10}{Verification State and Known Issues}{section.10}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.1}Other known issues, stated plainly}{10}{subsection.10.1}\protected@file@percent }
+\newlabel{LastPage}{{10.1}{11}{Other known issues, stated plainly}{page.11}{}}
+\gdef\lastpage@lastpage{11}
+\gdef\lastpage@lastpageHy{11}
+\gdef \@abspage@last{11}

@@ -1,0 +1,109 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>G-05 — Thanks For Watching</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-card:#FFFFFF; --line:#E7DED2; --text:#1C1B1A; --text-dim:#6B6560;
+  --accent:#DF423D; --focus:#926A47; --steel:#A7C4CC; --glass:#C9EBED;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body {
+  width:1920px; height:1080px;
+  /* Transparent on purpose — this card composites over the held F-17 frame,
+     not a clean cut. See §09's note on why G-05 is the one exception. */
+  background:transparent;
+  font-family:-apple-system,'Segoe UI',Inter,Helvetica,Arial,sans-serif;
+  overflow:hidden;
+}
+.stage {
+  position:relative; width:1920px; height:1080px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:40px;
+}
+
+/* A small pixel-cross motif, not the mascot sprite itself — the mascot is
+   already in the footage underneath. This is a brand mark, sitting above
+   the title like a game's "THE END" crest, built from square blocks so it
+   reads as part of the same pixel world instead of a vector logo pasted
+   on top. */
+.mark {
+  width:96px; height:96px;
+  display:grid;
+  grid-template-columns:repeat(6,16px);
+  grid-template-rows:repeat(6,16px);
+  gap:0;
+}
+.mark i { display:block; }
+.mark i.on { background:var(--accent); box-shadow:0 0 0 2px #000 inset; }
+
+.title {
+  font-family:'Press Start 2P','Courier New',monospace;
+  font-size:56px;
+  line-height:1.4;
+  color:#FFFFFF;
+  text-align:center;
+  letter-spacing:2px;
+  /* Pixel-game text outline — a stack of offset shadows, not a soft blur,
+     so it stays legible over moving footage without looking like a UI
+     tooltip. */
+  text-shadow:
+    -4px -4px 0 #000, 4px -4px 0 #000, -4px 4px 0 #000, 4px 4px 0 #000,
+    -4px 0 0 #000, 4px 0 0 #000, 0 -4px 0 #000, 0 4px 0 #000,
+    0 8px 0 var(--focus);
+}
+
+.sub {
+  font-family:'Press Start 2P','Courier New',monospace;
+  font-size:20px;
+  color:var(--glass);
+  letter-spacing:1px;
+  text-align:center;
+  text-shadow:
+    -3px -3px 0 #000, 3px -3px 0 #000, -3px 3px 0 #000, 3px 3px 0 #000,
+    -3px 0 0 #000, 3px 0 0 #000, 0 -3px 0 #000, 0 3px 0 #000;
+}
+
+.team {
+  font-family:'Press Start 2P','Courier New',monospace;
+  font-size:14px;
+  color:#FFFFFF;
+  letter-spacing:1px;
+  text-align:center;
+  opacity:0.9;
+  text-shadow:
+    -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
+}
+
+.chip {
+  position:absolute; right:64px; bottom:48px;
+  border:1.5px solid var(--steel); color:#FFFFFF;
+  padding:9px 18px; border-radius:999px; font-size:13px; font-weight:700; letter-spacing:2px;
+  background:rgba(28,27,26,0.55);
+  font-family:-apple-system,'Segoe UI',Inter,Helvetica,Arial,sans-serif;
+}
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="mark">
+    <i></i><i></i><i class="on"></i><i class="on"></i><i></i><i></i>
+    <i></i><i></i><i class="on"></i><i class="on"></i><i></i><i></i>
+    <i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i>
+    <i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i>
+    <i></i><i></i><i class="on"></i><i class="on"></i><i></i><i></i>
+    <i></i><i></i><i class="on"></i><i class="on"></i><i></i><i></i>
+  </div>
+
+  <div class="title">THANKS FOR<br>WATCHING</div>
+  <div class="sub">MediPilot &middot; PatientTriage.ai</div>
+  <div class="team">TEAM 01 BIT &middot; IIT PATNA</div>
+
+  <div class="chip">SIMULATED DATA</div>
+</div>
+</body>
+</html>

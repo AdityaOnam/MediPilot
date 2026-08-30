@@ -20,11 +20,13 @@ intake_architecture_part2.svg
 intake_architecture_part3.svg
 correction.odt
 
-# --- Specific Folders ---
+# --- Specific Folders & Agent Files ---
 6a7c763e089e4_aic_2026/
 tools/
 .agents/
 .claude/
+AGENTS.md
+docs/notes/
 
 # --- Web (Next.js & Node) ---
 web/node_modules/

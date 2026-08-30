@@ -1,0 +1,96 @@
+{
+  "meta": {
+    "reel": "MediPilot Pixel Triage Reel",
+    "version": "0.1",
+    "dataSource": "SIMULATED",
+    "note": "Every figure below is synthetic or measured on synthetic data. No clinical claim.",
+    "clinicalSignOff": { "reviewer": null, "date": null, "status": "PENDING" }
+  },
+
+  "hero": {
+    "encounterId": "P-05",
+    "token": "205",
+    "caseId": "deteriorates_while_waiting",
+    "ageYears": 45,
+    "sex": "M",
+    "stratum": "adult",
+    "complaint": "Mild chest discomfort, \"probably just acidity\"",
+    "bandAtArrival": "YELLOW",
+    "bandAfter": "RED",
+    "escalationAtMin": 18,
+    "escalationCause": "MODEL",
+    "counter": "Counter 3",
+    "_comment": "Do NOT type this patient's vitals into a graphic. Screen-record them from the running app in R-04/R-05/R-07 so the numbers on screen are the numbers the engine used."
+  },
+
+  "throughput": {
+    "_comment": "The G-02 card. Set these from one scripted run of the seeded corpus + surge fillers, not from memory.",
+    "arrivalsTotal": 30,                    // [CLIN] plausible for the stated 500/day design point
+    "windowMinutes": 40,
+    "medianIntakeMinutes": 3,               // [CLIN] kiosk conversation, start to token
+    "concurrentKiosks": 5,
+    "routedToNurseImmediately": 5,          // red-flag interrupts + human-lane requests
+    "bandSplit": { "red": 4, "yellow": 11, "green": 13, "abstained": 2 },
+    "abstentionRatePct": 6.7,               // = abstained / arrivalsTotal
+    "escalatedWhileWaiting": 3,
+    "escalatedOnTimeAlone": 1,              // wait-ceiling breach, no vital changed
+    "deEscalatedAutonomously": 0            // structurally 0 — Invariant 1. NEVER edit this.
+  },
+
+  "cadence": {
+    "_comment": "From config/band_cadence.yaml. Two clocks plus a ceiling. Minutes.",
+    "red":       { "rescoreSec": 60,  "remeasureMin": 5,  "ceilingMin": 0   },
+    "yellow":    { "rescoreSec": 300, "remeasureMin": 30, "ceilingMin": 60  },
+    "green":     { "rescoreSec": 300, "remeasureMin": 60, "ceilingMin": 120 },
+    "abstained": { "rescoreSec": 300, "remeasureMin": null, "ceilingMin": 15 }
+  },
+
+  "surge": {
+    "multiplier": 3,
+    "stretched": { "yellowRemeasureMin": 45, "greenRemeasureMin": 90 },
+    "held":      { "redRemeasureMin": 5 },
+    "refusals": [
+      "may not raise R to reduce alarm volume",
+      "may not resolve abstentions by guessing",
+      "may not de-escalate anyone to free capacity"
+    ]
+  },
+
+  "threshold": {
+    "R": 500,
+    "pStar": 0.002,
+    "presets": { "tertiary": 500, "district": 100, "aggressive": 50 }
+  },
+
+  "model": {
+    "modelVersion": "medipilot-gbdt-v0.2.0",
+    "calibrationVersion": "isotonic-perstratum-v0.2.0",
+    "strata": 6,
+    "corpusSize": 20,
+    "invariantTests": 6
+  },
+
+  "bakeoff": {
+    "_comment": "REAL measured numbers. Backend/MediPilot/Metrics/. Do not round differently on the card.",
+    "structurer": {
+      "chosen": "groq:openai/gpt-oss-120b",
+      "symptomF1": 0.962,
+      "redFlagsMissed": 0,
+      "forbiddenKeyHits": 1,
+      "candidatesEvaluated": 10
+    },
+    "asr": {
+      "chosen": "groq:whisper-large-v3-turbo",
+      "meanWer": 0.0,
+      "meanLatencyS": 0.298,
+      "silenceHallucinations": 0
+    }
+  },
+
+  "claimsWeDoNotMake": [
+    "No clinical claim.",
+    "No performance claim against Indian patients.",
+    "No causal claim about outcomes.",
+    "All data synthetic. Prototype rung of the maturity ladder."
+  ]
+}

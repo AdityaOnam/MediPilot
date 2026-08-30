@@ -1,16 +1,19 @@
+![MediPilot Banner](demo/banner.jpg)
+
 # MediPilot — PatientTriage.ai
 
 **Team 01 BIT · IIT Patna · Accenture Innovation Challenge 2026, Round 2**
 Aditya Onam · Aditya Gupta · Varada Patel
 
-A clinical triage decision-support system for Indian emergency departments. A patient talks to a
-kiosk in Hindi or English; the conversation branches like a nurse taking a history; a trained
-model scores them against their **age stratum**; and the queue keeps watching them for as long as
-they are waiting.
+> **All data in this repository is synthetic.** We make no clinical claim, no performance claim against Indian patients, and no causal claim about outcomes. `SIMULATED DATA` is on every screen.
 
-> **All data in this repository is synthetic.** We make no clinical claim, no performance claim
-> against Indian patients, and no causal claim about outcomes. `SIMULATED DATA` is on every screen,
-> not in an appendix.
+## Abstract
+
+This is the implementation repository for the MediPilot prototype: what was built, how the tree is arranged, what it runs on, how its data is manufactured, and how the model is evaluated.
+
+The system is built on a strict clinical contract: **the system may raise a waiting patient's priority autonomously and may never lower it below a human-assigned level.**
+
+To enforce this, the architecture is split into three tracks that cannot borrow each other's authority: a perception track that may only *report* (ASR/LLM), an interface track that may only *render* (Next.js), and an evaluation track that alone may *decide* (Python Orchestrator). Every model in the system has a deterministic layer beneath it, ensuring that a missing API key or an absent GPU degrades the demonstration rather than stopping it.
 
 ---
 
@@ -73,7 +76,7 @@ that is deliberate insurance, not a shortcut.
 ### Frontend
 
 ```bash
-cd frontend
+cd web
 npm install
 npm run dev
 ```
@@ -94,9 +97,9 @@ cp .env.example .env.local
 ### Backend
 
 ```bash
-cd Backend/MediPilot/medipilot-model
+cd backend
 pip install -r requirements.txt
-uvicorn backend.orchestrator.app:app --reload --port 8000
+uvicorn triage.orchestrator.app:app --reload --port 8000
 ```
 
 ```bash
@@ -135,7 +138,7 @@ waiting family could decode. That constraint is a feature.
 
 ## `/intake` — the part that talks
 
-A self-contained module at `frontend/intake/`. It opens with *"tell me what's wrong"*, classifies
+A self-contained module at `web/intake/`. It opens with *"tell me what's wrong"*, classifies
 the answer into one of **16 clinical branches**, and asks 3–6 branch questions plus a universal
 tail — dropping any question the patient already answered on their own.
 
@@ -164,7 +167,7 @@ lets *"what about dialysis patients?"* be answered on stage by pointing at a fil
 
 ## Measured numbers
 
-Real, from our own bake-offs in `Backend/MediPilot/Metrics/`.
+Real, from our own bake-offs in `backend/eval/`.
 
 **LLM structurer** — 10 candidates, on adversarial / Hinglish / negation / paediatric / obstetric
 splits:
@@ -217,7 +220,7 @@ virtualenvs, build output, generated training data and bake-off result dumps.
 ├── README.md
 ├── MediPilot-Pixel-Triage-Reel.md      Production shot list for the demo film
 │
-├── frontend/                            Next.js 16 · React 19 · Tailwind 4
+├── web/                                 Next.js 16 · React 19 · Tailwind 4
 │   ├── app/
 │   │   ├── page.tsx  layout.tsx  globals.css
 │   │   ├── intake/       counter/     board/      hall/
@@ -270,41 +273,35 @@ virtualenvs, build output, generated training data and bake-off result dumps.
 │   ├── IMPLEMENTATION_LOG_FRONTEND.md
 │   └── package.json  tsconfig.json  next.config.ts  eslint.config.mjs
 │
-├── Backend/MediPilot/
-│   ├── round2-implementation-plan.html  THE AUTHORITATIVE SYSTEM PLAN
-│   ├── main.tex  main.toc  build.py     The white paper
-│   ├── docs/chapters/                   architecture · perception · safety floors
-│   │                                    ml pipeline · orchestration · evaluation
-│   ├── Metrics/                         ASR and structurer bake-off tables
-│   ├── speech_layer/                    Colab Whisper server + mic client
+├── backend/
+│   ├── triage/
+│   │   ├── orchestrator/        app.py · world.py · clock.py · dto.py
+│   │   │                        seed.py · mapping.py · tree_session.py
+│   │   │                        option_matcher.py · speech_intake.py
+│   │   ├── band_engine.py       Invariant 1 lives here
+│   │   ├── audit_log.py         Append-only, SHA-256 chained
+│   │   └── recheck_scheduler.py surge_controller.py narrative.py api.py
 │   │
-│   └── medipilot-model/
-│       ├── README.md  DEPLOYMENT.md  RISK_ENGINE.md
-│       ├── backend/
-│       │   ├── orchestrator/            app.py · world.py · clock.py · dto.py
-│       │   │                            seed.py · mapping.py · tree_session.py
-│       │   │                            option_matcher.py · speech_intake.py
-│       │   ├── band_engine.py           Invariant 1 lives here
-│       │   ├── audit_log.py             Append-only, SHA-256 chained
-│       │   ├── recheck_scheduler.py  surge_controller.py  narrative.py  api.py
-│       │
-│       ├── intake/                      M03–M09 · state machine, question tree,
-│       │                                LLM structurer, red flags, reliability,
-│       │                                age stratification (+ 6 test modules)
-│       ├── speech/                      M05 · faster-whisper, Groq ASR, VAD
-│       ├── model/                       Features, calibration, conformal,
-│       │                                thresholds, training, artifacts/
-│       ├── rules/                       red_flag_engine · vital_thresholds
-│       │                                spo2_bias_guard
-│       ├── data/                        generator/ + corpus_20.json
-│       ├── eval/                        ASR and structurer bake-offs (+ Kaggle)
-│       ├── config/                      age_strata · band_cadence · red_flags
-│       │                                surge_policy · feature_registry · label_spec
-│       ├── tests/                       invariants · band engine · audit ·
-│       │                                age stratification · orchestrator contract
-│       └── requirements.txt  pytest.ini  conftest.py
+│   ├── intake/                  M03–M09 · state machine, question tree,
+│   │                            LLM structurer, red flags, reliability,
+│   │                            age stratification (+ 6 test modules)
+│   ├── speech/                  M05 · faster-whisper, Groq ASR, VAD
+│   ├── model/                   Features, calibration, conformal,
+│   │                            thresholds, training, artifacts/
+│   ├── rules/                   red_flag_engine · vital_thresholds
+│   │                            spo2_bias_guard
+│   ├── data/                    generator/ + corpus_20.json
+│   ├── eval/                    ASR and structurer bake-offs (+ Kaggle)
+│   ├── config/                  age_strata · band_cadence · red_flags
+│   │                            surge_policy · feature_registry · label_spec
+│   ├── tests/                   invariants · band engine · audit ·
+│   │                            age stratification · orchestrator contract
+│   └── requirements.txt  pytest.ini  conftest.py
 │
-└── vigil-diagrams/                      Architecture diagrams (SVG + PNG)
+├── docs/                        Whitepaper, implementation logs, metrics
+│   ├── paper/                   LaTeX whitepaper source
+│   ├── diagrams/                Architecture diagrams (SVG + PNG)
+│   └── benchmarks/              ASR and structurer bake-off tables
 ```
 
 **Everything crosses one boundary.** No page talks to the backend except through
@@ -336,6 +333,9 @@ Each exists to make exactly one behaviour visible — do not invent new ones.
 *(P-06, P-10, P-12, P-13, P-16, P-19 cover atypical sepsis, sensor loss, rich prior history,
 communication barrier, inferred stratum, and stoic presentation.)*
 
+### The 100k Training Corpus
+The full dataset used to train and calibrate the risk engine is available as a compressed archive: `backend/data/train_set_100k.zip`. It contains 100,000 synthetically generated patient encounters, fully preserving the strict clinical dependencies and age stratification logic outlined above.
+
 ---
 
 ## Where the models run
@@ -351,15 +351,15 @@ demo can never claim local inference it is not performing.
 
 There is deliberately **no paid cloud GPU tier**. Under India's DPDP Act 2023 raw patient data
 stays at the institution; the hosted tier is prototype-grade convenience, and the architecture is
-built so it never becomes necessary. `dataLeavesMachine` is the field to point at on stage.
+built so it never becomes necessary. As an alternative to the API, an 8GB self-hosted LLM (e.g. running via Ollama/llama.cpp) can be used completely offline. `dataLeavesMachine` is the field to point at on stage.
 
 ---
 
 ## Verification
 
 ```bash
-cd frontend  && npx tsc --noEmit && npm run build
-cd Backend/MediPilot/medipilot-model && pytest
+cd web  && npx tsc --noEmit && npm run build
+cd backend && pytest
 curl -s localhost:3000/api/intake/selftest     # 118 intake fixtures, dev only
 ```
 

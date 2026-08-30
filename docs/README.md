@@ -91,14 +91,27 @@ Once the backend is running on port 8000, instruct the frontend to use the live 
 3. Restart the Next.js development server (`npm run dev`)
 
 ### 4. Running the Invariant Test Suite
-The clinical constraints are mathematically enforced via Pytest. This suite must pass with 0 failures for the pipeline to be considered safe.
+The clinical constraints are mathematically enforced via Pytest.
 
 ```bash
 cd backend
 # Ensure the virtual environment is activated
 python -m pytest
 ```
-*Note: You should expect 278 passing tests validating age stratification, audit logging, and the band engine contract.*
+
+*Note: on a clean checkout you should expect **278 passed, 4 failed**, validating age stratification, audit logging, and the band engine contract. None of the four is a failing safety invariant:*
+
+- *`test_auroc_leakage_canary`, `test_auprc_beats_prevalence_baseline` and `test_conformal_coverage_at_least_090` need `model/artifacts/medipilot-gbdt-v0.2.0/test_split.npz`, which is gitignored as regenerable — restore it by retraining (below).*
+- *`test_census_has_20` asserts a census of 20; the census is now 32 (20 seeded encounters in `corpus_20.json` + 12 dynamic arrivals). The assertion is stale, not the code.*
+
+### 5. Regenerating the model artefacts
+The training set and the held-out split are generated from a seed rather than committed. To restore what the three model tests consume:
+
+```bash
+cd backend
+python -m data.generator.bulk --n 20000 --out data/train_set.jsonl
+python -m model.train --data data/train_set.jsonl
+```
 
 ---
 
@@ -117,13 +130,14 @@ npm start
 *For containerized environments, Next.js can be configured for `output: 'standalone'` in `next.config.ts` to minimize Docker image size.*
 
 ### Triage Engine (FastAPI)
-In production, do not run naked Uvicorn. Use Gunicorn as a process manager with Uvicorn worker classes to handle concurrency and auto-restarts.
+Use Gunicorn as a process manager for auto-restarts — but **with a single worker**:
 
 ```bash
 cd backend
-# Run with 4 workers
-gunicorn triage.orchestrator.app:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
+gunicorn triage.orchestrator.app:app --workers 1 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
 ```
+
+> ⚠️ **Do not raise `--workers` on either Python app as it stands.** The orchestrator holds `world = World()` at module level and starts a tick loop in its lifespan hook, and `triage/api.py` likewise holds `_audit_log`, `_scheduler`, `_surge_ctrl` and `_surge_state` at module level. `--workers 4` would create four independent worlds with four independent tick loops, and the census a nurse sees would depend on which worker answered the request. Horizontal scaling requires externalising that state first (Postgres for encounters, Redis for the live queue) — see §9 of `docs/paper/implementation_readme.pdf`.
 
 ---
 

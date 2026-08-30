@@ -1,100 +1,1039 @@
-\documentclass[11pt,a4paper]{article}
+% ============================================================
+%  MediPilot — Accenture Innovation Challenge 2026
+%  Implementation README | Team 01 BIT
+%  Aditya Onam · Aditya Gupta · Varada Patel
+%
+%  House style is shared verbatim with the Round I white paper
+%  (archive/main-root-variant.tex -> docs/submission/BIT01_solution.pdf):
+%  same palette, same headings, same boxes, same page furniture.
+%
+%  Content audited against the tree on branch `restructure` (2026-08-30).
+% ============================================================
+\documentclass[10pt,a4paper,twocolumn]{article}
+
+\usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage{amsmath}
-\usepackage{amsfonts}
-\usepackage{amssymb}
+\usepackage{newtxtext,newtxmath}
+\usepackage{helvet}
+\usepackage{microtype}
+
+% ---------- Palette ----------
+\usepackage[table,svgnames]{xcolor}
+\definecolor{AccPurple}{HTML}{A100FF}
+\definecolor{SecPurple}{HTML}{6F00B8}
+\definecolor{DeepPurple}{HTML}{4B0082}
+\definecolor{DarkPlum}{HTML}{24003D}
+\definecolor{NearBlack}{HTML}{111111}
+\definecolor{MedGray}{HTML}{666666}
+\definecolor{CardBg}{HTML}{F7F7F7}
+\definecolor{SoftGray}{HTML}{F2F2F2}
+\definecolor{Border}{HTML}{E2E2E2}
+\definecolor{White}{HTML}{FFFFFF}
+% clinical accents — used only as ATP colour-band identifiers
+\definecolor{TriRed}{HTML}{C0392B}
+\definecolor{TriAmber}{HTML}{C98A17}
+\definecolor{TriGreen}{HTML}{2E7D5B}
+
+\usepackage[a4paper,top=1.9cm,bottom=2.0cm,left=1.8cm,right=1.8cm]{geometry}
+\setlength{\columnsep}{0.72cm}
+
 \usepackage{graphicx}
-\usepackage{hyperref}
-\usepackage{geometry}
-\usepackage{booktabs}
-\usepackage{tabularx}
-\usepackage{listings}
-\usepackage{xcolor}
+\usepackage{booktabs,array}
+\usepackage{enumitem}
+\usepackage[most]{tcolorbox}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{caption}
+\usepackage[colorlinks=true,linkcolor=SecPurple,urlcolor=SecPurple,citecolor=SecPurple,
+  pdftitle={MediPilot Implementation README: Architecture, Data, Training, Evaluation, Execution},
+  pdfauthor={Aditya Onam, Aditya Gupta, Varada Patel}]{hyperref}
 
-\geometry{margin=1in}
+% ---------- Text colour + spacing ----------
+\color{NearBlack}
+\setlength{\parindent}{1em}
+\setlength{\parskip}{0pt}
+\linespread{1.02}
+\raggedbottom
+\renewcommand{\topfraction}{0.92}
+\renewcommand{\textfraction}{0.06}
+\renewcommand{\floatpagefraction}{0.80}
+\setlength{\textfloatsep}{10pt plus 2pt minus 2pt}
+\setlength{\dblfloatsep}{10pt plus 2pt minus 2pt}
+\setlength{\dbltextfloatsep}{10pt plus 2pt minus 2pt}
 
-\hypersetup{
-    colorlinks=true,
-    linkcolor=blue,
-    filecolor=magenta,      
-    urlcolor=cyan,
-    pdftitle={MediPilot Implementation README},
-}
+% ---------- Headings ----------
+\titleformat{\section}{\sffamily\bfseries\small\color{NearBlack}}
+  {\textcolor{AccPurple}{\thesection}}{0.5em}{\MakeUppercase}
+  [\vspace{-4pt}\textcolor{AccPurple}{\rule{\linewidth}{1pt}}]
+\titlespacing*{\section}{0pt}{9pt}{4pt}
+\titleformat{\subsection}{\sffamily\bfseries\footnotesize\color{SecPurple}}
+  {\thesubsection}{0.5em}{}
+\titlespacing*{\subsection}{0pt}{7pt}{2pt}
 
-\title{\textbf{MediPilot Implementation README}\\Architecture, Tech Stack, and Execution}
-\author{Team 01 BIT}
-\date{\today}
+% ---------- Boxes ----------
+\tcbset{mpbox/.style={enhanced,sharp corners=all,
+  colback=CardBg,colframe=AccPurple,boxrule=0pt,leftrule=2.2pt,
+  left=5pt,right=5pt,top=4pt,bottom=4pt,
+  fontupper=\footnotesize}}
+\tcbset{mpthesis/.style={enhanced,arc=2pt,
+  colback=DarkPlum,colframe=DarkPlum,coltext=White,boxrule=0pt,
+  left=6pt,right=6pt,top=5pt,bottom=5pt,fontupper=\footnotesize}}
+\tcbset{mpcode/.style={enhanced,arc=1pt,
+  colback=NearBlack,coltext=White,colframe=NearBlack,boxrule=0pt,
+  left=5pt,right=5pt,top=4pt,bottom=4pt,
+  fontupper=\ttfamily\scriptsize}}
+\tcbset{mpwarn/.style={enhanced,sharp corners=all,
+  colback=SoftGray,colframe=TriRed,boxrule=0pt,leftrule=2.2pt,
+  left=5pt,right=5pt,top=4pt,bottom=4pt,
+  fontupper=\footnotesize}}
+
+\setlist[itemize]{leftmargin=1.1em,topsep=2pt,itemsep=1pt,parsep=0pt,
+  label={\footnotesize\textcolor{AccPurple}{\textbullet}}}
+\setlist[enumerate]{leftmargin=1.4em,topsep=2pt,itemsep=1pt,parsep=0pt}
+
+\captionsetup{font={footnotesize,sf,color=MedGray},
+  labelfont={bf,color=AccPurple},labelsep=period,skip=4pt}
+
+% ---------- Page furniture ----------
+\pagestyle{fancy}\fancyhf{}\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C]{\textcolor{Border}{\rule{\linewidth}{0.4pt}}\\[2pt]
+  \sffamily\scriptsize\color{MedGray}%
+  MediPilot \textbullet\ Implementation README \textbullet\ Team 01 BIT\hfill
+  \textcolor{AccPurple}{\thepage}\,/\,\pageref{LastPage}}
+
+% ---------- Local helpers ----------
+\newcommand{\pth}[1]{\textcolor{SecPurple}{\texttt{#1}}}
+\newcommand{\cm}[1]{\texttt{#1}}
+\newcommand{\ix}[3]{{\sffamily\scriptsize\textcolor{AccPurple}{\bfseries #1}\ \ #2\ \dotfill\ p.\,\pageref{#3}}}
 
 \begin{document}
 
-\maketitle
+% ======================= TITLE BLOCK =======================
+\twocolumn[{%
+\vspace{-6mm}
+\noindent\begin{minipage}[b]{0.74\textwidth}
+  \raggedright\hyphenpenalty=10000\exhyphenpenalty=10000
+  {\sffamily\scriptsize\color{AccPurple}\bfseries
+   ACCENTURE INNOVATION CHALLENGE 2026 \ \textbullet\ \ ROUND II \ \textbullet\ \ PATIENTTRIAGE.AI}\\[5pt]
+  {\sffamily\bfseries\LARGE\color{NearBlack}
+   \textcolor{AccPurple}{Medi}Pilot: Implementation README\\[2pt]
+   Architecture, Data, Training, Evaluation, Execution}
+\end{minipage}\hfill
+\begin{minipage}[b]{0.24\textwidth}
+  \raggedleft\includegraphics[height=22pt]{assets/accenture_logo.png}
+\end{minipage}
 
-\begin{abstract}
-This document serves as the implementation README, outlining the solution architecture, technology stack, directory structure, synthetic data production, and the specific role of the Large Language Model (LLM). It incorporates the system's architecture diagrams directly to provide a comprehensive, visual guide to the system.
-\end{abstract}
+\vspace{5pt}
+\noindent\textcolor{AccPurple}{\rule{\textwidth}{1.4pt}}\\[-3pt]
+\noindent\textcolor{Border}{\rule{\textwidth}{0.5pt}}
 
-\tableofcontents
-\newpage
+\vspace{5pt}
+\noindent{\sffamily\footnotesize\bfseries
+  Aditya Onam \quad Aditya Gupta \quad Varada Patel}\\[1pt]
+\noindent{\sffamily\scriptsize\color{MedGray}
+  Team 01 BIT \ \textbullet\ \ Indian Institute of Technology Patna \ \textbullet\ \ August 2026
+  \ \textbullet\ \ branch \texttt{restructure}}
 
-\section{Architectural Implementation \& Tech Stack}
+\vspace{7pt}
+\begin{tcolorbox}[mpbox,colback=White,leftrule=0pt,left=0pt,right=0pt,top=2pt,bottom=2pt]
+{\sffamily\scriptsize\bfseries\color{AccPurple}ABSTRACT}\\[2pt]
+\footnotesize
+This document is the implementation README for the MediPilot prototype: what was built, how the
+tree is arranged, what it runs on, how its data is manufactured, how the model is trained and
+evaluated, and the exact commands that drive each part. The white paper argued a clinical contract
+--- \emph{the system may raise a waiting patient's priority autonomously and may never lower it
+below a human-assigned level}. This document is the account of how that contract survives contact
+with code. Three claims organise it. First, the architecture is split into three tracks that
+cannot borrow each other's authority: a perception track that may only \emph{report}, an interface
+track that may only \emph{render}, and an evaluation track that alone may \emph{decide}. Second,
+every model in the system has a deterministic layer beneath it, so a missing API key, an absent GPU
+or a schema violation degrades the demonstration rather than stopping it. Third, the clinical
+behaviour is configuration, not code: six YAML files under \pth{backend/config/} hold the strata,
+cadences, red flags, surge policy, label spec and the feature-leakage registry, and the registry
+fails the build closed on any unregistered field. We give the directory structure, the current
+stack, the runtime workflow end to end, the synthetic-data generator and the three structural
+choices that stop its labels being circular, the training and evaluation pipelines with their
+committed numbers, a usage guide, the stack this would move to under load, and a plainly stated
+verification position --- 278 passing tests, 4 known failures, each named and diagnosed.
 
-The MediPilot system enforces a strict boundary between perception and evaluation. The architecture is explicitly decoupled to guarantee that clinical risk engines and human interfaces operate in distinct, fail-closed isolation. 
+\vspace{3pt}
+{\sffamily\scriptsize\color{MedGray}\textbf{\color{NearBlack}Scope:}\; directory structure \textbullet\ current and target tech stack \textbullet\ solution architecture \textbullet\ synthetic data generation \textbullet\ training \textbullet\ evaluation \textbullet\ execution and usage \textbullet\ verification evidence}
+\end{tcolorbox}
 
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=\textwidth]{../diagrams/01-full-architecture.png}
-    \caption{The Parallel Track Architecture: Perception (Track A), Interfaces (Track B), and Risk Engine (Track C).}
-\end{figure}
+\vspace{5pt}
+\begin{tcolorbox}[mpbox,colback=CardBg]
+{\sffamily\scriptsize\bfseries\color{AccPurple}INDEX}\\[3pt]
+\begin{tabular}{@{}p{5.15cm}p{5.15cm}p{5.15cm}@{}}
+\ix{1}{Implementation Approach}{sec:approach}      & \ix{5}{Synthetic Data Generation}{sec:data} & \ix{9}{Scaling: the Target Stack}{sec:scale}\\[2pt]
+\ix{2}{Directory Structure}{sec:tree}              & \ix{6}{Model Training}{sec:train}           & \ix{10}{Verification \& Known Issues}{sec:state}\\[2pt]
+\ix{3}{Tech Stack \& Dependencies}{sec:stack}      & \ix{7}{Evaluation}{sec:eval}                & \\[2pt]
+\ix{4}{Solution Architecture}{sec:arch}            & \ix{8}{Using This Repository}{sec:use}      & \\
+\end{tabular}
+\end{tcolorbox}
+\vspace{4pt}
+}]
 
-\subsection{Track B: The Nurse \& Patient Interfaces (Frontend)}
-The interface tier, located in \texttt{web/}, is a static Next.js 16 payload compiled to run as a pure client-side application. It comprises the seven clinical surfaces, including the interactive kiosk and the nurse board. This layer is entirely stripped of clinical authority. It manages the deterministic state machine of the branching triage conversation, raw speech-to-text integration, and local offline phrase matching. It cannot, by construction, evaluate risk.
+% ======================= 1. APPROACH =======================
+\section{Implementation Approach}
+\label{sec:approach}
 
-\subsection{Track C: The Triage Engine (Backend)}
-The backend, located in \texttt{backend/}, operates as a Python/FastAPI orchestrator. It receives structured records from the interface tier and evaluates them against a strict hierarchy of safety constraints. The orchestrator houses the deterministic Band Engine, the GBDT Risk Model, and the rigorous age stratification floors. 
+The prototype was not built as one application with a model bolted into it. It was built as three
+tracks with a deliberate authority gradient between them, because the failure this project exists
+to prevent --- a patient deteriorating unobserved in a queue --- is a failure of \emph{who is
+allowed to decide what}, not a failure of average accuracy.
 
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=\textwidth]{../diagrams/04-tech-stack-three-tiers.png}
-    \caption{The Three-Tier Inference Hierarchy.}
-\end{figure}
+\begin{tcolorbox}[mpthesis]
+The language model may report. The interface may render. Only the deterministic engine may
+decide. No layer may acquire an authority it was not given, and every layer has a non-model
+fallback beneath it.
+\end{tcolorbox}
 
-\section{Technology Stack \& Execution Constraints}
-The system executes on commodity hardware, complying with the strict data locality mandates of the DPDP Act 2023. It explicitly bans mandatory dependencies on paid cloud GPU infrastructure.
+\begin{tcolorbox}[mpwarn]
+\textbf{All data in this system is synthetic.} No clinical, performance or causal claim is made
+anywhere in this repository, and \cm{SIMULATED DATA} belongs on every screen. The metrics quoted
+in \S\ref{sec:eval} describe a model trained on a generator, not on patients.
+\end{tcolorbox}
+
+Six rules follow, and each is visible in the source tree rather than only in the design documents.
+
+\subsection{1 --- One type contract, mirrored on both sides}
+The entire frontend/backend boundary is declared once in \pth{web/lib/api/types.ts} and mirrored
+field-for-field by \pth{backend/triage/orchestrator/dto.py}. A field that does not exist in the
+DTO cannot reach the nurse board, which makes the contract enforceable by reading two files rather
+than by auditing the whole surface.
+
+\subsection{2 --- A tiered fallback ladder, never a single model}
+Perception is tiered and the bottom tier is always deterministic. Spoken-answer matching runs
+tier~0 (exact bilingual lexicon --- yes/no and 0--10 in English, Devanagari and romanised Hindi),
+tier~1 (similarity over labels and synonyms, with an edit-distance rescue for ASR near-misses),
+and only then tier~2, where a hosted model is asked to pick one of the option values already on
+the patient's screen. Structuring runs local, then hosted, then rule-based. The order is
+configuration: \cm{MEDIPILOT\_STRUCTURER} and \cm{MEDIPILOT\_ASR\_BACKEND} each take a
+comma-separated preference list whose last entry always works offline.
+
+\subsection{3 --- Clinical behaviour lives in YAML}
+Six files under \pth{backend/config/} are the clinical surface, and in a real deployment each
+would be separately signed off. Change behaviour there before changing it in Python
+(\S\ref{sec:arch}).
+
+\subsection{4 --- The two-clock resource model}
+The system does not assume continuous monitoring, because Indian EDs do not have it. Facts decay,
+and the decay is explicit: every measurement carries \cm{\{value, takenAt, source, validity\}},
+and two clocks run per patient --- re-score (model) and re-measure (physical), on band-specific
+cadences from \pth{config/band\_cadence.yaml}.
+
+\subsection{5 --- Offline-first, including the demonstration}
+\pth{web/lib/api/adapters/mock.ts} runs the entire twenty-patient corpus in the browser, so all
+seven clinical surfaces are demonstrable with no Python process, no credential and no network.
+\cm{MEDIPILOT\_INTAKE\_OFFLINE=1} forces every hosted call to behave as though the network were
+down --- how the kiosk is rehearsed without burning quota, and how it is demonstrated if venue wifi
+fails.
+
+\subsection{6 --- Violations are exceptions, not warnings}
+An attempt to lower a band without an attached human action raises
+\cm{AsymmetricAutonomyViolation}. Three surge actions --- raising the cost ratio to quieten alarms,
+resolving an abstention by guessing, and de-escalating anyone to free capacity --- raise
+\cm{SurgeViolation}. These are hard errors on the code path, not lint rules or review conventions.
+
+% ======================= 2. DIRECTORY STRUCTURE =======================
+\section{Directory Structure}
+\label{sec:tree}
+
+The tree was restructured on \textbf{2026-08-29}; the work sits on branch \cm{restructure}, cut
+from \cm{dev}, not yet merged. Before-and-after evidence is under \pth{.migration/}, and every
+judgement call made during the move is in \pth{.migration/DECISIONS.md}. Git tracks 163 files
+under \pth{backend/}.
+
+\begin{tcolorbox}[mpcode]
+\begin{tabular}{@{}l@{\hspace{1.0em}}l@{}}
+\color{White}web/            & \color{AccPurple!35!white}Next.js 16 app, every screen\\
+\color{White}\ \ app/        & \color{AccPurple!35!white}8 routes incl. /intake /board /audit\\
+\color{White}\ \ \ \ api/intake/ & \color{AccPurple!35!white}server-only Groq handlers ($\times$4)\\
+\color{White}\ \ intake/     & \color{AccPurple!35!white}kiosk: tree, voice, steps, matching\\
+\color{White}\ \ components/ & \color{AccPurple!35!white}clinical/ mascot/ 3d/ ui/\\
+\color{White}\ \ lib/        & \color{AccPurple!35!white}api/ clinical/ voice/ seed/ hooks/\\
+\color{White}\ \ public/media/ & \color{AccPurple!35!white}poses, video, GLB, textures ($\sim$55 MB)\\
+\color{White}backend/        & \color{AccPurple!35!white}packages are top-level here\\
+\color{White}\ \ triage/     & \color{AccPurple!35!white}band engine, audit, surge, api.py\\
+\color{White}\ \ \ \ orchestrator/ & \color{AccPurple!35!white}the /v1 app the web app calls\\
+\color{White}\ \ model/      & \color{AccPurple!35!white}features, calibration, train, artifacts/\\
+\color{White}\ \ intake/     & \color{AccPurple!35!white}state machine, tree, structurer\\
+\color{White}\ \ rules/      & \color{AccPurple!35!white}red flags, thresholds, spo2 guard\\
+\color{White}\ \ speech/     & \color{AccPurple!35!white}Groq ASR, Whisper, VAD recorder\\
+\color{White}\ \ data/       & \color{AccPurple!35!white}synthetic corpus + generator/\\
+\color{White}\ \ eval/       & \color{AccPurple!35!white}ASR and structurer bake-offs\\
+\color{White}\ \ config/     & \color{AccPurple!35!white}the clinical knobs, as YAML\\
+\color{White}\ \ tests/      & \color{AccPurple!35!white}pytest suite\\
+\color{White}docs/           & \color{AccPurple!35!white}paper/ benchmarks/ diagrams/ notes/\\
+ & \color{AccPurple!35!white}logs/ submission/\\
+\color{White}experiments/    & \color{AccPurple!35!white}whisper-live/, not part of the service\\
+\color{White}archive/        & \color{AccPurple!35!white}quarantined dead code\\
+\color{White}.migration/     & \color{AccPurple!35!white}restructure evidence\\
+\end{tabular}
+\end{tcolorbox}
+
+\subsection{Paths that moved}
+Any document written before 2026-08-29 --- including the root \pth{README.md} --- refers to the
+old tree. The mapping:
+
+\begin{center}\footnotesize\sffamily
+\begin{tabular}{@{}p{4.05cm}p{3.75cm}@{}}
+\toprule
+\rowcolor{AccPurple!10}
+\textbf{Old} & \textbf{New}\\
+\midrule
+\cm{frontend/} & \cm{web/}\\
+\cm{Backend/MediPilot/}\newline\cm{medipilot-model/} & \cm{backend/}\\
+\cm{\ldots medipilot-model/}\newline\cm{backend/} & \cm{backend/triage/}\\
+\cm{Backend/MediPilot/Metrics/} & \cm{docs/benchmarks/}\\
+\cm{Backend/MediPilot/docs/} & \cm{docs/paper/}\\
+\cm{\ldots/speech\_layer/} & \cm{experiments/whisper-live/}\\
+\cm{vigil-diagrams/} & \cm{docs/diagrams/}\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{tcolorbox}[mpwarn]
+\textbf{Two traps in this tree.} A capital-\cm{B} \pth{Backend/} still appears in \cm{ls} on
+Windows; it holds nothing tracked, only leftover \cm{\_\_pycache\_\_} and \cm{.pytest\_cache}
+shells that the case-insensitive filesystem merges with the real \pth{backend/}. Delete the cruft
+or ignore it --- do not "fix" it by renaming. Second, about twenty modules resolve config with
+\cm{Path(\_\_file\_\_).parent.parent / "config"} and one walks up three levels
+(\pth{triage/orchestrator/seed.py}). Moving a single \cm{.py} file to a different depth breaks it
+at \emph{runtime}, not at import, so a green collection proves nothing. Move whole subtrees, never
+lone files.
+\end{tcolorbox}
+
+% ======================= 3. STACK =======================
+\section{Technology Stack and Dependencies}
+\label{sec:stack}
+
+The system is constrained to commodity hardware on purpose. Nothing on a required path needs a
+GPU, a paid cloud tier or a database server --- because the deployment target is a district
+hospital, and because DPDP Act 2023 data-locality obligations are easier to honour when the
+default path never leaves the building.
+
+\begin{center}\footnotesize\sffamily
+\begin{tabular}{@{}p{1.7cm}p{1.9cm}p{3.6cm}@{}}
+\toprule
+\rowcolor{AccPurple!10}
+\textbf{Runtime} & \textbf{Declared} & \textbf{Verified on this machine}\\
+\midrule
+Node.js & 20+ & v24.16.0\\
+\addlinespace[2pt]
+Python & 3.10+ & 3.12.3\\
+\addlinespace[2pt]
+GPU & not required & none present; CPU-only throughout\\
+\addlinespace[2pt]
+Database & none & state is held in-process\\
+\addlinespace[2pt]
+Credential & optional & \cm{GROQ\_API\_KEY}, hosted tiers only\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Web (Track B)}
+Next.js 16.3.2 on the App Router, React 19.2.8, TypeScript in strict mode, Tailwind v4 through
+\cm{@tailwindcss/postcss}, \cm{motion} for animation, and \cm{@react-three/fiber} + \cm{drei} +
+\cm{three} 0.185 for the kiosk and mascot scenes. Path alias \cm{@/*} resolves to \pth{web/*}.
+Speech capture is the browser's own \cm{webkitSpeechRecognition} plus the Web Audio API --- no
+speech dependency is bundled. \textbf{No test runner is wired up on this side}, which is a real gap
+rather than an omission from this document.
+
+\subsection{Backend (Track C) --- a deliberate three-file split}
+The Python dependencies are split across three files, and the split is a safety boundary rather
+than tidiness. Only the first is installed by a deployment.
 
 \begin{itemize}
-    \item \textbf{Frontend Interfaces:} Next.js 16, React 19, Tailwind CSS 4, utilizing native \texttt{webkitSpeechRecognition}.
-    \item \textbf{Triage Orchestrator:} Python 3.10+, FastAPI, Uvicorn, Scikit-learn, Pandas.
-    \item \textbf{Perception Models:} \texttt{faster-whisper} (CTranslate2, int8) and Llama.cpp for offline structural parsing.
+  \item \pth{requirements.txt} --- the serving path: FastAPI 0.111, Uvicorn 0.29, Pydantic 2.7,
+        NumPy 1.26, SciPy 1.13, scikit-learn 1.4.2, PyYAML for the clinical config, joblib for
+        artifacts, python-dateutil, pytest 8.2, httpx, plus \cm{groq} and \cm{soundfile} for the
+        hosted perception tiers. scikit-learn is pinned exactly: the artifact manifest records the
+        version it was trained under, and a mismatch is a silent unpickling hazard.
+  \item \pth{requirements-experimental.txt} --- \cm{lightgbm} and \cm{xgboost}, for the GBDT
+        bake-off and sequence experiments. Explicitly \emph{not} installed by the API deployment.
+  \item \pth{requirements-speech-local.txt} --- the fully local perception path:
+        \cm{faster-whisper} 1.1.1, \cm{soundfile}, \cm{silero-vad}, \cm{sounddevice}, with
+        \cm{openai-whisper} and \cm{torch} kept only for bake-off comparison. It also carries an
+        explicit \cm{requests} pin, because \cm{faster\_whisper/utils.py} imports \cm{requests}
+        without declaring it in its own metadata and a clean install otherwise fails at import.
 \end{itemize}
 
-\section{The Confined Role of the Large Language Model (LLM)}
-The Large Language Model is strictly confined to \textbf{Track A (Perception Layer)}. 
+\subsection{Perception (Track A)}
+One credential, \cm{GROQ\_API\_KEY}, buys both hosted Whisper ASR and the LLM structurer. Two
+models, chosen from \pth{docs/benchmarks/structurer\_bakeoff\_table.md}: \cm{gpt-oss-120b} (symptom
+F1 0.962, zero red flags missed) for observation extraction, and \cm{gpt-oss-20b} (F1 0.816) for
+the cheaper matching and classification calls. A local GPU path was rejected because the
+development hardware is AMD --- no CUDA, no ROCm on Windows --- and because the demonstration must
+not depend on a live tunnel. Decoding webm/opus for the pre-flight silence gate needs \cm{ffmpeg}
+on \cm{PATH}; without it the gate reports itself skipped rather than silently passing.
 
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=\textwidth]{../diagrams/02-post-risk-engine-decision-path.png}
-    \caption{The Semantic Boundary: The model reports, the rule evaluates.}
-\end{figure}
+\subsection{Model}
+Gradient-boosted trees over 59 features. The shipped artifact is \cm{medipilot-gbdt-v0.2.0}
+(feature version \cm{fx-v4}, 180-minute horizon, scikit-learn 1.4.2), selected by
+\pth{model/artifacts/current.txt} and shipped with isotonic calibration, a conformal predictor,
+per-stratum thresholds and a \cm{manifest.json}. Four alternates --- xgboost, hist, hist-mono,
+last-obs --- sit beside it for the leaderboard.
 
-The LLM operates purely as a structural parser, translating unstructured patient narrative into a rigid JSON schema. It is structurally prohibited from producing an acuity score, assigning a triage band, or issuing clinical judgments. Should inference resources become constrained or the model output violate the schema, the system falls back to a deterministic, keyword-based structurer. 
+% ======================= 4. ARCHITECTURE =======================
+\section{Solution Architecture}
+\label{sec:arch}
 
-\section{Synthetic Data Production}
-To validate the system's edge cases without exposing Patient Health Information (PHI), the demonstration corpus is entirely synthetic. The 20-record dataset (\texttt{web/lib/seed/corpus.ts}) is generated deterministically to test Wait-Ceiling breaches, Out-Of-Distribution (OOD) gates, and zero-history ABHA paths.
+\begin{figure*}[p]
+  \centering
+  % trim strips the blank canvas the export leaves around the drawing
+  % (measured content box: 79,79 -> 1212,2205 of 2720x3688, 1px = 1bp at 72dpi)
+  \includegraphics[trim=59 1463 1488 59,clip,height=0.87\textheight]{../diagrams/01-full-architecture.png}
+  \caption{The six-layer pipeline across three tracks. Track~A (perception) may only report;
+  Track~B (interfaces) may only render; Track~C (the risk engine) is the only track permitted to
+  assign a band. The dashed returns are the two feedback loops: re-triage every five minutes, and
+  overrides plus outcomes becoming training labels.}
+  \label{fig:arch}
+\end{figure*}
 
-\section{Repository Integrity \& Structure}
-The repository is structured to enforce the separation of concerns between the architectural tracks:
+MediPilot is three tracks over two runtimes (Fig.~\ref{fig:arch}). The split is physical: Track~B
+is a Node/Next.js payload, Track~C is a Python process, and Track~A is a set of adapters that
+either may call but neither may trust.
 
-\vspace{0.5cm}
-\begin{lstlisting}[language=bash, basicstyle=\small\ttfamily, backgroundcolor=\color{gray!10}]
-.
-|-- web/                    # Track B: Next.js frontend (kiosk, board)
-|-- backend/                # Track C: Python FastAPI orchestrator 
-|-- docs/                   # Documentation and whitepaper specifications
-|   |-- paper/              # LaTeX source files
-|   |-- diagrams/           # SVG and PNG architecture diagrams
-|   \-- submission/         # Compiled PDFs for evaluation
-|-- archive/                # Quarantined legacy code
-\-- .migration/             # Hashes proving migration integrity
-\end{lstlisting}
+\subsection{Track B --- the clinical interfaces}
+\pth{web/} carries seven clinical surfaces plus a landing page: \pth{/intake} (the patient kiosk),
+\pth{/board} (the nurse board), \pth{/card/[id]} (the single-patient card and override panel),
+\pth{/hall} (the waiting-hall display), \pth{/counter}, \pth{/control} (demonstration clock and
+surge control) and \pth{/audit} (the hash-chained ledger view).
+\pth{web/components/clinical/} enforces invariants at runtime rather than by convention ---
+\cm{AcuityCard} throws if asked to render a score without a conformal confidence band, and
+\cm{LockedAcuitySlot} exists so a human-assigned level has a component that structurally cannot be
+lowered by a machine.
+
+\subsection{Track C --- the triage engine}
+\pth{backend/triage/} holds the deterministic \cm{band\_engine}, the \cm{surge\_controller}, the
+\cm{recheck\_scheduler}, the hash-chained \cm{audit\_log} and the orchestrator.
+\pth{backend/rules/} holds the safety floors: \cm{red\_flag\_engine}, \cm{vital\_thresholds},
+\cm{spo2\_bias\_guard}. \pth{backend/model/} holds the risk model and its artifacts.
+
+\subsection{Two ASGI applications, not one}
+Knowing which app is running matters when reading logs. Both are live, and booting only one and
+declaring the backend verified is a mistake that has already been made once here.
+
+\begin{center}\footnotesize\sffamily
+\begin{tabular}{@{}p{1.9cm}p{5.9cm}@{}}
+\toprule
+\rowcolor{AccPurple!10}
+\textbf{App} & \textbf{Module and surface}\\
+\midrule
+Orchestrator & \cm{triage/orchestrator/app.py} --- \cm{/v1/*}, 20 routes. \textbf{This is what the web app calls.} A lifespan hook bootstraps a \cm{World} and starts a tick loop\\
+\addlinespace[2pt]
+Risk-model API & \cm{triage/api.py} --- \cm{/score}, \cm{/override}, \cm{/queue}, \cm{/recheck/\{id\}}, \cm{/surge-status}, \cm{/audit/\{id\}}, \cm{/demo/arrival}\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{3pt}
+\noindent The orchestrator's twenty routes group as: census and state (\cm{/config},
+\cm{/census}, \cm{/encounter/\{id\}}, \cm{/stream}); scoring (\cm{/score}, \cm{/decision},
+\cm{/rechecks}); intake (\cm{/intake/submit} and five \cm{/intake/tree/*} routes); perception
+(\cm{/speech/transcribe}, \cm{/structure}); measurement
+(\cm{/encounter/\{id\}/measurement}); surge and audit; and two demo-control routes. Note that
+\cm{/override} on the risk-model app is a first-class route rather than an administrative
+afterthought --- a human reversal is a normal, recorded event here, not an exception path.
+
+\subsection{Config is the clinical surface}
+Six YAML files under \pth{backend/config/} hold behaviour that would otherwise be buried in Python:
+
+\begin{center}\footnotesize\sffamily
+\begin{tabular}{@{}p{3.15cm}p{4.65cm}@{}}
+\toprule
+\rowcolor{AccPurple!10}
+\textbf{File} & \textbf{What it governs}\\
+\midrule
+\cm{age\_strata.yaml} & Six strata with per-stratum normal vital ranges\\
+\addlinespace[2pt]
+\cm{band\_cadence.yaml} & Re-score and re-measure intervals, wait ceilings, breach actions, per band\\
+\addlinespace[2pt]
+\cm{red\_flags.yaml} & Observation $\rightarrow$ Red mapping, with per-flag override authority\\
+\addlinespace[2pt]
+\cm{surge\_policy.yaml} & Detection window, 3$\times$ threshold, what may stretch\\
+\addlinespace[2pt]
+\cm{label\_spec.yaml} & The training label; frozen and hashed into the manifest\\
+\addlinespace[2pt]
+\cm{feature\_registry.yaml} & Every field classified \cm{SAFE} / \cm{CONDITIONAL} / \cm{PROHIBITED}\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{3pt}
+The registry is the enforcement artifact behind the white paper's leakage-lint claim, and it
+\textbf{fails closed}: \pth{model/feature\_registry.py} treats any unregistered name as
+\cm{PROHIBITED}, so adding a generator field without classifying it breaks the build. That is the
+point --- it is how feature drift gets caught mechanically instead of in review.
+
+\subsection{Runtime workflow, end to end}
+
+\textbf{1 · Intake.} Ten steps driven by \pth{web/intake/IntakeApp.tsx}: Welcome $\rightarrow$
+Companion $\rightarrow$ HumanOffer $\rightarrow$ Consent $\rightarrow$ Basics $\rightarrow$
+Conversation $\rightarrow$ Pain $\rightarrow$ Readback $\rightarrow$ Token, with a HumanLane bail-out
+available at any point. \cm{Conversation} walks one of sixteen branches in
+\pth{web/intake/tree/branches/} (chestPain, breathing, trauma, obstetric, paeds, poisoning, …).
+Branch choice is a local keyword table first; Groq refines it only if the patient has not yet
+answered inside the branch. The backend mirrors this for the live path in
+\pth{backend/intake/pipeline.py}, which makes \emph{no} clinical decision beyond the deterministic
+red-flag table.
+
+\textbf{2 · Scoring.} \pth{backend/model/risk\_model.py} runs a fixed nine-stage pipeline: stratum
+resolution $\rightarrow$ vital freshness $\rightarrow$ deterministic red flags (which fire first)
+$\rightarrow$ vital thresholds $\rightarrow$ raw risk $\rightarrow$ per-stratum calibration
+$\rightarrow$ asymmetric reliability weighting $\rightarrow$ conformal uncertainty $\rightarrow$ a
+\cm{ScoreObject} or an \cm{AbstentionObject}, never a partial object. Then
+\pth{triage/band\_engine.py} assigns the band, and the SpO\textsubscript{2} bias guard runs before
+any de-escalation attempt is even considered.
+
+\textbf{3 · The waiting loop} (Fig.~\ref{fig:lanes}). \pth{triage/recheck\_scheduler.py} re-scores
+everyone every five minutes and re-measures on the band cadence; stale readings pull a
+re-measurement forward and ceiling breaches escalate. A Green patient who misses two consecutive
+rechecks goes Yellow. An abstained patient holds at Yellow and breaches at fifteen minutes
+unreviewed. \pth{triage/surge\_controller.py} detects 3$\times$ normal arrival rate and stretches
+Yellow 30$\rightarrow$45 and Green 60$\rightarrow$90 minutes. Red never stretches.
+
+\textbf{4 · The human closes it.} Override is one touch from every surface showing a band.
+\pth{triage/audit\_log.py} appends a tamper-evident record rendered verbatim on \pth{/audit}, and
+consent withdrawal is a new event rather than a deletion. \cm{outcome\_ref} is back-filled later
+--- that is the training signal.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[trim=59 1371 1419 59,clip,width=0.70\textwidth]{../diagrams/03-in-the-room-lanes-and-voice.png}
+  \caption{The four lanes out of the triage bench, and what each one guarantees. The abstention
+  lane ("not sure") is a first-class outcome: no colour is offered, the queue is never auto-sorted,
+  and a human decides.}
+  \label{fig:lanes}
+\end{figure*}
+
+\subsection{Degradation, and what the model may not do}
+The LLM is confined to Track~A (Fig.~\ref{fig:boundary}). It is a structural parser: unstructured
+narrative in, a rigid schema out. It is prohibited from producing an acuity score, assigning a band
+or issuing a clinical judgement, and the prohibition is structural rather than advisory --- no
+production rule for acuity exists in its output grammar, so the sentence cannot be formed. Tier-2
+option matching is the sharpest illustration: the model is handed the options already on the
+patient's screen and asked to return one of their values or \cm{NONE}, and anything else it returns
+is read as \cm{NONE} on both sides of the wire.
+
+Degradation is symmetrical on the model side. If the artifact is missing, its sklearn version
+mismatches, or its feature contract has drifted from the live extractor,
+\pth{model/artifact.py} falls back to the frozen AIIMS-ATP rule card and stamps
+\cm{score\_source="fallback\_heuristic"}. It does not raise into the triage API. The UI never shows
+a blank state.
+
+\begin{figure*}[p]
+  \centering
+  \includegraphics[trim=159 1775 1459 59,clip,height=0.87\textheight]{../diagrams/02-post-risk-engine-decision-path.png}
+  \caption{The post-engine decision path. Calibration, then a range rather than a point, then an
+  explicit confidence gate that may step back entirely; only past that gate does the system pick a
+  level, and even then the nurse's call is the record.}
+  \label{fig:boundary}
+\end{figure*}
+
+% ======================= 5. SYNTHETIC DATA =======================
+\section{Synthetic Data Generation}
+\label{sec:data}
+
+No patient health information exists anywhere in this repository. Everything is manufactured by
+\pth{backend/data/generator/}, in four layers, and the design of the label layer is the part worth
+reading.
+
+\subsection{Conditions --- joint, not independent, vitals}
+\pth{conditions.py} defines clinical archetypes, each with a \emph{correlated joint} distribution
+over vitals per age stratum. Vitals are never sampled independently, because independent sampling
+mints physiologically impossible patients. Each vital is a truncated normal with hard clipping
+bounds.
+
+\subsection{Trajectories --- 37 timesteps per patient}
+\pth{trajectories.py} builds a vital-sign trajectory from T=0 to T=180 minutes at 5-minute
+intervals, in one of three shapes: \emph{compensating-then-decompensating} (holds, then
+deteriorates), \emph{improving}, and \emph{stable-sudden} (stable, then rapid deterioration at a
+random inflection point). Seven vitals are tracked --- \cm{hr}, \cm{rr}, \cm{bp\_sys}, \cm{spo2},
+\cm{temp\_c}, \cm{gcs}, \cm{pain\_score} --- and each measurement carries the
+\cm{(value, timestamp, source, validity)} tuple the freshness model requires.
+
+\subsection{Missingness --- three mechanisms, plus device bias}
+\pth{missingness.py} does not apply uniform random dropout, because that is not how data goes
+missing in an ED. Three distinct mechanisms are modelled: \emph{sensor failure} (reading present
+but flagged invalid), \emph{zero history} (a first-visit patient with no prior records), and
+\emph{staff shortage} (reading simply absent, nobody had time). The same module applies a
+calibrated upward SpO\textsubscript{2} offset for the darker-skin flag, modelling the occult
+hypoxaemia under-detection that the bias guard downstream exists to catch.
+
+\subsection{Labels --- and why they are not circular}
+\pth{labels.py} derives the outcome from the per-patient latent, never from the assigned band ---
+training on band labels would encode their $\sim$32\% mistriage rate. But the naive alternative,
+$\text{label} = f(\text{severity})$, produces a fake result: measured on this generator,
+late-window peak severity is essentially a lookup on trajectory shape, and a model trained on it
+scores AUROC 0.988 from T=0 vitals alone because it is really doing condition identification.
+Three structural choices prevent that:
+
+\begin{enumerate}
+  \item \textbf{The label lives strictly in the future.} Features come from steps $\le k$; the
+        label is computed over $(k, \text{end}]$. Because the inflection point is per-patient and
+        random, the future is genuinely underdetermined by the observation window.
+  \item \textbf{A \cm{frailty} latent enters the outcome and never touches any vital.} No feature
+        set can recover it, which puts a hard floor under Bayes error.
+  \item \textbf{The outcome is a Bernoulli draw, not a threshold.} Two patients with identical
+        conditions and near-identical vitals can differ in outcome.
+\end{enumerate}
+
+\noindent Together these bound the achievable AUC well below 1.0, and
+\cm{severity\_oracle\_auc()} computes that ceiling explicitly so the trained model can be reported
+against it rather than against perfection. The primary head is
+\cm{critical\_composite\_h180}: the horizon is 180 \emph{minutes}, not 24 hours, and it is named
+that way deliberately --- calling it "24h" would be a false claim about what was measured on
+synthetic data. \pth{config/label\_spec.yaml} is frozen and hashed into the artifact manifest, so
+changing any value there invalidates every trained artifact.
+
+\subsection{Honest stratum coverage}
+Five conditions define vitals only for \cm{adult}, and \cm{vitals\_for\_stratum()} silently falls
+back to the adult distribution for anything else. Sampling (condition $\times$ stratum) freely
+would therefore mint neonates carrying adult trauma physiology, and any per-stratum fairness metric
+computed over those rows would be measuring nonsense. Sampling is restricted to explicitly-defined
+pairs, and every row records \cm{stratum\_is\_fallback} for audit --- coverage that is narrower and
+honest rather than broad and fabricated.
+
+\subsection{The two datasets}
+\pth{corpus.py} builds the fixed 20-record demo corpus \cm{P-01…P-20} at seed 42 (\cm{P-01…P-10}
+map to the §10 acceptance cases in the brief; \cm{P-11…P-20} add strata and conditions for
+generalisation). \pth{bulk.py} builds the N-parameterised training population. The full
+generated dataset used for the current models is distributed alongside this document as
+\pth{backend/data/train\_set\_100k.zip}. A further \pth{dynamic\_encounters.json} adds twelve
+arrivals that appear over the course of a demonstration, which is why the census returns 32 and
+not 20.
+
+% ======================= 6. TRAINING =======================
+\section{Model Training}
+\label{sec:train}
+
+\pth{model/train.py} runs nine stages and writes a versioned artifact:
+
+\begin{enumerate}
+  \item Load the labelled dataset from \pth{bulk.py}
+  \item Build features through \pth{model/features.py} --- \emph{the} shared extractor, also used
+        at serving time
+  \item Split by \cm{patient\_id}, stratified on (stratum, label)
+  \item Auxiliary regressor $\rightarrow$ out-of-fold derangement prediction
+  \item Primary GBDT classifier
+  \item Per-stratum isotonic calibration, on \cm{calib\_iso}
+  \item Mondrian split-conformal quantiles, on \cm{calib\_conf}
+  \item Cost-ratio thresholds solved on the calibration split
+  \item Persist everything plus a manifest
+\end{enumerate}
+
+\subsection{Two heads, honestly described}
+sklearn has no multi-task GBDT, and lightgbm/xgboost were unavailable while torch was broken in
+this environment. So this is a two-stage \emph{stack}, not multi-task learning over a shared trunk:
+the auxiliary regressor's out-of-fold prediction becomes one input column to the primary
+classifier. That achieves the white paper's "secondary label constrains the primary" effect. It is
+not the same architecture, and the code says so in its own docstring.
+
+\subsection{Split discipline}
+\cm{calib\_iso} and \cm{calib\_conf} are \textbf{separate splits}. Fitting isotonic regression and
+then computing conformal quantiles on the same rows makes those scores in-sample, breaks
+exchangeability and voids the coverage guarantee --- while still printing coverage numbers that look
+entirely fine. That is the standard way this goes silently wrong, and the separation is the defence.
+
+\subsection{Features}
+59 features from \pth{model/features.py}. Per vital, six: the value, a per-stratum $z$-score, the
+reading's age in minutes, a slope per hour, a 30-minute delta, and a count of readings. That shape
+is what makes deterioration-while-waiting visible to a tabular model at all --- a snapshot model
+cannot see a trend.
+
+\subsection{The sequence track}
+\pth{model/train\_seq.py} replicates the same calibration, conformal and threshold pipeline over
+PyTorch sequence models --- a last-observation baseline, GRU, TCN and Transformer --- reusing
+\pth{train.py}'s split and calibration functions directly rather than reimplementing them. This is
+the experimental track; it is not what ships.
+
+% ======================= 7. EVALUATION =======================
+\section{Evaluation}
+\label{sec:eval}
+
+Evaluation is split in two: the risk model (\pth{model/evaluate.py}, \pth{model/leaderboard.py})
+and the perception layer (\pth{eval/}). Both report numbers rather than adjectives, and both were
+designed to make self-congratulation mechanically detectable.
+
+\subsection{Every metric, three ways}
+\pth{model/evaluate.py} reports each headline metric for the trained model, for the hand-coded
+baseline it must beat, and for a \emph{severity oracle} that knows the true future peak severity.
+The oracle row is the anti-self-congratulation control: a trained model that approaches or exceeds
+it has leakage, and that is a mechanical detection rather than a judgement call.
+
+The metric choices follow the white paper rather than convenience. AUPRC is primary, because AUROC
+flatters every model at low prevalence. The safety metric is \textbf{under-triage at a fixed
+over-triage rate}, not accuracy. ECE uses \emph{quantile} bins, because at $\sim$10\% prevalence
+equal-width bins put nearly all mass in bin 0 and ECE collapses to $\approx$0 regardless of real
+calibration quality. Fairness is equalised false-negative rate across strata with bootstrap CIs,
+never a bare max--min gap, which at these positive counts would be mostly noise.
+
+\subsection{The shipped artifact's committed numbers}
+Over $n=4001$ held-out encounters at prevalence 9.8\%:
+
+\begin{center}\footnotesize\sffamily
+\begin{tabular}{@{}p{2.9cm}p{1.5cm}p{1.5cm}@{}}
+\toprule
+\rowcolor{AccPurple!10}
+\textbf{} & \textbf{AUROC} & \textbf{AUPRC}\\
+\midrule
+Trained model & 0.689 & 0.174\\
+Hand-coded baseline & 0.630 & 0.156\\
+Severity oracle (ceiling) & 0.866 & 0.410\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{3pt}
+\noindent Conformal coverage is 0.910 overall with a mean set size of 1.08; overall ECE is 0.011;
+per-stratum FNR runs from 0.00 (adolescent, $n_{\text{pos}}=35$) to 0.15 (adult,
+$n_{\text{pos}}=164$), each with bootstrap CIs and an \cm{underpowered} flag. All eight
+\cm{go\_live\_criteria} in \cm{metrics.json} currently evaluate true. Under-triage at a fixed 30\%
+over-triage rate is 0.486 --- these are modest numbers on a synthetic task with a deliberate Bayes
+floor, and they are reported as they stand.
+
+\subsection{The standing rule for model results}
+\pth{model/leaderboard.py} exists to enforce one rule: no model result is reported, discussed or
+shipped in isolation. Every model runs through the harness and lands as one row beside the shipped
+baseline, the hand-coded rule card, the prevalence floor and the oracle ceiling. \emph{A number
+quoted without its row in that table is not a result yet.}
+
+\subsection{Perception bake-offs}
+\pth{eval/} answers two questions with numbers. Which Whisper should transcribe the intake
+conversation (\pth{run\_asr\_bakeoff.py}, against \pth{asr\_manifest.json}), and which LLM should
+extract the structured fields while the perception-only guarantee holds
+(\pth{run\_structurer\_bakeoff.py}, against \pth{structurer\_cases.json}, which is deliberately
+messy: adversarial, ambiguous, negation, Hinglish, prompt-injection, obstetric, paediatric and
+reliability cases). Both import scoring from \pth{eval/metrics.py}, so a number in a notebook and a
+number in the report were produced by the same code. Results land in
+\pth{docs/benchmarks/}. The structurer table also records \cm{schema\_failures} and
+\cm{forbidden\_key\_hits} --- the latter is how the perception-only boundary is measured rather
+than assumed.
+
+Both bake-offs run locally against hosted models and on a Kaggle T4 against open-weight ones,
+because the development laptop is an AMD Radeon RX 6500M with no CUDA and no ROCm-on-Windows.
+\textbf{T4s are Turing and do not support bfloat16}; every notebook uses float16 or 4-bit NF4, and
+a model card that says \cm{torch\_dtype=torch.bfloat16} will crash there.
+
+\subsection{The invariant suite}
+282 tests collected across \pth{tests/} and \pth{intake/}, covering age stratification (10), the
+audit log (6), the band engine (7), corpus acceptance cases (10), features (12), the invariants
+themselves (15), model training (11), the orchestrator contract (12), reliability weighting (6),
+surge control (8), and the intake pipeline, conversation flow, tree branching, classifier and voice
+normalisation (71 across six files).
+
+% ======================= 8. USING THE REPOSITORY =======================
+\section{Using This Repository}
+\label{sec:use}
+
+\begin{tcolorbox}[mpwarn]
+\textbf{Run Python from \pth{backend/}, not from the repository root.} \cm{intake}, \cm{model},
+\cm{triage}, \cm{data}, \cm{rules}, \cm{speech} and \cm{eval} are top-level absolute import roots,
+and \pth{conftest.py} puts that directory on \cm{sys.path}. Both \cm{pytest} and \cm{uvicorn} must
+be started from there.
+\end{tcolorbox}
+
+\subsection{Mock mode --- the zero-dependency demonstration}
+This is the default and the insurance policy. It needs Node and nothing else, and it is the demo
+path.
+
+\begin{tcolorbox}[mpcode]
+cd web\\
+npm install\\
+cp .env.example .env.local\\
+\ \ \# NEXT\_PUBLIC\_MP\_SOURCE=mock is already the default\\
+npm run dev
+\end{tcolorbox}
+
+\noindent Open \cm{http://localhost:3000}. All seven surfaces work, driven by the twenty-patient
+corpus in the browser. Use Chrome if you intend to speak to the kiosk:
+\cm{webkitSpeechRecognition} is Chrome-only, and every question stays answerable by tap or keyboard
+so a denied microphone degrades the experience rather than blocking intake.
+
+\subsection{Live mode --- the full pipeline}
+\begin{tcolorbox}[mpcode]
+cd backend\\
+python -m venv .venv\\
+\ \ \# Windows:\ \ \ \ .\textbackslash.venv\textbackslash Scripts\textbackslash activate\\
+\ \ \# macOS/Linux: source .venv/bin/activate\\
+pip install -r requirements.txt\\
+python -m uvicorn triage.orchestrator.app:app \textbackslash\\
+\ \ \ \ -{}-port 8000 -{}-reload
+\end{tcolorbox}
+
+\noindent The second application runs beside it, on its own port:
+
+\begin{tcolorbox}[mpcode]
+python -m uvicorn triage.api:app -{}-port 8001 -{}-reload
+\end{tcolorbox}
+
+\noindent Then point the frontend at the orchestrator: set \cm{NEXT\_PUBLIC\_MP\_SOURCE=live} in
+\pth{web/.env.local} and restart \cm{npm run dev}. The variable is read at build time, so the
+restart is not optional --- editing the file alone changes nothing.
+
+For the fully local perception path:
+
+\begin{tcolorbox}[mpcode]
+pip install -r requirements-speech-local.txt\\
+set MEDIPILOT\_ASR\_BACKEND=local,groq\\
+set MEDIPILOT\_STRUCTURER=local,groq,rules\\
+python -m uvicorn triage.orchestrator.app:app -{}-port 8000
+\end{tcolorbox}
+
+\subsection{The test suite}
+\begin{tcolorbox}[mpcode]
+cd backend\\
+python -m pytest
+\end{tcolorbox}
+
+\noindent Expect \textbf{278 passed, 4 failed} (\S\ref{sec:state}). \pth{pytest.ini} sets
+\cm{testpaths = tests intake}; \pth{speech/} is deliberately excluded because
+\pth{speech/test\_whisper.py} needs torch, ffmpeg and downloads model weights, which would break a
+default run for anyone on the hosted path. Run it explicitly with \cm{pytest speech/}.
+
+\subsection{Regenerating data and artifacts}
+The training set and the held-out split are gitignored as regenerable, and they are what three of
+the four failing tests want:
+
+\begin{tcolorbox}[mpcode]
+cd backend\\
+python -m data.generator.bulk -{}-n 20000 \textbackslash\\
+\ \ \ \ -{}-out data/train\_set.jsonl\\
+python -m model.train -{}-data data/train\_set.jsonl\\
+python -m model.evaluate\\
+python -m model.leaderboard
+\end{tcolorbox}
+
+\noindent Seeds default to 1337, so runs are reproducible. To rebuild the fixed demo corpus
+instead, \cm{python -m data.generator.corpus} (seed 42). The perception bake-offs are separate
+entry points --- \cm{python -m eval.run\_asr\_bakeoff} and
+\cm{python -m eval.run\_structurer\_bakeoff} --- and both skip their hosted candidates with a
+printed notice when \cm{GROQ\_API\_KEY} is absent rather than failing.
+
+\subsection{Production execution}
+\begin{tcolorbox}[mpcode]
+cd web \&\& npm run build \&\& npm start
+\end{tcolorbox}
+
+\begin{tcolorbox}[mpwarn]
+\textbf{Do not add workers to either Python app as it stands.} The orchestrator holds
+\cm{world = World()} at module level and starts a tick loop in its lifespan hook; \pth{triage/api.py}
+likewise holds \cm{\_audit\_log}, \cm{\_scheduler}, \cm{\_surge\_ctrl} and \cm{\_surge\_state} at
+module level. Running \cm{gunicorn -{}-workers 4} would create four independent worlds with four
+independent tick loops, and the census a nurse sees would depend on which worker answered. Until
+that state is externalised (\S\ref{sec:scale}), the correct production posture is one process per
+app behind a reverse proxy.
+\end{tcolorbox}
+
+\subsection{Which adapter is running?}
+\pth{web/lib/api/client.ts} picks its adapter from \cm{NEXT\_PUBLIC\_MP\_SOURCE}. Before debugging
+any "the backend is wrong" report, check which one was in play: \textbf{a mock-mode screenshot
+proves nothing about the service.}
+
+\begin{center}\footnotesize\sffamily
+\begin{tabular}{@{}p{2.5cm}p{1.5cm}p{3.4cm}@{}}
+\toprule
+\rowcolor{AccPurple!10}
+\textbf{Variable} & \textbf{Read by} & \textbf{Purpose}\\
+\midrule
+\cm{NEXT\_PUBLIC\_}\newline\cm{MP\_SOURCE} & web & \cm{mock} (default) or \cm{live}\\
+\addlinespace[2pt]
+\cm{NEXT\_PUBLIC\_}\newline\cm{API\_BASE} & web & orchestrator URL; default port 8000\\
+\addlinespace[2pt]
+\cm{GROQ\_API\_KEY} & web server, backend & optional; unlocks the hosted tiers only\\
+\addlinespace[2pt]
+\cm{MEDIPILOT\_}\newline\cm{INTAKE\_OFFLINE} & web server & \cm{1} forces the offline path\\
+\addlinespace[2pt]
+\cm{MEDIPILOT\_}\newline\cm{STRUCTURER} & backend & fallback order, e.g.\ \cm{local,groq,rules}\\
+\addlinespace[2pt]
+\cm{MEDIPILOT\_}\newline\cm{ASR\_BACKEND} & backend & fallback order, e.g.\ \cm{local,groq}\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{3pt}
+\noindent \cm{GROQ\_API\_KEY} deliberately carries no \cm{NEXT\_PUBLIC\_} prefix, so it is never
+inlined into a browser bundle --- it is read exclusively by the four route handlers under
+\pth{web/app/api/intake/}. \textbf{Never add the prefix.}
+
+\subsection{Privacy and the audit ledger}
+With \cm{GROQ\_API\_KEY} omitted the system runs entirely on-premise: local ASR, offline matching,
+the deterministic structurer, and no outbound request on any path. Every autonomous decision and
+every clinical override is appended to the hash-chained ledger in \pth{triage/audit\_log.py},
+inspectable at \pth{/audit}. Each \cm{OverrideRecord} carries 17 substantive fields --- including
+\cm{inputs\_hash}, so the decision is reproducible, and \cm{factors\_shown}, so the card as
+displayed is preserved --- plus \cm{record\_hash} and \cm{previous\_record\_hash}, 19 in total. The
+chain makes a retroactive edit \emph{detectable}; it does not make one impossible.
+
+% ======================= 9. SCALING =======================
+\section{Scaling: the Target Stack}
+\label{sec:scale}
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[trim=82 1003 1459 59,clip,width=\textwidth]{../diagrams/04-tech-stack-three-tiers.png}
+  \caption{The target deployment tiers. The bottom row is the invariant: only model updates travel
+  between sites, and per-site calibration stays local.}
+  \label{fig:stack}
+\end{figure*}
+
+Everything above describes what runs today: two single-process Python apps and a Next.js payload on
+one machine, with all state in memory. That is the right shape for a prototype and the wrong shape
+for a hospital. Figure~\ref{fig:stack} is the target, and this section is the honest gap between
+them.
+
+\begin{center}\footnotesize\sffamily
+\begin{tabular}{@{}p{1.5cm}p{2.6cm}p{3.2cm}@{}}
+\toprule
+\rowcolor{AccPurple!10}
+\textbf{Layer} & \textbf{Today} & \textbf{At scale}\\
+\midrule
+State & in-process \cm{World}, per app & Postgres for encounters + Redis for the live queue; this is the \emph{blocking} change\\
+\addlinespace[2pt]
+Serving & one uvicorn process & gunicorn/uvicorn workers, then replicas behind a load balancer --- only after state moves out\\
+\addlinespace[2pt]
+Inference & sklearn joblib, in-process & LightGBM $\rightarrow$ ONNX Runtime on the edge box; millisecond latency, no Python at the bench\\
+\addlinespace[2pt]
+Local store & none & SQLite on the edge box, so the bench survives a network loss\\
+\addlinespace[2pt]
+Ticks & \cm{asyncio} loop in the app & Kafka event stream on 5-minute ticks; the loop becomes a consumer, not a singleton\\
+\addlinespace[2pt]
+Client & Next.js dev/\allowbreak start & the same PWA build on board and phone; installable, offline-capable\\
+\addlinespace[2pt]
+EHR & none & FHIR resources over CDS Hooks, so the card appears inside the existing workflow\\
+\addlinespace[2pt]
+Features & computed inline & Feast + Redis, so training and serving read one definition\\
+\addlinespace[2pt]
+Training & a script on a laptop & Argo pipelines with MLflow tracking in the regional cloud\\
+\addlinespace[2pt]
+Structurer & hosted Groq & a self-hosted 8B under the same output grammar, on the regional node\\
+\addlinespace[2pt]
+Monitoring & \cm{metrics.json} at train time & drift watchdogs on feature and outcome distributions, alarming per site\\
+\addlinespace[2pt]
+Multi-site & single machine & weekly federated rounds with secure aggregation\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{4pt}
+Three observations about that table. First, the ordering is not free: \textbf{externalising state
+is the prerequisite for every horizontal move}, and attempting workers first produces a system that
+looks scaled and silently disagrees with itself. Second, the edge tier is what makes the offline
+guarantee real at more than one site --- ONNX plus SQLite plus a PWA is a bench that keeps working
+with the network cut, which is the same property the mock adapter gives the demo today. Third, the
+federated row is the only one that is a \emph{commitment} rather than an optimisation: raw patient
+data never leaves the building, so cross-site learning has to be federated or it does not happen at
+all.
+
+None of this is implemented. It is drawn, costed at a target of under Rs.\,5 per encounter in the
+white paper, and deliberately not started --- the prototype's job was to establish the clinical
+contract, and a distributed system would have made that harder to verify, not easier.
+
+% ======================= 10. VERIFICATION =======================
+\section{Verification State and Known Issues}
+\label{sec:state}
+
+Reported as measured, not as intended. \cm{python -m pytest} from \pth{backend/} collects 282 tests
+and gives \textbf{278 passed, 4 failed} in roughly eight seconds. The counts are identical before
+and after the restructure, so these are pre-existing failures and not migration damage. None is a
+failing safety invariant.
+
+\begin{center}\footnotesize\sffamily
+\begin{tabular}{@{}p{3.2cm}p{4.6cm}@{}}
+\toprule
+\rowcolor{AccPurple!10}
+\textbf{Failing test} & \textbf{Cause and remedy}\\
+\midrule
+\cm{test\_auroc\_}\newline\cm{leakage\_canary} & Needs \cm{test\_split.npz}, gitignored as regenerable. Restore by retraining (\S\ref{sec:use})\\
+\addlinespace[2pt]
+\cm{test\_auprc\_beats\_}\newline\cm{prevalence\_baseline} & The same missing held-out split\\
+\addlinespace[2pt]
+\cm{test\_conformal\_}\newline\cm{coverage\_at\_least\_090} & The same missing held-out split\\
+\addlinespace[2pt]
+\cm{test\_census\_has\_20} & Asserts a census of 20; it is now 32 (20 seeded + 12 dynamic arrivals). The assertion is stale, not the code\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{4pt}
+The distinction matters. The first three are a \emph{packaging} decision --- the training set and
+its held-out split are reproducible from a seed, so they are generated rather than committed, and
+the tests that consume them cannot run until they are. The fourth is an ordinary stale assertion
+left behind when dynamic arrivals were added: true when written, not revisited. Both are stated
+here, because a README reporting 278 passing tests while omitting four failures is a README that
+has to be re-verified by whoever trusts it.
+
+\subsection{Other known issues, stated plainly}
+\begin{itemize}
+  \item \cm{npm run lint} \textbf{hangs} with no output and has to be killed. It did this before
+        the restructure too. Lint is currently not a usable gate.
+  \item \textbf{The orchestrator OpenAPI \emph{baseline} capture is empty} --- 0 paths recorded
+        against 20 in the after-state. That before/after comparison did not actually run; do not
+        cite it as evidence. The after-state capture is real and is what
+        \S\ref{sec:arch} draws on.
+  \item \pth{web/README.md} is still stock \cm{create-next-app} boilerplate.
+  \item The root \pth{README.md} predates the restructure and still describes the old tree in
+        places, including at least one \cm{uvicorn} target that is not a real module path.
+  \item Neither Python app is safe to run multi-worker (\S\ref{sec:use}).
+  \item The audit-record field count is documented inconsistently elsewhere --- \pth{audit\_log.py}
+        says 15, the root README says 16. Counted from the dataclass: 17 substantive fields plus 2
+        chain fields.
+\end{itemize}
+
+\begin{tcolorbox}[mpbox]
+\textbf{What to check before believing a run.} The frontend inlines \cm{NEXT\_PUBLIC\_} variables
+at \emph{build} time --- if a change to \pth{.env.local} appears to do nothing, the dev server was
+not restarted. The two ASGI apps answer on different route sets, so a 404 on \cm{/v1/census}
+usually means \pth{triage/api.py} is running instead of the orchestrator. And a screenshot taken in
+mock mode is evidence about the interface only.
+\end{tcolorbox}
+
+\vspace{6pt}
+\noindent\parbox{\linewidth}{%
+  \textcolor{AccPurple}{\rule{\linewidth}{1pt}}\\[3pt]
+  \centering\sffamily\footnotesize
+  \textcolor{AccPurple}{\bfseries Medi}{\bfseries Pilot} \ \textbullet\ \
+  \textit{``Nobody waits unseen.''}\\[3pt]
+  \textcolor{Border}{\rule{\linewidth}{0.5pt}}}
+
+\vspace{9pt}
+{\sffamily\bfseries\small\color{NearBlack}COMMITMENTS AT A GLANCE}\par
+\vspace{-1pt}\noindent\textcolor{AccPurple}{\rule{\linewidth}{1pt}}\par\vspace{3pt}
+
+{\footnotesize\sffamily
+\begin{tabular}{@{}p{1.85cm}p{5.5cm}@{}}
+\toprule
+\rowcolor{AccPurple!10}
+\textbf{Commitment} & \textbf{Where it is enforced in the code}\\
+\midrule
+No LLM acuity & No production rule for acuity in the output grammar; \pth{intake/llm\_structurer.py}\\
+\addlinespace[2pt]
+No autonomous de-escalation & \cm{AsymmetricAutonomyViolation} raised on the code path, not logged\\
+\addlinespace[2pt]
+No silent guess & Conformal gate; \cm{AcuityCard} throws without a confidence band\\
+\addlinespace[2pt]
+No hard model dependency & A deterministic bottom tier on every ladder, down to the frozen ATP rule card\\
+\addlinespace[2pt]
+No leaked feature & \pth{config/feature\_registry.yaml} fails closed on any unregistered field\\
+\addlinespace[2pt]
+No circular label & Future-window label, unobservable frailty latent, Bernoulli outcome\\
+\addlinespace[2pt]
+No isolated result & \pth{model/leaderboard.py}: a number without its row is not a result\\
+\addlinespace[2pt]
+No PHI anywhere & Synthetic corpus only; on-premise by default when the key is absent\\
+\addlinespace[2pt]
+No unverifiable claim & \pth{.migration/} carries build, lint, routes, OpenAPI and the test run\\
+\bottomrule
+\end{tabular}}
+
+\vspace{7pt}
+{\scriptsize\color{MedGray}\textbf{Note on format.} This README follows the house style of the
+Round~I white paper (\pth{docs/submission/BIT01\_solution.pdf}) so that the submission reads as one
+document set. It is generated from \pth{docs/paper/implementation\_readme.tex} and was audited
+against the tree on branch \cm{restructure}; the prose source of record for the same material is
+\pth{docs/README.md}, and the system-level map is the \cm{medipilot} skill.}
 
 \end{document}
