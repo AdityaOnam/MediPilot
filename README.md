@@ -92,7 +92,7 @@ cp .env.example .env.local
 | Variable | Default | Notes |
 |---|---|---|
 | `NEXT_PUBLIC_MP_SOURCE` | `mock` | `live` switches to the Python orchestrator |
-| `NEXT_PUBLIC_API_BASE` | `http://localhost:8000` | only read when `live` |
+| `NEXT_PUBLIC_API_BASE` | `http://localhost:8000(local deployment, currently deployed on Google Clound)` | only read when `live` |
 | `GROQ_API_KEY` | *(unset)* | **server-only, no `NEXT_PUBLIC_` prefix.** `/intake` works fully without it |
 | `MEDIPILOT_INTAKE_OFFLINE` | *(unset)* | `1` forces the offline path, for rehearsing without burning free-tier quota |
 
