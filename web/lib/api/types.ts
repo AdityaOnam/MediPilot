@@ -418,6 +418,17 @@ export interface IntakeResponse {
   requiredVitals?: VitalCode[];
 }
 
+/**
+ * One question-answer pair from the kiosk conversation, in the order it was
+ * asked. See intake/tree/transcript.ts — this is the record a nurse reads
+ * as a conversation, not a field dump.
+ */
+export interface IntakeAnswer {
+  id: string;
+  question: string;
+  answer: string;
+}
+
 export interface StructureResponse {
   /** ObservationCodes the structurer (M06) extracted, from a closed vocabulary. */
   observations: string[];
