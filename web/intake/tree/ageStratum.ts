@@ -1,9 +1,9 @@
-import type { AgeStratum } from './types';
+﻿import type { AgeStratum } from './types';
 
 /**
  * Six-stratum resolution (Invariant 3 — age is never assumed before a
  * threshold applies). Mirrors the bands in
- * Backend/MediPilot/medipilot-model/config/age_strata.yaml so a patient
+ * backend/config/age_strata.yaml so a patient
  * scored by the kiosk and by the orchestrator's own fallback classifier
  * land in the same stratum.
  */

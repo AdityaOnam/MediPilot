@@ -1,4 +1,4 @@
-# Perception-layer evaluation (M05 speech · M06 structurer)
+﻿# Perception-layer evaluation (M05 speech · M06 structurer)
 
 This directory answers two questions with numbers instead of adjectives:
 
@@ -65,7 +65,7 @@ Validate the eval set on its own — this runs in under a second and needs no ke
 
 ### On Kaggle
 
-1. Zip `medipilot-model/` and upload it as a Kaggle Dataset (it must contain `eval/`, `speech/`
+1. Zip `backend/` and upload it as a Kaggle Dataset (it must contain `eval/`, `speech/`
    and `intake/` — the audio fixtures live in `speech/`).
 2. New notebook → **+ Add Input → Datasets** → your upload.
 3. **Settings → Accelerator → GPU T4 x2.**

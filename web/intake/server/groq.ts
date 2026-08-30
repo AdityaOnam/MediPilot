@@ -1,4 +1,4 @@
-/**
+﻿/**
  * The one place the kiosk talks to Groq. A plain fetch to the
  * OpenAI-compatible endpoint — no SDK, so no new dependency.
  *
@@ -19,7 +19,7 @@ const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
 /**
  * Two models rather than one, chosen from our own bake-off in
- * Backend/MediPilot/Metrics/structurer_bakeoff_table.md:
+ * docs/benchmarks/structurer_bakeoff_table.md:
  *
  *   gpt-oss-120b  F1 0.962, red_flags_missed 0   <- the safety-critical path
  *   gpt-oss-20b   F1 0.816, red_flags_missed 4   <- fine where a miss is benign

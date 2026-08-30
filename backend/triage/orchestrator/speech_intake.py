@@ -1,4 +1,4 @@
-"""
+﻿"""
 Wiring between the orchestrator's HTTP surface and the intake/speech layer.
 
 This module is the only place where the FastAPI app knows that M05 (speech)
@@ -11,7 +11,7 @@ and M06 (LLM structurer) exist. It owns four things:
   3. Honest reporting of which backend actually ran, so nothing ever claims
      local inference or LLM extraction it did not perform.
   4. Translation from the intake layer's dataclasses to the JSON shape
-     frontend/lib/api/types.ts expects.
+     web/lib/api/types.ts expects.
 
 The deployment position this implements
 ---------------------------------------
@@ -351,7 +351,7 @@ def _label_for(kind: str) -> str:
 def narrative_to_response(narrative: StructuredNarrative, structurer_name: str) -> dict:
     """
     Map a StructuredNarrative plus its deterministic red-flag verdict onto the
-    StructureResponse shape in frontend/lib/api/types.ts.
+    StructureResponse shape in web/lib/api/types.ts.
 
     Note what is absent: there is no `severity` string. The stub this replaces
     emitted "severe" whenever any observation was extracted, which is M06

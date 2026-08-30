@@ -1,7 +1,7 @@
-# MediPilot model — fix plan
+﻿# MediPilot model — fix plan
 
 Handoff document. Self-contained: you do not need the review conversation that
-produced it. Work in `D:\medipilot-whitepaper\medipilot-model`.
+produced it. Work in `D:\medipilot-whitepaper\backend`.
 
 Baseline state: 62/62 tests pass, ~5,400 LOC, all modules present. The code is
 broadly sound — Invariant 1 (asymmetric autonomy), reliability asymmetry, and

@@ -1,5 +1,5 @@
-"""
-camelCase DTOs mirroring frontend/lib/api/types.ts one-for-one.
+﻿"""
+camelCase DTOs mirroring web/lib/api/types.ts one-for-one.
 
 Pydantic models with alias_generator = to_camel so JSON is camelCase
 while Python code uses snake_case.

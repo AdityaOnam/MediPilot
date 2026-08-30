@@ -1,8 +1,8 @@
-import type { Bilingual } from '../tree/types';
+﻿import type { Bilingual } from '../tree/types';
 
 /**
  * The eight red-flag observation codes, taken VERBATIM from
- * Backend/MediPilot/medipilot-model/config/red_flags.yaml. These are
+ * backend/config/red_flags.yaml. These are
  * clinical config, not code — do not rename or add to this list without
  * updating that file too, or `redFlagsFired[]` sent on submit stops
  * meaning anything to the band engine (world.py sets

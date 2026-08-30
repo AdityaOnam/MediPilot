@@ -1,10 +1,10 @@
-{
+﻿{
   "_about": [
     "Evaluation manifest for the ASR bake-off (round2-implementation-plan.html §16:",
     "'Whisper-class ASR, quantised, evaluated on Indian-accented and code-mixed speech",
     "before we depend on it').",
     "",
-    "Paths are relative to medipilot-model/. Each case is scored by eval/metrics.py.",
+    "Paths are relative to backend/. Each case is scored by eval/metrics.py.",
     "",
     "REFERENCES: `references` is a list of ACCEPTABLE transcriptions, not one truth.",
     "A Hinglish utterance has more than one faithful written form — the English words",

@@ -1,4 +1,4 @@
-# `intake/` — the talking triage conversation
+﻿# `intake/` — the talking triage conversation
 
 Self-contained rebuild of `/intake`. Nothing outside this folder imports it except
 `app/intake/page.tsx` (mounts `IntakeApp`) and `app/api/intake/*` (the three Groq routes).
@@ -88,7 +88,7 @@ Used only for self-harm risk, which is a nurse-now situation the physiological t
 cover. It submits as `humanAssistanceRequested`, never as a fabricated red flag.
 
 The eight codes are copied verbatim from
-`Backend/MediPilot/medipilot-model/config/red_flags.yaml`. **Do not rename them here alone** — the
+`backend/config/red_flags.yaml`. **Do not rename them here alone** — the
 band engine keys off these exact strings when `redFlagsFired[]` arrives on submit.
 
 ## Groq, and what happens without it

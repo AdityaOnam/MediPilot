@@ -1,4 +1,4 @@
-# MediPilot — The Pixel Triage Reel
+﻿# MediPilot — The Pixel Triage Reel
 
 **Production shot list · Team 01 BIT · IIT Patna · Accenture Innovation Challenge 2026 · Round 2**
 The demo film. Every generated shot is **pixel art** — no real hospital, no real people. See
@@ -571,7 +571,7 @@ reviewer's sign-off before the reel is cut — bundle them into the one review s
   },
 
   "bakeoff": {
-    "_comment": "REAL measured numbers. Backend/MediPilot/Metrics/. Do not round differently on the card.",
+    "_comment": "REAL measured numbers. docs/benchmarks/. Do not round differently on the card.",
     "structurer": {
       "chosen": "groq:openai/gpt-oss-120b",
       "symptomF1": 0.962,

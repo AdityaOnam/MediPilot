@@ -1,4 +1,4 @@
-# MediPilot model — data scale-up, patient history, and multi-model comparison plan
+﻿# MediPilot model — data scale-up, patient history, and multi-model comparison plan
 
 Handoff document for an agentic coding run (Antigravity). Self-contained: you
 do not need the conversation that produced it, but you must read
@@ -9,7 +9,7 @@ labels, an oracle-ceiling miscalibration, a train/serve trend-feature
 mismatch, three threshold bugs) and the house discipline that caught each
 one. Everything below extends that pipeline; it does not replace it.
 
-Work in `D:\medipilot-whitepaper\medipilot-model`.
+Work in `D:\medipilot-whitepaper\backend`.
 
 ---
 

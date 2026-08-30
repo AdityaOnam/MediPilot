@@ -1,4 +1,4 @@
-# MediPilot Risk Engine — Documentation
+﻿# MediPilot Risk Engine — Documentation
 
 Status as of 2026-08-23: **trained, gated, and passing all 8 go-live checks
 on synthetic data.** This document is the full record of how it got there —
@@ -15,7 +15,7 @@ Companion files: [`README.md`](README.md) (quick-start + API surface),
 
 ## 1. What this is
 
-`medipilot-model` is the data/model/risk track of the MediPilot ED-triage
+`backend` is the data/model/risk track of the MediPilot ED-triage
 prototype. It takes patient vitals and produces a triage band (Red/Yellow/
 Green) with a calibrated confidence and a conformal uncertainty set. Two
 things sit side by side:
