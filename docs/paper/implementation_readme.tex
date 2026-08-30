@@ -1,0 +1,103 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\geometry{margin=1in}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={MediPilot Implementation README},
+}
+
+\title{\textbf{MediPilot Implementation README}\\Architecture, Tech Stack, and Execution}
+\author{Team 01 BIT}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This document serves as the implementation README, outlining the solution architecture, technology stack, directory structure, synthetic data production, and the specific role of the Large Language Model (LLM). It incorporates the system's architecture diagrams directly to provide a comprehensive, visual guide to the system.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{Solution Architecture}
+The system enforces a strict boundary between the patient/nurse interfaces and the clinical risk engine. 
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{../diagrams/01-full-architecture.png}
+    \caption{Full End-to-End Architecture of MediPilot}
+\end{figure}
+
+\subsection{Frontend (Web Layer)}
+The frontend (located in \texttt{web/}) is a Next.js 16 application that houses all seven user surfaces, including the interactive kiosk and the nurse board. It manages the talking, branching triage conversation, speech-to-text integration, and local offline phrase matching without performing any clinical evaluation.
+
+\subsection{Backend (Triage Engine)}
+The backend (located in \texttt{backend/}) is a Python/FastAPI orchestrator. It contains the deterministic Band Engine, the gradient-boosted Risk Model, and the strict safety floors (Red Flags, SpO2 Bias Guards).
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{../diagrams/04-tech-stack-three-tiers.png}
+    \caption{Tech Stack and the Three Tiers of Fallback Inference}
+\end{figure}
+
+\section{Tech Stack}
+The system runs on commodity hardware to comply with the DPDP Act 2023, specifically avoiding mandatory paid cloud GPU dependencies.
+
+\begin{itemize}
+    \item \textbf{Frontend:} Next.js 16, React 19, Tailwind CSS 4, \texttt{webkitSpeechRecognition}.
+    \item \textbf{Backend:} Python 3.10+, FastAPI, Uvicorn, Scikit-learn, Pandas.
+    \item \textbf{Machine Learning:} \texttt{faster-whisper} (CTranslate2, int8), Llama.cpp / Ollama (for offline structural parsing).
+\end{itemize}
+
+\section{Role of the LLM}
+The Large Language Model (LLM) is strictly confined to \textbf{Track A (Perception Layer)}. 
+\begin{itemize}
+    \item \textbf{What it does:} The LLM translates unstructured patient narrative into a structured JSON schema (e.g., extracting symptoms and pain levels).
+    \item \textbf{What it NEVER does:} The LLM structurally cannot produce an acuity score, assign a triage band, or make clinical judgements. 
+\end{itemize}
+This extraction falls back to a deterministic, keyword-based structurer if inference resources are constrained.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{../diagrams/02-post-risk-engine-decision-path.png}
+    \caption{The Decision Path: The model reports what was said, a fixed table decides what it means.}
+\end{figure}
+
+\section{Production of Synthetic Data}
+All data within the repository is entirely synthetic. The 20-record demonstration corpus (located at \texttt{web/lib/seed/corpus.ts} and \texttt{backend/data/corpus\_20.json}) was generated deterministically to test specific edge cases, such as wait-ceiling breaches, out-of-distribution (OOD) gates, and zero-history ABHA paths. No actual Patient Health Information (PHI) was used.
+
+\section{Directory Structure}
+The repository is structured to enforce separation of concerns:
+
+\vspace{0.5cm}
+\begin{lstlisting}[language=bash, basicstyle=\small\ttfamily, backgroundcolor=\color{gray!10}]
+.
+|-- web/                    # Next.js frontend (patient kiosk, board)
+|-- backend/                # Python FastAPI engine (risk model, invariants)
+|-- docs/                   # Documentation and reports
+|   |-- README.md           # Implementation markdown
+|   |-- paper/              # LaTeX whitepaper source
+|   |-- diagrams/           # SVG and PNG architecture diagrams
+|   \-- submission/         # Compiled PDFs for evaluation
+|-- archive/                # Quarantined legacy code 
+\-- .migration/             # Hashes and logs proving migration integrity
+\end{lstlisting}
+
+\end{document}
