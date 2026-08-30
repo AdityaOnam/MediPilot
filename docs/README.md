@@ -99,3 +99,56 @@ cd backend
 python -m pytest
 ```
 *Note: You should expect 278 passing tests validating age stratification, audit logging, and the band engine contract.*
+
+---
+
+## Production Deployment Guidelines
+
+To deploy MediPilot in a production or shadow-mode clinical environment (V2+ on the capability ladder), follow these hardening practices:
+
+### Web Frontend (Next.js)
+Do not use `npm run dev` in production. Build the optimized React payload:
+
+```bash
+cd web
+npm run build
+npm start
+```
+*For containerized environments, Next.js can be configured for `output: 'standalone'` in `next.config.ts` to minimize Docker image size.*
+
+### Triage Engine (FastAPI)
+In production, do not run naked Uvicorn. Use Gunicorn as a process manager with Uvicorn worker classes to handle concurrency and auto-restarts.
+
+```bash
+cd backend
+# Run with 4 workers
+gunicorn triage.orchestrator.app:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
+```
+
+---
+
+## Environment Variable Reference
+
+The system behavior is governed by the following environment variables. In production, these should be securely injected via your deployment platform (e.g., Kubernetes Secrets, Docker env files).
+
+| Variable | Location | Purpose |
+|---|---|---|
+| `NEXT_PUBLIC_MP_SOURCE` | `web/.env.local` | `mock` (demo) or `live` (production orchestrator) |
+| `NEXT_PUBLIC_API_BASE` | `web/.env.local` | URL of the Python backend (e.g., `http://localhost:8000`) |
+| `MEDIPILOT_INTAKE_OFFLINE`| `web/.env.local` | Set to `1` to force the offline dictionary-matching path |
+| `GROQ_API_KEY` | `web/.env.local` | Optional: Key for cloud Groq LLM inference (Tier 2) |
+| `MEDIPILOT_STRUCTURER` | `backend/.env` | Order of structurer fallback (e.g., `local,groq,rules`) |
+| `MEDIPILOT_ASR_BACKEND` | `backend/.env` | Order of ASR fallback (e.g., `local,groq`) |
+
+---
+
+## Security, Privacy, and Audit Logs
+
+**Data Privacy (DPDP Act 2023):** 
+MediPilot is designed to function **entirely on-premise** when Tier 1 (local) inference is active. If `GROQ_API_KEY` is omitted, the system will gracefully fall back to local `faster-whisper` and dictionary matching. No Patient Health Information (PHI) leaves the hospital network.
+
+**Cryptographic Audit Ledger:**
+Every autonomous decision made by the risk engine, and every clinical override performed by a nurse on the `/card/[id]` route, is recorded by the system's Audit Log (`backend/triage/audit_log.py`). 
+- The ledger is **append-only**.
+- Each entry is **SHA-256 hash-chained** to the previous entry, mathematically proving that historical triage decisions were not retroactively altered.
+- The raw ledger can be inspected at any time via the `/audit` UI route.
