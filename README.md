@@ -7,6 +7,8 @@ Aditya Onam · Aditya Gupta · Varada Patel
 
 > **All data in this repository is synthetic.** We make no clinical claim, no performance claim against Indian patients, and no causal claim about outcomes. `SIMULATED DATA` is on every screen.
 
+🎥 **[Prototype Demo Video](https://youtu.be/6aCak3KNSOI)**
+
 ## Abstract
 
 This is the implementation repository for the MediPilot prototype: what was built, how the tree is arranged, what it runs on, how its data is manufactured, and how the model is evaluated.
