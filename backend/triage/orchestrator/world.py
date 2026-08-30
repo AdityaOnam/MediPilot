@@ -1,4 +1,4 @@
-"""
+﻿"""
 World state: encounters advancing against a simulated clock.
 
 Owns: encounter list, R, surge state, audit log, scheduler, tick loop.
@@ -21,14 +21,14 @@ from model.risk_model import score_patient_verbose, ScoreObject, AbstentionObjec
 from model.calibration import MODEL_VERSION, CALIBRATION_VERSION
 from model.artifact import current_versions
 from model.conformal import _thresholds_from_R, ConformalResult
-from backend.band_engine import assign_band, AsymmetricAutonomyViolation, BAND_ORDER
-from backend.recheck_scheduler import RecheckScheduler, PatientScheduleState
-from backend.surge_controller import SurgeController, SurgeState
-from backend.audit_log import AuditLog
+from triage.band_engine import assign_band, AsymmetricAutonomyViolation, BAND_ORDER
+from triage.recheck_scheduler import RecheckScheduler, PatientScheduleState
+from triage.surge_controller import SurgeController, SurgeState
+from triage.audit_log import AuditLog
 
-from backend.orchestrator.clock import SimClock
-from backend.orchestrator.seed import SeedRecord, load_seed, record_at
-from backend.orchestrator import mapping
+from triage.orchestrator.clock import SimClock
+from triage.orchestrator.seed import SeedRecord, load_seed, record_at
+from triage.orchestrator import mapping
 
 log = logging.getLogger(__name__)
 

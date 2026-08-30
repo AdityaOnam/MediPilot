@@ -1,8 +1,8 @@
-"""
+﻿"""
 Orchestrator FastAPI app — serves the frontend contract at /v1/*.
 
-Run from medipilot-model/:
-    .venv/Scripts/python.exe -m uvicorn backend.orchestrator.app:app --port 8000
+Run from backend/:
+    .venv/Scripts/python.exe -m uvicorn triage.orchestrator.app:app --port 8000
 """
 
 from __future__ import annotations
@@ -20,11 +20,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
-from backend.orchestrator.world import World
-from backend.orchestrator import mapping
+from triage.orchestrator.world import World
+from triage.orchestrator import mapping
 from model.artifact import current_versions
-from backend.band_engine import AsymmetricAutonomyViolation, BAND_ORDER
-from backend.audit_log import ValidationError
+from triage.band_engine import AsymmetricAutonomyViolation, BAND_ORDER
+from triage.audit_log import ValidationError
 
 log = logging.getLogger(__name__)
 
@@ -152,7 +152,7 @@ class TreeAnswerInput(BaseModel):
 
 @app.get("/v1/config")
 def get_config():
-    from backend.orchestrator import speech_intake
+    from triage.orchestrator import speech_intake
 
     mv, cv = current_versions()
     r_val = world.R
@@ -224,7 +224,7 @@ async def transcribe_audio(file: UploadFile = File(...)):
     re-prompting or falling back to typed input, which is the honest
     behaviour and the one §09 assumes.
     """
-    from backend.orchestrator import speech_intake
+    from triage.orchestrator import speech_intake
 
     audio_bytes = await file.read()
     if not audio_bytes:
@@ -263,7 +263,7 @@ def score_encounter(req: ScoreRequest):
     elapsed_s = (sim_now - arrived).total_seconds()
     k_step = max(0, int(elapsed_s / 300))
 
-    from backend.orchestrator.seed import record_at
+    from triage.orchestrator.seed import record_at
     from model.risk_model import score_patient_verbose
 
     pr = record_at(es.seed, k_step, es.current_band, sim_now)
@@ -277,7 +277,7 @@ def score_encounter(req: ScoreRequest):
     es.last_scored_at = sim_now.isoformat()
 
     try:
-        from backend.band_engine import assign_band
+        from triage.band_engine import assign_band
         assignment = assign_band(
             patient_id=eid,
             scored_band=d["band"],
@@ -363,7 +363,7 @@ def post_decision(req: DecisionInput):
     if req.action == "override" and req.band:
         new_band_be = mapping.band_to_be(req.band)
         try:
-            from backend.band_engine import assign_band
+            from triage.band_engine import assign_band
             assignment = assign_band(
                 patient_id=eid,
                 scored_band=new_band_be,
@@ -543,7 +543,7 @@ async def stream_events(request: Request):
 
 @app.post("/v1/intake/submit")
 def submit_intake(req: IntakeSubmission):
-    from backend.orchestrator.seed import SeedRecord, _infer_stratum
+    from triage.orchestrator.seed import SeedRecord, _infer_stratum
     
     # Generate ID and token
     next_num = len([e for e in world.encounters.values() if e.seed.encounter_id.startswith("P-")]) + 1
@@ -638,7 +638,7 @@ def intake_tree_start(req: TreeStartInput):
     for why the tree is driven from the server rather than shipped to the
     browser as data.
     """
-    from backend.orchestrator import tree_session
+    from triage.orchestrator import tree_session
 
     return tree_session.start(
         age_years=req.age_years,
@@ -658,7 +658,7 @@ def intake_tree_answer(req: TreeAnswerInput):
     0-10 node and the SAME question is being repeated. That is a normal
     conversational outcome, not an error, so it is a 200.
     """
-    from backend.orchestrator import tree_session
+    from triage.orchestrator import tree_session
 
     try:
         return tree_session.answer(req.session_id, req.text)
@@ -674,7 +674,7 @@ def intake_tree_structure():
     kiosk's tree-flow panel so a reviewer can see the branching that a
     single patient's linear path does not reveal.
     """
-    from backend.orchestrator import tree_session
+    from triage.orchestrator import tree_session
 
     return tree_session.structure()
 
@@ -682,7 +682,7 @@ def intake_tree_structure():
 @app.get("/v1/intake/tree/{session_id}/answers")
 def intake_tree_answers(session_id: str):
     """Flat {nodeId: raw answer} for the readback screen and submission."""
-    from backend.orchestrator import tree_session
+    from triage.orchestrator import tree_session
 
     try:
         return tree_session.collected_answers(session_id)
@@ -700,7 +700,7 @@ def match_option(req: OptionMatchInput):
     question, the options, and what was actually said, and returns one of
     the option values or NONE. See backend/orchestrator/option_matcher.py.
     """
-    from backend.orchestrator import option_matcher
+    from triage.orchestrator import option_matcher
 
     return option_matcher.match(
         question_prompt=req.question_prompt,
@@ -724,7 +724,7 @@ def structure_text(req: StructureRequest):
     string of their own invention — M06 asserting acuity, which Invariant 2
     forbids.
     """
-    from backend.orchestrator import speech_intake
+    from triage.orchestrator import speech_intake
 
     text = (req.text or "").strip()
     if not text:

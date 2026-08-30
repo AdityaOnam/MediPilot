@@ -1,5 +1,5 @@
-"""
-medipilot-model/tests/test_audit_log.py
+﻿"""
+backend/tests/test_audit_log.py
 
 Tests for the append-only, hash-chained audit log.
 """
@@ -7,7 +7,7 @@ Tests for the append-only, hash-chained audit log.
 import datetime
 import pytest
 
-from backend.audit_log import AuditLog, ValidationError
+from triage.audit_log import AuditLog, ValidationError
 from model.calibration import MODEL_VERSION, CALIBRATION_VERSION
 
 NOW = datetime.datetime(2026, 8, 22, 14, 0, tzinfo=datetime.timezone.utc)

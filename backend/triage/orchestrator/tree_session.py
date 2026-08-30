@@ -1,4 +1,4 @@
-"""
+﻿"""
 Serves the REAL M04 question tree (intake/question_tree.py) over HTTP.
 
 Until this module existed, the 140-node clinical tree — every
@@ -193,7 +193,7 @@ def answer(session_id: str, text: str) -> dict:
                 **_state_of(tree, entry.red_flag_observations, entry.branch),
             }
 
-    from backend.orchestrator import speech_intake
+    from triage.orchestrator import speech_intake
 
     structurer, _ = speech_intake.get_structurer()
     utterance = Utterance(text=text or "", interaction_mode="voice", language=entry.language)

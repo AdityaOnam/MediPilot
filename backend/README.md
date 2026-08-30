@@ -1,4 +1,4 @@
-# MediPilot — Data / Model / Risk / Classifier Track
+﻿# MediPilot — Data / Model / Risk / Classifier Track
 
 **Accenture Innovation Challenge 2026, Round 2 — Team 01 BIT (IIT Patna)**
 
@@ -24,7 +24,7 @@ python -m data.validate
 pytest tests/ -v
 
 # Start the API server
-uvicorn backend.api:app --reload --port 8000
+uvicorn triage.api:app --reload --port 8000
 # → Swagger UI at http://localhost:8000/docs
 
 # Live cost-ratio sweep demo
@@ -41,7 +41,7 @@ structurer, red-flag table, reliability signals, age stratification) and `speech
 
 ```bash
 cp .env.example .env    # then put a Groq key in it
-uvicorn backend.orchestrator.app:app --reload --port 8000
+uvicorn triage.orchestrator.app:app --reload --port 8000
 ```
 
 Both stages are **local-first with a hosted fallback**, and each walks down its chain on failure:

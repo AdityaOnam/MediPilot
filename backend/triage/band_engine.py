@@ -1,5 +1,5 @@
-"""
-medipilot-model/backend/band_engine.py
+﻿"""
+backend/triage/band_engine.py
 
 Band assignment with asymmetric autonomy enforcement (Invariant 1).
 

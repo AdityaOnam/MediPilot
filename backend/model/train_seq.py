@@ -1,5 +1,5 @@
-"""
-medipilot-model/model/train_seq.py
+﻿"""
+backend/model/train_seq.py
 
 Training script for Track C-G2 Sequence Models.
 Replicates the calibration, conformal, and threshold pipeline from train.py

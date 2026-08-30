@@ -1,4 +1,4 @@
-"""
+﻿"""
 Contract tests — asserts the 12 definition-of-done rows from
 BACKEND_INTEGRATION_LOG.md §8 against the live orchestrator app.
 """
@@ -7,7 +7,7 @@ import json
 import pytest
 from fastapi.testclient import TestClient
 
-from backend.orchestrator.app import app, world
+from triage.orchestrator.app import app, world
 
 
 @pytest.fixture(scope="module", autouse=True)

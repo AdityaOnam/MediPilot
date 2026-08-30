@@ -1,5 +1,5 @@
-"""
-medipilot-model/model/feature_registry.py
+﻿"""
+backend/model/feature_registry.py
 
 Loader and enforcement for config/feature_registry.yaml.
 

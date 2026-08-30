@@ -1,4 +1,4 @@
-# Where the models run
+﻿# Where the models run
 
 Three tiers, in preference order. The system walks down this list at startup and on failure, and
 `GET /v1/config` reports which tier is actually serving — so the demo can never claim local
@@ -40,7 +40,7 @@ ollama serve
 ```
 
 ```bash
-MEDIPILOT_STRUCTURER=local,groq,rules uvicorn backend.orchestrator.app:app --port 8000
+MEDIPILOT_STRUCTURER=local,groq,rules uvicorn triage.orchestrator.app:app --port 8000
 ```
 
 Ollama exposes an OpenAI-compatible API at `http://localhost:11434/v1`, which is what
@@ -58,7 +58,7 @@ pip install -r requirements-speech-local.txt
 ```
 
 ```bash
-MEDIPILOT_ASR_BACKEND=local,groq uvicorn backend.orchestrator.app:app --port 8000
+MEDIPILOT_ASR_BACKEND=local,groq uvicorn triage.orchestrator.app:app --port 8000
 ```
 
 Runs in-process on CPU. No server to start.

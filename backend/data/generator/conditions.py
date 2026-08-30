@@ -1,5 +1,5 @@
-"""
-medipilot-model/data/generator/conditions.py
+﻿"""
+backend/data/generator/conditions.py
 
 Clinical condition archetypes with joint vital distributions per age stratum.
 Vitals are NOT sampled independently — each condition defines a correlated

@@ -1,5 +1,5 @@
-"""
-medipilot-model/model/calibration.py
+﻿"""
+backend/model/calibration.py
 
 Per-stratum risk calibration — MECHANISM 2 of the two separate mechanisms.
   - Thresholds: what counts as abnormal (thresholds.py)

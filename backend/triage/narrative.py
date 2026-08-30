@@ -1,4 +1,4 @@
-"""
+﻿"""
 backend/narrative.py
 
 Ollama-powered risk narrative layer for MediPilot.
@@ -13,7 +13,7 @@ What it does:
   WHY a patient received a particular triage band.
 
 Usage:
-  from backend.narrative import generate_risk_narrative, is_ollama_available
+  from triage.narrative import generate_risk_narrative, is_ollama_available
 
   if is_ollama_available():
       narrative = generate_risk_narrative(score_dict, patient_context)

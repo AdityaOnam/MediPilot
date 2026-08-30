@@ -1,5 +1,5 @@
-"""
-medipilot-model/backend/audit_log.py
+﻿"""
+backend/triage/audit_log.py
 
 Append-only, hash-chained override record log.
 
@@ -187,7 +187,7 @@ class AuditLog:
             )
 
         # Determine direction
-        from backend.band_engine import BAND_ORDER
+        from triage.band_engine import BAND_ORDER
         sys_idx = BAND_ORDER.get(system_band, 1)
         cli_idx = BAND_ORDER.get(clinician_band, 1)
         if cli_idx > sys_idx:

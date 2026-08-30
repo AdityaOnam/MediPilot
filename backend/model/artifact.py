@@ -1,5 +1,5 @@
-"""
-medipilot-model/model/artifact.py
+﻿"""
+backend/model/artifact.py
 
 Artifact loading, version guards, and the fallback contract.
 

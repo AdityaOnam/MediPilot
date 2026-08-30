@@ -1,4 +1,4 @@
-﻿# --- Specific Root Files ---
+# --- Specific Root Files ---
 varada.jpeg
 Onam.jpeg
 Accenture_logo.svg
@@ -25,16 +25,17 @@ correction.odt
 tools/
 .agents/
 .claude/
-Backend/MediPilot/.claude/
 
-# --- Frontend (Next.js & Node) ---
-frontend/node_modules/
-frontend/.next/
-frontend/out/
-frontend/build/
-frontend/.env*
-frontend/yarn-error.log
-frontend/npm-debug.log*
+# --- Web (Next.js & Node) ---
+web/node_modules/
+web/.next/
+web/out/
+web/build/
+web/.env*
+web/yarn-error.log
+web/npm-debug.log*
+*.tsbuildinfo
+desktop.ini
 
 # --- Backend (Python & FastAPI) ---
 __pycache__/
@@ -45,5 +46,17 @@ venv/
 env/
 .env
 .pytest_cache/
-Backend/MediPilot/medipilot-model/.venv/
-Backend/MediPilot/medipilot-model/__pycache__/
+backend/.venv/
+backend/__pycache__/
+# Generated training data
+backend/data/*.jsonl
+backend/data/*.meta.json
+# Held-out split dumps (regenerable)
+backend/model/artifacts/**/test_split.npz
+*.egg-info/
+# Bake-off outputs
+backend/eval/results/
+
+# --- Archive & migration (large evidence) ---
+archive/
+.migration/after/

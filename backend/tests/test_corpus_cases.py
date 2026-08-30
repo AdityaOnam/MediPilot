@@ -1,5 +1,5 @@
-"""
-medipilot-model/tests/test_corpus_cases.py
+﻿"""
+backend/tests/test_corpus_cases.py
 
 10 acceptance tests covering the exact cases from §10 of the brief.
 These use the 20-record corpus (P-01…P-10) built by data/generator/corpus.py.
@@ -15,10 +15,10 @@ import pytest
 
 from model.risk_model import PatientRecord, score_patient, ScoreObject, AbstentionObject
 from model.calibration import MODEL_VERSION, CALIBRATION_VERSION
-from backend.band_engine import assign_band, AsymmetricAutonomyViolation
-from backend.recheck_scheduler import RecheckScheduler, PatientScheduleState
-from backend.surge_controller import SurgeController, SurgeState
-from backend.audit_log import AuditLog
+from triage.band_engine import assign_band, AsymmetricAutonomyViolation
+from triage.recheck_scheduler import RecheckScheduler, PatientScheduleState
+from triage.surge_controller import SurgeController, SurgeState
+from triage.audit_log import AuditLog
 
 
 UTC = datetime.timezone.utc
@@ -97,7 +97,7 @@ def test_p01_autonomous_escalation_while_waiting():
     )
     if d_t45["band"] != current_band:
         # If band changed, it must be an escalation
-        from backend.band_engine import BAND_ORDER
+        from triage.band_engine import BAND_ORDER
         assert BAND_ORDER[d_t45["band"]] >= BAND_ORDER[current_band], (
             "Any autonomous band change must be an escalation"
         )

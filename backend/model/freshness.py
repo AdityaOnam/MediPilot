@@ -1,5 +1,5 @@
-"""
-medipilot-model/model/freshness.py
+﻿"""
+backend/model/freshness.py
 
 Reading-age and staleness logic (Invariant 4), extracted so that TRAINING and
 SERVING share one implementation.

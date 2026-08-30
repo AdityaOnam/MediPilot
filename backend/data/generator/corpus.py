@@ -1,5 +1,5 @@
-"""
-medipilot-model/data/generator/corpus.py
+﻿"""
+backend/data/generator/corpus.py
 
 Builds the fixed 20-record demo corpus (P-01…P-20) and commits it to
 data/corpus_20.json.

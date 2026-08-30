@@ -1,5 +1,5 @@
-"""
-medipilot-model/data/generator/trajectories.py
+﻿"""
+backend/data/generator/trajectories.py
 
 Time-series trajectory builder for synthetic patients.
 Each patient gets a physiologically plausible vital-sign trajectory

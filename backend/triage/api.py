@@ -1,5 +1,5 @@
-"""
-medipilot-model/backend/api.py
+﻿"""
+backend/triage/api.py
 
 FastAPI application — the interface between this track and Track A/B.
 
@@ -29,10 +29,10 @@ from model.risk_model import (
     PatientRecord, ScoreObject, AbstentionObject, score_patient
 )
 from model.calibration import MODEL_VERSION, CALIBRATION_VERSION
-from backend.band_engine import assign_band, AsymmetricAutonomyViolation
-from backend.recheck_scheduler import RecheckScheduler, PatientScheduleState
-from backend.surge_controller import SurgeController, SurgeState, SurgeViolation
-from backend.audit_log import AuditLog, ValidationError
+from triage.band_engine import assign_band, AsymmetricAutonomyViolation
+from triage.recheck_scheduler import RecheckScheduler, PatientScheduleState
+from triage.surge_controller import SurgeController, SurgeState, SurgeViolation
+from triage.audit_log import AuditLog, ValidationError
 
 
 app = FastAPI(
@@ -439,4 +439,4 @@ def demo_cost_ratio_sweep(
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("backend.api:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("triage.api:app", host="0.0.0.0", port=8000, reload=True)

@@ -1,5 +1,5 @@
-"""
-medipilot-model/tests/test_band_engine.py
+﻿"""
+backend/tests/test_band_engine.py
 
 Tests for the band engine's asymmetric autonomy enforcement and SpO2 guard.
 """
@@ -7,7 +7,7 @@ Tests for the band engine's asymmetric autonomy enforcement and SpO2 guard.
 import datetime
 import pytest
 
-from backend.band_engine import assign_band, AsymmetricAutonomyViolation
+from triage.band_engine import assign_band, AsymmetricAutonomyViolation
 from rules.spo2_bias_guard import SpO2AloneDeescalationError
 
 NOW = datetime.datetime(2026, 8, 22, 12, 0, tzinfo=datetime.timezone.utc)

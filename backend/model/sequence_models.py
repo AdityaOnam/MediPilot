@@ -1,5 +1,5 @@
-"""
-medipilot-model/model/sequence_models.py
+﻿"""
+backend/model/sequence_models.py
 
 PyTorch sequence models for the Track C-G2 comparison.
 Includes a mandatory Last-Observation Baseline, GRU, TCN, and a small Transformer.

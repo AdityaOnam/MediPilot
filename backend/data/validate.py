@@ -1,5 +1,5 @@
-"""
-medipilot-model/data/validate.py
+﻿"""
+backend/data/validate.py
 
 Statistical validation of the synthetic corpus.
 Run: python -m data.validate

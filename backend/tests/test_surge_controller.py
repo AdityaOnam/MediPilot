@@ -1,5 +1,5 @@
-"""
-medipilot-model/tests/test_surge_controller.py
+﻿"""
+backend/tests/test_surge_controller.py
 
 Tests for the surge controller forbidden-action guards and detection.
 """
@@ -7,7 +7,7 @@ Tests for the surge controller forbidden-action guards and detection.
 import datetime
 import pytest
 
-from backend.surge_controller import SurgeController, SurgeState, SurgeViolation
+from triage.surge_controller import SurgeController, SurgeState, SurgeViolation
 
 CTRL = SurgeController()
 NOW = datetime.datetime(2026, 8, 22, 14, 0, tzinfo=datetime.timezone.utc)

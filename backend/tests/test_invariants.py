@@ -1,5 +1,5 @@
-"""
-medipilot-model/tests/test_invariants.py
+﻿"""
+backend/tests/test_invariants.py
 
 6 mechanical invariant tests — one per invariant from §1 of the brief.
 These are the non-negotiable constraints. Every one of them must be
@@ -19,8 +19,8 @@ import pytest
 
 from model.age_stratum import resolve_stratum
 from model.risk_model import PatientRecord, score_patient, AbstentionObject
-from backend.band_engine import assign_band, AsymmetricAutonomyViolation
-from backend.audit_log import AuditLog, ValidationError
+from triage.band_engine import assign_band, AsymmetricAutonomyViolation
+from triage.audit_log import AuditLog, ValidationError
 
 
 UTC = datetime.timezone.utc
