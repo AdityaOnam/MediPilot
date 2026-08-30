@@ -48,9 +48,19 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+import os
+
+# Comma-separated list of allowed frontend origins, e.g. the Vercel
+# deployment URL(s). Falls back to local dev origins when unset so `uvicorn`
+# still works out of the box on a laptop.
+_default_origins = "http://localhost:3000,http://127.0.0.1:3000"
+_allowed_origins = [
+    o.strip() for o in os.getenv("ALLOWED_ORIGINS", _default_origins).split(",") if o.strip()
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=_allowed_origins,
     allow_methods=["*"],
     allow_headers=["*"],
 )

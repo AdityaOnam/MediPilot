@@ -1,0 +1,31 @@
+# Training data — 180MB+, never needed at serve time (model/artifacts/ has
+# the trained checkpoints already; data/ is only for regenerating them).
+data/train_set_100k.zip
+data/*.jsonl
+data/*.meta.json
+
+# Held-out split dumps, not the small committed artifacts.
+model/artifacts/**/test_split.npz
+
+# Local dev / VCS / cache noise.
+.git
+.gitignore
+.env
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+
+# Not needed in the serving image.
+tests/
+eval/
+eval_output.txt
+speech/*.ogg
+speech/*.wav
+requirements-speech-local.txt
+requirements-experimental.txt
+train_seq_all.bat
+plot_results.py
+run_bakeoff.py
