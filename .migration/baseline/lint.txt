@@ -1,0 +1,8 @@
+> medipilot-web@0.1.0 lint
+> eslint
+
+# BASELINE STATUS: lint hung with no output for >3 minutes, killed.
+# eslint started but produced no output before cancellation.
+# This is a pre-existing baseline condition.
+# WARNING COUNT: unknown (process hung)
+# lint exit: killed
