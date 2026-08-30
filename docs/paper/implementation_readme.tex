@@ -36,68 +36,65 @@ This document serves as the implementation README, outlining the solution archit
 \tableofcontents
 \newpage
 
-\section{Solution Architecture}
-The system enforces a strict boundary between the patient/nurse interfaces and the clinical risk engine. 
+\section{Architectural Implementation \& Tech Stack}
 
-\begin{figure}[h]
+The MediPilot system enforces a strict boundary between perception and evaluation. The architecture is explicitly decoupled to guarantee that clinical risk engines and human interfaces operate in distinct, fail-closed isolation. 
+
+\begin{figure}[ht]
     \centering
     \includegraphics[width=\textwidth]{../diagrams/01-full-architecture.png}
-    \caption{Full End-to-End Architecture of MediPilot}
+    \caption{The Parallel Track Architecture: Perception (Track A), Interfaces (Track B), and Risk Engine (Track C).}
 \end{figure}
 
-\subsection{Frontend (Web Layer)}
-The frontend (located in \texttt{web/}) is a Next.js 16 application that houses all seven user surfaces, including the interactive kiosk and the nurse board. It manages the talking, branching triage conversation, speech-to-text integration, and local offline phrase matching without performing any clinical evaluation.
+\subsection{Track B: The Nurse \& Patient Interfaces (Frontend)}
+The interface tier, located in \texttt{web/}, is a static Next.js 16 payload compiled to run as a pure client-side application. It comprises the seven clinical surfaces, including the interactive kiosk and the nurse board. This layer is entirely stripped of clinical authority. It manages the deterministic state machine of the branching triage conversation, raw speech-to-text integration, and local offline phrase matching. It cannot, by construction, evaluate risk.
 
-\subsection{Backend (Triage Engine)}
-The backend (located in \texttt{backend/}) is a Python/FastAPI orchestrator. It contains the deterministic Band Engine, the gradient-boosted Risk Model, and the strict safety floors (Red Flags, SpO2 Bias Guards).
+\subsection{Track C: The Triage Engine (Backend)}
+The backend, located in \texttt{backend/}, operates as a Python/FastAPI orchestrator. It receives structured records from the interface tier and evaluates them against a strict hierarchy of safety constraints. The orchestrator houses the deterministic Band Engine, the GBDT Risk Model, and the rigorous age stratification floors. 
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
     \includegraphics[width=\textwidth]{../diagrams/04-tech-stack-three-tiers.png}
-    \caption{Tech Stack and the Three Tiers of Fallback Inference}
+    \caption{The Three-Tier Inference Hierarchy.}
 \end{figure}
 
-\section{Tech Stack}
-The system runs on commodity hardware to comply with the DPDP Act 2023, specifically avoiding mandatory paid cloud GPU dependencies.
+\section{Technology Stack \& Execution Constraints}
+The system executes on commodity hardware, complying with the strict data locality mandates of the DPDP Act 2023. It explicitly bans mandatory dependencies on paid cloud GPU infrastructure.
 
 \begin{itemize}
-    \item \textbf{Frontend:} Next.js 16, React 19, Tailwind CSS 4, \texttt{webkitSpeechRecognition}.
-    \item \textbf{Backend:} Python 3.10+, FastAPI, Uvicorn, Scikit-learn, Pandas.
-    \item \textbf{Machine Learning:} \texttt{faster-whisper} (CTranslate2, int8), Llama.cpp / Ollama (for offline structural parsing).
+    \item \textbf{Frontend Interfaces:} Next.js 16, React 19, Tailwind CSS 4, utilizing native \texttt{webkitSpeechRecognition}.
+    \item \textbf{Triage Orchestrator:} Python 3.10+, FastAPI, Uvicorn, Scikit-learn, Pandas.
+    \item \textbf{Perception Models:} \texttt{faster-whisper} (CTranslate2, int8) and Llama.cpp for offline structural parsing.
 \end{itemize}
 
-\section{Role of the LLM}
-The Large Language Model (LLM) is strictly confined to \textbf{Track A (Perception Layer)}. 
-\begin{itemize}
-    \item \textbf{What it does:} The LLM translates unstructured patient narrative into a structured JSON schema (e.g., extracting symptoms and pain levels).
-    \item \textbf{What it NEVER does:} The LLM structurally cannot produce an acuity score, assign a triage band, or make clinical judgements. 
-\end{itemize}
-This extraction falls back to a deterministic, keyword-based structurer if inference resources are constrained.
+\section{The Confined Role of the Large Language Model (LLM)}
+The Large Language Model is strictly confined to \textbf{Track A (Perception Layer)}. 
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering
     \includegraphics[width=\textwidth]{../diagrams/02-post-risk-engine-decision-path.png}
-    \caption{The Decision Path: The model reports what was said, a fixed table decides what it means.}
+    \caption{The Semantic Boundary: The model reports, the rule evaluates.}
 \end{figure}
 
-\section{Production of Synthetic Data}
-All data within the repository is entirely synthetic. The 20-record demonstration corpus (located at \texttt{web/lib/seed/corpus.ts} and \texttt{backend/data/corpus\_20.json}) was generated deterministically to test specific edge cases, such as wait-ceiling breaches, out-of-distribution (OOD) gates, and zero-history ABHA paths. No actual Patient Health Information (PHI) was used.
+The LLM operates purely as a structural parser, translating unstructured patient narrative into a rigid JSON schema. It is structurally prohibited from producing an acuity score, assigning a triage band, or issuing clinical judgments. Should inference resources become constrained or the model output violate the schema, the system falls back to a deterministic, keyword-based structurer. 
 
-\section{Directory Structure}
-The repository is structured to enforce separation of concerns:
+\section{Synthetic Data Production}
+To validate the system's edge cases without exposing Patient Health Information (PHI), the demonstration corpus is entirely synthetic. The 20-record dataset (\texttt{web/lib/seed/corpus.ts}) is generated deterministically to test Wait-Ceiling breaches, Out-Of-Distribution (OOD) gates, and zero-history ABHA paths.
+
+\section{Repository Integrity \& Structure}
+The repository is structured to enforce the separation of concerns between the architectural tracks:
 
 \vspace{0.5cm}
 \begin{lstlisting}[language=bash, basicstyle=\small\ttfamily, backgroundcolor=\color{gray!10}]
 .
-|-- web/                    # Next.js frontend (patient kiosk, board)
-|-- backend/                # Python FastAPI engine (risk model, invariants)
-|-- docs/                   # Documentation and reports
-|   |-- README.md           # Implementation markdown
-|   |-- paper/              # LaTeX whitepaper source
+|-- web/                    # Track B: Next.js frontend (kiosk, board)
+|-- backend/                # Track C: Python FastAPI orchestrator 
+|-- docs/                   # Documentation and whitepaper specifications
+|   |-- paper/              # LaTeX source files
 |   |-- diagrams/           # SVG and PNG architecture diagrams
 |   \-- submission/         # Compiled PDFs for evaluation
-|-- archive/                # Quarantined legacy code 
-\-- .migration/             # Hashes and logs proving migration integrity
+|-- archive/                # Quarantined legacy code
+\-- .migration/             # Hashes proving migration integrity
 \end{lstlisting}
 
 \end{document}
