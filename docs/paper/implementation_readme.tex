@@ -602,8 +602,8 @@ honest rather than broad and fabricated.
 map to the §10 acceptance cases in the brief; \cm{P-11…P-20} add strata and conditions for
 generalisation). \pth{bulk.py} builds the N-parameterised training population. The full
 generated dataset used for the current models is distributed alongside this document as
-\pth{backend/data/train\_set\_100k.zip}. A further \pth{dynamic\_encounters.json} adds twelve
-arrivals that appear over the course of a demonstration, which is why the census returns 32 and
+\pth{backend/data/train\_set\_100k.zip}. A further \pth{dynamic\_encounters.json} adds fourteen
+arrivals that appear over the course of a demonstration, which is why the census returns 34 and
 not 20.
 
 % ======================= 6. TRAINING =======================
@@ -953,7 +953,7 @@ failing safety invariant.
 \addlinespace[2pt]
 \cm{test\_conformal\_}\newline\cm{coverage\_at\_least\_090} & The same missing held-out split\\
 \addlinespace[2pt]
-\cm{test\_census\_has\_20} & Asserts a census of 20; it is now 32 (20 seeded + 12 dynamic arrivals). The assertion is stale, not the code\\
+\cm{test\_census\_has\_20} & Asserts a census of 20; it is now 34 (20 seeded + 14 dynamic arrivals). The assertion is stale, not the code\\
 \bottomrule
 \end{tabular}
 \end{center}

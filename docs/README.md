@@ -102,7 +102,7 @@ python -m pytest
 *Note: on a clean checkout you should expect **278 passed, 4 failed**, validating age stratification, audit logging, and the band engine contract. None of the four is a failing safety invariant:*
 
 - *`test_auroc_leakage_canary`, `test_auprc_beats_prevalence_baseline` and `test_conformal_coverage_at_least_090` need `model/artifacts/medipilot-gbdt-v0.2.0/test_split.npz`, which is gitignored as regenerable — restore it by retraining (below).*
-- *`test_census_has_20` asserts a census of 20; the census is now 32 (20 seeded encounters in `corpus_20.json` + 12 dynamic arrivals). The assertion is stale, not the code.*
+- *`test_census_has_20` asserts a census of 20; the census is now 34 (20 seeded encounters in `corpus_20.json` + 14 dynamic arrivals). The assertion is stale, not the code.*
 
 ### 5. Regenerating the model artefacts
 The training set and the held-out split are generated from a seed rather than committed. To restore what the three model tests consume:
