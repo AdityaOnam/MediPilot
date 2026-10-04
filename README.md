@@ -7,7 +7,7 @@ Aditya Onam · Aditya Gupta · Varada Patel
 
 > **All data in this repository is synthetic.** We make no clinical claim, no performance claim against Indian patients, and no causal claim about outcomes. `SIMULATED DATA` is on every screen.
 
-🎥 **[Prototype Demo Video](https://youtu.be/6aCak3KNSOI)**
+🎥 **[Prototype Demo Video](https://www.youtube.com/watch?v=uVUYVdFZ3JY)**
 
 ## Abstract
 
