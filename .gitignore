@@ -62,3 +62,6 @@ backend/eval/results/
 # --- Archive & migration (large evidence) ---
 archive/
 .migration/after/
+
+# --- AI Mockups ---
+mockups/
