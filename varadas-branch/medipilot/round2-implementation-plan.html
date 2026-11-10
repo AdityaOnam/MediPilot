@@ -1,0 +1,1347 @@
+<title>MediPilot Round 2 Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap">
+
+<style>
+:root{
+  --bg:#FFFFFF;
+  --surface:#F7F7F7;
+  --surface-2:#FBF9FD;
+  --border:#E2E2E2;
+  --border-strong:#CFC7D6;
+  --text:#111111;
+  --text-2:#4A4453;
+  --text-3:#736B7E;
+  --accent:#A100FF;
+  --accent-2:#6F00B8;
+  --accent-soft:rgba(161,0,255,.075);
+  --accent-line:rgba(161,0,255,.28);
+  --plum:#24003D;
+  --plum-text:#FFFFFF;
+  --red:#B8332A;
+  --amber:#9C6B0E;
+  --green:#256B4D;
+  --red-soft:rgba(184,51,42,.10);
+  --amber-soft:rgba(156,107,14,.12);
+  --green-soft:rgba(37,107,77,.10);
+  --shadow:0 1px 2px rgba(17,0,34,.05);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#141019;
+    --surface:#1C1724;
+    --surface-2:#221B2C;
+    --border:#332B3F;
+    --border-strong:#4A3E5A;
+    --text:#F3F0F6;
+    --text-2:#B9B1C5;
+    --text-3:#8E8599;
+    --accent:#C56BFF;
+    --accent-2:#A855F7;
+    --accent-soft:rgba(197,107,255,.13);
+    --accent-line:rgba(197,107,255,.34);
+    --plum:#2B0B47;
+    --plum-text:#F6F0FC;
+    --red:#E8867A;
+    --amber:#DDA744;
+    --green:#5FBE92;
+    --red-soft:rgba(232,134,122,.13);
+    --amber-soft:rgba(221,167,68,.14);
+    --green-soft:rgba(95,190,146,.13);
+    --shadow:0 1px 2px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141019;
+  --surface:#1C1724;
+  --surface-2:#221B2C;
+  --border:#332B3F;
+  --border-strong:#4A3E5A;
+  --text:#F3F0F6;
+  --text-2:#B9B1C5;
+  --text-3:#8E8599;
+  --accent:#C56BFF;
+  --accent-2:#A855F7;
+  --accent-soft:rgba(197,107,255,.13);
+  --accent-line:rgba(197,107,255,.34);
+  --plum:#2B0B47;
+  --plum-text:#F6F0FC;
+  --red:#E8867A;
+  --amber:#DDA744;
+  --green:#5FBE92;
+  --red-soft:rgba(232,134,122,.13);
+  --amber-soft:rgba(221,167,68,.14);
+  --green-soft:rgba(95,190,146,.13);
+  --shadow:0 1px 2px rgba(0,0,0,.3);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:"Source Serif 4",Georgia,"Times New Roman",serif;
+  font-size:17px;
+  line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px 96px}
+
+/* ---------- masthead ---------- */
+.mast{padding:52px 0 28px;border-bottom:2px solid var(--accent)}
+.eyebrow{
+  font-family:"IBM Plex Sans",system-ui,sans-serif;
+  font-size:11.5px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--accent);margin:0 0 14px;
+}
+h1{
+  font-family:"IBM Plex Sans",system-ui,sans-serif;
+  font-size:clamp(30px,4.4vw,46px);font-weight:700;line-height:1.1;
+  letter-spacing:-.021em;margin:0 0 14px;text-wrap:balance;
+}
+h1 .m{color:var(--accent)}
+.standfirst{
+  font-size:19px;color:var(--text-2);margin:0;max-width:62ch;
+}
+.meta{
+  display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:22px;
+  font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:12px;color:var(--text-3);
+}
+.meta b{color:var(--text-2);font-weight:500}
+
+/* ---------- layout ---------- */
+.cols{display:grid;grid-template-columns:212px minmax(0,1fr);gap:52px;margin-top:44px;align-items:start}
+nav.toc{position:sticky;top:24px}
+nav.toc h2{
+  font-family:"IBM Plex Sans",system-ui,sans-serif;
+  font-size:11px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--text-3);margin:0 0 12px;
+}
+nav.toc ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1px}
+nav.toc a{
+  display:flex;gap:9px;padding:5px 9px;border-radius:4px;
+  font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:13px;line-height:1.35;
+  color:var(--text-2);text-decoration:none;border-left:2px solid transparent;
+}
+nav.toc a:hover{background:var(--accent-soft);color:var(--accent-2);border-left-color:var(--accent)}
+nav.toc a:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+nav.toc .n{color:var(--text-3);font-variant-numeric:tabular-nums;font-size:11.5px;padding-top:1px}
+.toc-mobile{display:none}
+
+main{min-width:0}
+section{margin-bottom:56px;scroll-margin-top:20px}
+.prose{max-width:68ch}
+
+h2.sec{
+  font-family:"IBM Plex Sans",system-ui,sans-serif;
+  font-size:24px;font-weight:700;letter-spacing:-.014em;line-height:1.2;
+  margin:0 0 6px;text-wrap:balance;
+}
+h2.sec .n{color:var(--accent);margin-right:10px;font-variant-numeric:tabular-nums}
+.sec-rule{height:2px;background:var(--accent);margin:0 0 20px;max-width:100%}
+h3{
+  font-family:"IBM Plex Sans",system-ui,sans-serif;
+  font-size:16.5px;font-weight:600;letter-spacing:-.008em;
+  margin:30px 0 8px;color:var(--text);text-wrap:balance;
+}
+h4{
+  font-family:"IBM Plex Sans",system-ui,sans-serif;
+  font-size:13px;font-weight:600;letter-spacing:.02em;
+  margin:22px 0 6px;color:var(--accent-2);
+}
+p{margin:0 0 14px}
+strong{font-weight:600}
+em{font-style:italic}
+a{color:var(--accent-2)}
+ul,ol{margin:0 0 14px;padding-left:22px}
+li{margin-bottom:5px}
+li::marker{color:var(--accent)}
+code{
+  font-family:"IBM Plex Mono",ui-monospace,monospace;
+  font-size:.86em;background:var(--surface);border:1px solid var(--border);
+  border-radius:3px;padding:.08em .34em;color:var(--accent-2);
+}
+
+/* ---------- chips ---------- */
+.chip{
+  display:inline-block;font-family:"IBM Plex Sans",system-ui,sans-serif;
+  font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  padding:2px 7px;border-radius:3px;border:1px solid;vertical-align:2px;white-space:nowrap;
+}
+.chip.new{color:var(--accent-2);border-color:var(--accent-line);background:var(--accent-soft)}
+.chip.chg{color:var(--amber);border-color:var(--amber);background:var(--amber-soft)}
+.chip.keep{color:var(--text-3);border-color:var(--border-strong);background:var(--surface)}
+.chip.red{color:var(--red);border-color:var(--red);background:var(--red-soft)}
+.chip.amb{color:var(--amber);border-color:var(--amber);background:var(--amber-soft)}
+.chip.grn{color:var(--green);border-color:var(--green);background:var(--green-soft)}
+
+/* ---------- callouts ---------- */
+.note{
+  background:var(--surface);border-left:3px solid var(--accent);
+  padding:14px 18px;margin:0 0 18px;border-radius:0 4px 4px 0;
+}
+.note p:last-child{margin-bottom:0}
+.note .lbl{
+  display:block;font-family:"IBM Plex Sans",system-ui,sans-serif;
+  font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--accent-2);margin-bottom:5px;
+}
+.note.warn{border-left-color:var(--amber)}
+.note.warn .lbl{color:var(--amber)}
+.invariant{
+  background:var(--plum);color:var(--plum-text);
+  padding:16px 20px;border-radius:5px;margin:0 0 18px;
+}
+.invariant p{margin:0}
+.invariant .lbl{
+  display:block;font-family:"IBM Plex Sans",system-ui,sans-serif;
+  font-size:11px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:6px;
+}
+
+/* ---------- tables ---------- */
+.scroller{overflow-x:auto;margin:0 0 20px;border:1px solid var(--border);border-radius:5px;background:var(--surface-2)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:600px}
+th,td{
+  text-align:left;padding:9px 13px;vertical-align:top;
+  border-bottom:1px solid var(--border);
+}
+thead th{
+  font-family:"IBM Plex Sans",system-ui,sans-serif;
+  font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--accent-2);background:var(--accent-soft);white-space:nowrap;
+  border-bottom:1px solid var(--accent-line);
+}
+tbody tr:last-child td{border-bottom:none}
+td.mono,th.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;font-variant-numeric:tabular-nums}
+td.id{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;color:var(--accent-2);white-space:nowrap}
+.tcap{
+  font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:12.5px;color:var(--text-3);
+  margin:-12px 0 22px;max-width:68ch;
+}
+
+/* ---------- checklist ---------- */
+.check{list-style:none;padding:0;margin:0 0 18px;display:flex;flex-direction:column;gap:9px}
+.check li{
+  display:grid;grid-template-columns:22px 1fr;gap:11px;margin:0;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:4px;padding:11px 14px;
+}
+.check .box{
+  width:15px;height:15px;border:1.5px solid var(--accent);border-radius:3px;margin-top:5px;
+}
+.check b{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:14.5px;font-weight:600;display:block;margin-bottom:2px}
+.check span{font-size:14.5px;color:var(--text-2)}
+
+/* ---------- band strip ---------- */
+.bands{display:grid;gap:10px;margin:0 0 20px}
+.band{
+  border:1px solid var(--border);border-left-width:4px;border-radius:0 4px 4px 0;
+  padding:12px 16px;background:var(--surface);
+}
+.band.r{border-left-color:var(--red)}
+.band.y{border-left-color:var(--amber)}
+.band.g{border-left-color:var(--green)}
+.band.a{border-left-color:var(--text-3)}
+.band h4{margin:0 0 4px;font-size:13.5px;color:var(--text)}
+.band p{margin:0;font-size:14.5px;color:var(--text-2)}
+
+/* ---------- footer ---------- */
+footer{
+  margin-top:64px;padding-top:22px;border-top:2px solid var(--accent);
+  font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:12.5px;color:var(--text-3);
+  display:flex;flex-wrap:wrap;gap:6px 20px;justify-content:space-between;
+}
+
+@media (max-width:900px){
+  body{font-size:16.5px}
+  .cols{grid-template-columns:1fr;gap:0}
+  nav.toc{position:static;display:none}
+  .toc-mobile{display:block;margin:28px 0 8px}
+  .toc-mobile summary{
+    font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:13px;font-weight:600;
+    cursor:pointer;color:var(--accent-2);padding:10px 14px;
+    background:var(--surface);border:1px solid var(--border);border-radius:4px;
+  }
+  .toc-mobile nav.toc{display:block;position:static;margin-top:10px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+
+<header class="mast">
+  <p class="eyebrow">Accenture Innovation Challenge 2026 · Round 2 · PatientTriage.ai</p>
+  <h1><span class="m">Medi</span>Pilot — Round 2 Implementation Plan</h1>
+  <p class="standfirst">
+    Revision of the system plan against the Round 2 brief and the 18 Aug design session.
+    Round 1 asked for a concept; Round 2 asks for a <strong>working prototype that behaves
+    correctly on realistic data</strong>. That single change re-orders everything below it.
+  </p>
+  <div class="meta">
+    <span><b>Team</b> 01 BIT</span>
+    <span><b>Institution</b> IIT Patna</span>
+    <span><b>Members</b> Aditya Onam · Aditya Gupta · Varada Patel</span>
+    <span><b>Revision</b> R2 draft 1</span>
+  </div>
+</header>
+
+<details class="toc-mobile">
+  <summary>Contents</summary>
+  <nav class="toc" id="toc-m"></nav>
+</details>
+
+<div class="cols">
+  <nav class="toc" id="toc-d">
+    <h2>Contents</h2>
+    <ol>
+      <li><a href="#delta"><span class="n">01</span><span>What changed</span></a></li>
+      <li><a href="#gate"><span class="n">02</span><span>Submission gate</span></a></li>
+      <li><a href="#assume"><span class="n">03</span><span>Stated assumptions</span></a></li>
+      <li><a href="#invariants"><span class="n">04</span><span>Design invariants</span></a></li>
+      <li><a href="#arch"><span class="n">05</span><span>Architecture &amp; modules</span></a></li>
+      <li><a href="#age"><span class="n">06</span><span>Age stratification</span></a></li>
+      <li><a href="#reliability"><span class="n">07</span><span>Self-report reliability</span></a></li>
+      <li><a href="#cadence"><span class="n">08</span><span>Recheck cadence</span></a></li>
+      <li><a href="#intake"><span class="n">09</span><span>Assisted / non-assisted</span></a></li>
+      <li><a href="#redflag"><span class="n">10</span><span>Immediate red flag</span></a></li>
+      <li><a href="#surge"><span class="n">11</span><span>Surge behaviour</span></a></li>
+      <li><a href="#explain"><span class="n">12</span><span>Explainability</span></a></li>
+      <li><a href="#override"><span class="n">13</span><span>Override record</span></a></li>
+      <li><a href="#data"><span class="n">14</span><span>Data &amp; synthetic corpus</span></a></li>
+      <li><a href="#build"><span class="n">15</span><span>Prototype build</span></a></li>
+      <li><a href="#risks"><span class="n">16</span><span>Open risks</span></a></li>
+      <li><a href="#ladder"><span class="n">17</span><span>Maturity ladder</span></a></li>
+    </ol>
+  </nav>
+
+<main>
+
+<!-- ============ 01 ============ -->
+<section id="delta">
+  <h2 class="sec"><span class="n">01</span>What changed, and why</h2>
+  <div class="sec-rule"></div>
+  <div class="prose">
+    <p>
+      Every row below is a place where the Round 1 plan said something the Round 2 brief or the
+      design session contradicts. Nothing else in the original plan is discarded — but these are
+      the edits that have to land before anything else is worth building.
+    </p>
+  </div>
+
+  <div class="scroller">
+  <table>
+    <thead>
+      <tr><th>#</th><th>Was</th><th>Now</th><th>Source</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="id">D1</td>
+        <td>One re-triage cycle for everybody: 5 minutes.</td>
+        <td><strong>Two separate clocks.</strong> The model re-scores every patient every 5 min (compute is free); the <em>physical</em> re-measurement cadence is band-specific — Red 5 / Yellow 30 / Green 60 min.</td>
+        <td>Whiteboard</td>
+      </tr>
+      <tr>
+        <td class="id">D2</td>
+        <td>One risk model, implicitly adult-calibrated.</td>
+        <td><strong>Age-stratified thresholds and calibration</strong> across neonate → geriatric. The brief names a single adult-calibrated model as a <em>silent safety risk</em>.</td>
+        <td>Round 2 brief</td>
+      </tr>
+      <tr>
+        <td class="id">D3</td>
+        <td>Rechecks happen; who does them was unspecified.</td>
+        <td><strong>Recheck is a routed task with an owner</strong> — recheck station, attending nurse, ward attendant, or accompanying family — and the owner's role weights the trust placed in the reading.</td>
+        <td>Whiteboard</td>
+      </tr>
+      <tr>
+        <td class="id">D4</td>
+        <td>Unattended patients handled by an assistance button.</td>
+        <td><strong>A first-class intake branch</strong>: assisted vs non-assisted is asked and recorded, with a consent gate and an explicit offer of human help before the system proceeds alone.</td>
+        <td>Whiteboard</td>
+      </tr>
+      <tr>
+        <td class="id">D5</td>
+        <td>Emergency rules inspect vitals.</td>
+        <td><strong>Rules also inspect the narrative.</strong> A red-flag pass runs on the structured output of the intake conversation before the model is consulted at all.</td>
+        <td>Whiteboard</td>
+      </tr>
+      <tr>
+        <td class="id">D6</td>
+        <td>Self-reported symptoms treated as inputs.</td>
+        <td><strong>Self-report carries a reliability weight.</strong> Under-reporting and atypical presentation reduce the <em>negative</em> predictive value of a reassuring answer; they never reduce a positive one.</td>
+        <td>Both</td>
+      </tr>
+      <tr>
+        <td class="id">D7</td>
+        <td>Mass-casualty mode only.</td>
+        <td><strong>An ordinary surge mode at 3× volume</strong>, distinct from mass casualty, with a written list of what stretches and what refuses to.</td>
+        <td>Round 2 brief</td>
+      </tr>
+      <tr>
+        <td class="id">D8</td>
+        <td>Confidence discussed as a property of the model.</td>
+        <td><strong>No score is ever emitted without a confidence indicator</strong> — a hard output-contract rule the prototype is graded on.</td>
+        <td>Round 2 brief</td>
+      </tr>
+      <tr>
+        <td class="id">D9</td>
+        <td>Audit log described in general terms.</td>
+        <td><strong>The override record has a defined legal schema</strong> tied to the stated jurisdiction, and the prototype must show it.</td>
+        <td>Round 2 brief</td>
+      </tr>
+      <tr>
+        <td class="id">D10</td>
+        <td>Synthetic data as a fallback if real data is short.</td>
+        <td><strong>Synthetic data is the critical path.</strong> There is no real Indian ED dataset in hand, so the generator and its validation are the first thing built, not the last.</td>
+        <td>Whiteboard</td>
+      </tr>
+      <tr>
+        <td class="id">D11</td>
+        <td>Integration named as "EHR".</td>
+        <td><strong>Three integration surfaces</strong>: patient records, <em>bed management</em>, and <em>staff rosters</em> — the latter two drive routing and are named explicitly in the brief.</td>
+        <td>Round 2 brief</td>
+      </tr>
+      <tr>
+        <td class="id">D12</td>
+        <td>Text-first interface with multilingual support.</td>
+        <td><strong>Talk-first.</strong> Adoption by fatigued staff and comprehension by low-literacy patients both point at speech, with reading and typing as the fallback rather than the default.</td>
+        <td>Both</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="tcap">D1, D2 and D10 are the three that change the build order. The rest are additive.</p>
+</section>
+
+<!-- ============ 02 ============ -->
+<section id="gate">
+  <h2 class="sec"><span class="n">02</span>The submission gate</h2>
+  <div class="sec-rule"></div>
+  <div class="prose">
+    <p>
+      These are not aspirations. They are the stated minimum prototype expectations, and each one
+      is a demonstrable behaviour with an owner and a demo moment. If a feature elsewhere in this
+      plan competes for time with one of these, the item below wins.
+    </p>
+  </div>
+
+  <ul class="check">
+    <li><span class="box"></span><span><b>Triage scoring on 15–20 simulated patient records</b>
+      Our corpus is 20 (§14), sized so every required edge case gets its own record rather than being bundled.</span></li>
+    <li><span class="box"></span><span><b>At least one ambiguous presentation</b>
+      <code>P-07</code> — abdominal pain that is either gastritis or an inferior MI, with the deciding evidence deliberately absent at T0.</span></li>
+    <li><span class="box"></span><span><b>At least one pediatric or geriatric case</b>
+      Both. <code>P-03</code> is a 3-year-old at 38.5 °C; <code>P-04</code> is a 75-year-old at the same temperature. Same number, opposite dispositions — this is the age-stratification demo.</span></li>
+    <li><span class="box"></span><span><b>At least one zero-history first-time patient</b>
+      <code>P-11</code> — no prior record, no ABHA link, nothing but what is observed in the room.</span></li>
+    <li><span class="box"></span><span><b>Behaviour under a simulated 3× surge</b>
+      A scripted run at 3× arrival rate showing which cadences stretch, which hold, and the queue re-ordering as it happens (§11).</span></li>
+    <li><span class="box"></span><span><b>Uncertainty surfaced explicitly — never a score without a confidence indicator</b>
+      Enforced at the output contract, not by UI convention: a score object without a populated confidence field fails validation and is not renderable.</span></li>
+    <li><span class="box"></span><span><b>At least one clinician override, with the log shown</b>
+      <code>P-14</code> — nurse overrides a Yellow to Red on physical findings the system could not see. The demo shows the resulting record field by field (§13).</span></li>
+  </ul>
+
+  <div class="note">
+    <span class="lbl">One more, self-imposed</span>
+    <p>
+      The brief says teams <em>must demonstrate the escalation bias explicitly in their prototype</em>.
+      A claim in the deck does not satisfy that. We show it as a live control: move the cost ratio
+      <code>R</code> and watch the threshold and the resulting board change, with the same patients
+      re-sorting in front of the judges.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 03 ============ -->
+<section id="assume">
+  <h2 class="sec"><span class="n">03</span>Stated assumptions</h2>
+  <div class="sec-rule"></div>
+  <div class="prose">
+    <p>The brief asks for these to be stated clearly rather than left implicit.</p>
+  </div>
+
+  <div class="scroller">
+  <table>
+    <thead><tr><th>Parameter</th><th>Our assumption</th><th>Consequence</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Jurisdiction</strong></td>
+        <td class="mono">India</td>
+        <td>DPDP Act 2023 for consent and retention; CDSCO SaMD Class B/C for the device pathway; ICMR 2023 ethics guidance; ABDM/ABHA for record linkage. Sets the override record schema in §13.</td>
+      </tr>
+      <tr>
+        <td><strong>Volume</strong></td>
+        <td class="mono">100–500 visits/day</td>
+        <td>Design point 500/day; surge ceiling 1,500/day ≈ 62 arrivals/hour ≈ one per minute.</td>
+      </tr>
+      <tr>
+        <td><strong>Concurrent waiting</strong></td>
+        <td class="mono">40–80 at surge peak</td>
+        <td>80 patients re-scored every 5 min = ~16 inferences/min on the tabular head. Comfortably inside a Jetson-class edge box.</td>
+      </tr>
+      <tr>
+        <td><strong>Nurse load</strong></td>
+        <td class="mono">20–40 patients / nurse</td>
+        <td>The reason continuous monitoring is a machine's job. Also caps how many escalation alerts per hour are actionable.</td>
+      </tr>
+      <tr>
+        <td><strong>Prior records</strong></td>
+        <td class="mono">≈ 50% have history</td>
+        <td>Two operating regimes are normal, not exceptional. The zero-history path is a first-class path, not degraded mode.</td>
+      </tr>
+      <tr>
+        <td><strong>Severity scale</strong></td>
+        <td class="mono">3-tier (AIIMS ATP)</td>
+        <td>The brief permits an alternative to the 5-level scale. We take it — see below.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>Why three tiers and not five</h3>
+  <div class="prose">
+    <p>
+      The brief allows either. We choose the three-tier Red/Yellow/Green AIIMS Triage Protocol for
+      three reasons, and the choice needs defending because a five-level scale looks more
+      sophisticated on a slide.
+    </p>
+    <ul>
+      <li><strong>It is the deployed Indian standard.</strong> ATP is in use at AIIMS Bhubaneswar, CMC Vellore, GTB Delhi and the Kerala DHS. A tool that speaks a different vocabulary than the ward it sits in gets worked around.</li>
+      <li><strong>Fewer boundaries means fewer places to be wrong.</strong> A five-level scale has four decision boundaries; three tiers has two. With mistriage already running near a third of visits under ESI, adding boundaries adds error surface.</li>
+      <li><strong>The colour is not the output.</strong> The band is a queue position; the card carries the reasoning and the confidence. Granularity lives in the probability and the acuity set, not in the number of buckets.</li>
+    </ul>
+    <p>
+      We keep an internal five-point mapping so the system can export to ESI-speaking hospitals
+      without re-training.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 04 ============ -->
+<section id="invariants">
+  <h2 class="sec"><span class="n">04</span>Design invariants</h2>
+  <div class="sec-rule"></div>
+  <div class="prose">
+    <p>
+      Six rules that no module may violate and no configuration may relax. Everything else in this
+      document is a design decision; these are constraints. Each maps to a test in the prototype
+      suite so a violation fails the build rather than being caught in review.
+    </p>
+  </div>
+
+  <div class="invariant">
+    <span class="lbl">Invariant 1 — Asymmetric autonomy</span>
+    <p>The system may raise a patient's band on its own. It may never lower a patient below a
+    human-assigned band on its own. Escalation costs one assessment; de-escalation can cost a life.</p>
+  </div>
+
+  <div class="invariant">
+    <span class="lbl">Invariant 2 — No naked scores</span>
+    <p>Every emitted risk value carries a confidence indicator and the inputs it was computed from.
+    A score object missing either fails schema validation and cannot reach a screen.</p>
+  </div>
+
+  <div class="invariant">
+    <span class="lbl">Invariant 3 — Age is never assumed</span>
+    <p>No threshold, weight or calibration is applied without an age stratum resolved first. Where
+    age is unknown, the system uses the widest-safety stratum and says that it did.</p>
+  </div>
+
+  <div class="invariant">
+    <span class="lbl">Invariant 4 — Freshness is part of the value</span>
+    <p>A measurement is a tuple of value, timestamp, source and validity. A reading older than twice
+    its band's cadence is discounted; older than three times, it is treated as missing.</p>
+  </div>
+
+  <div class="invariant">
+    <span class="lbl">Invariant 5 — Abstention is loud, and never Green</span>
+    <p>When the system cannot score a patient it says so and routes to a human. An abstained patient
+    with no human assessment yet holds at <strong>Yellow</strong>, never Green.</p>
+  </div>
+
+  <div class="invariant">
+    <span class="lbl">Invariant 6 — The human closes every loop</span>
+    <p>Final clinical action belongs to licensed staff. Override is always available, always
+    one touch, and always recorded with a reason.</p>
+  </div>
+</section>
+
+<!-- ============ 05 ============ -->
+<section id="arch">
+  <h2 class="sec"><span class="n">05</span>Architecture and module inventory</h2>
+  <div class="sec-rule"></div>
+  <div class="prose">
+    <p>
+      The spine is unchanged from Round 1 — ingestion, validation, model, calibration, uncertainty,
+      rules, band, interface, feedback. What changes is that four new stages enter the path and one
+      existing stage splits in two.
+    </p>
+  </div>
+
+  <div class="scroller">
+  <table>
+    <thead><tr><th>#</th><th>Module</th><th>Status</th><th>What it owns</th></tr></thead>
+    <tbody>
+      <tr><td class="id">M01</td><td><strong>Data ingestion</strong></td><td><span class="chip keep">kept</span></td><td>Device, HIS, bed-management and roster feeds. Normalises to the measurement tuple.</td></tr>
+      <tr><td class="id">M02</td><td><strong>Validation &amp; freshness</strong></td><td><span class="chip chg">changed</span></td><td>Now emits an explicit staleness class per field, consumed by both the model and the recheck router.</td></tr>
+      <tr><td class="id">M03</td><td><strong>Intake branch</strong></td><td><span class="chip new">new</span></td><td>Assisted vs non-assisted, consent gate, human-assistance offer (§9).</td></tr>
+      <tr><td class="id">M04</td><td><strong>Question tree</strong></td><td><span class="chip chg">changed</span></td><td>Now age-stratum-aware and voice-first; branches on reliability signals as well as answers.</td></tr>
+      <tr><td class="id">M05</td><td><strong>Speech &amp; multilingual</strong></td><td><span class="chip chg">changed</span></td><td>Promoted from accessibility feature to default interaction mode (§01 D12).</td></tr>
+      <tr><td class="id">M06</td><td><strong>LLM structurer</strong></td><td><span class="chip keep">kept</span></td><td>Speech → structured fields. Grammar contains no rule for a diagnosis or a band.</td></tr>
+      <tr><td class="id">M07</td><td><strong>Red-flag pass</strong></td><td><span class="chip new">new</span></td><td>Deterministic rule sweep over structured narrative, ahead of the model (§10).</td></tr>
+      <tr><td class="id">M08</td><td><strong>Age stratification</strong></td><td><span class="chip new">new</span></td><td>Resolves stratum, selects thresholds and calibration set (§6).</td></tr>
+      <tr><td class="id">M09</td><td><strong>Reliability weighting</strong></td><td><span class="chip new">new</span></td><td>Discounts the evidential weight of reassuring self-report (§7).</td></tr>
+      <tr><td class="id">M10</td><td><strong>Global risk model</strong></td><td><span class="chip keep">kept</span></td><td>Tabular + trend + text heads, late fusion, modality dropout.</td></tr>
+      <tr><td class="id">M11</td><td><strong>Hospital calibration</strong></td><td><span class="chip chg">changed</span></td><td>Now calibrates per site <em>and</em> per age stratum, not per site alone.</td></tr>
+      <tr><td class="id">M12</td><td><strong>Uncertainty / OOD</strong></td><td><span class="chip keep">kept</span></td><td>Conformal sets, OOD density score, abstention gate.</td></tr>
+      <tr><td class="id">M13</td><td><strong>Emergency rule engine</strong></td><td><span class="chip keep">kept</span></td><td>Vital-threshold and sensor-loss rules, independent of the model.</td></tr>
+      <tr><td class="id">M14</td><td><strong>Band engine</strong></td><td><span class="chip chg">changed</span></td><td>Assigns band <em>and</em> the recheck contract that comes with it (§8).</td></tr>
+      <tr><td class="id">M15</td><td><strong>Recheck router</strong></td><td><span class="chip chg">changed</span></td><td>Now assigns each recheck an owner and a deadline; tracks breaches.</td></tr>
+      <tr><td class="id">M16</td><td><strong>Surge controller</strong></td><td><span class="chip new">new</span></td><td>Detects load, applies the stretch policy, refuses the forbidden relaxations (§11).</td></tr>
+      <tr><td class="id">M17</td><td><strong>Explainability</strong></td><td><span class="chip chg">changed</span></td><td>Three channels; third channel now isolates the narrative contribution (§12).</td></tr>
+      <tr><td class="id">M18</td><td><strong>Nurse interface</strong></td><td><span class="chip keep">kept</span></td><td>The card, the board, accept/override.</td></tr>
+      <tr><td class="id">M19</td><td><strong>Patient interface</strong></td><td><span class="chip chg">changed</span></td><td>Talk-first, multilingual, with the assistance call as a distinct non-clinical path.</td></tr>
+      <tr><td class="id">M20</td><td><strong>Audit log</strong></td><td><span class="chip chg">changed</span></td><td>Override record now has a defined legal schema (§13).</td></tr>
+      <tr><td class="id">M21</td><td><strong>Synthetic generator</strong></td><td><span class="chip chg">changed</span></td><td>Promoted to critical path; owns the 20-record corpus and its validation (§14).</td></tr>
+      <tr><td class="id">M22</td><td><strong>Controlled update</strong></td><td><span class="chip keep">kept</span></td><td>Validate → evaluate → calibrate → verify → ship. Never learns online.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="tcap">Five new modules, nine changed, eight carried forward unmodified.</p>
+</section>
+
+<!-- ============ 06 ============ -->
+<section id="age">
+  <h2 class="sec"><span class="n">06</span>Age stratification</h2>
+  <div class="sec-rule"></div>
+  <div class="prose">
+    <p>
+      The brief is unusually direct here: applying one adult-calibrated scoring model across all age
+      groups <em>introduces silent safety risk</em>. Silent is the operative word — the model returns
+      a confident number and nothing looks wrong. This is the single largest gap in the Round 1 plan.
+    </p>
+    <p>
+      Two mechanisms, deliberately separate. <strong>Thresholds</strong> change what counts as
+      abnormal. <strong>Calibration</strong> changes how a given abnormality maps to risk. Conflating
+      them produces a model that is right about the vitals and wrong about the danger.
+    </p>
+  </div>
+
+  <div class="scroller">
+  <table>
+    <thead><tr><th>Stratum</th><th>Range</th><th class="mono">HR normal</th><th class="mono">RR normal</th><th>What flips</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Neonate</strong></td><td class="mono">&lt; 28 d</td><td class="mono">100–180</td><td class="mono">30–60</td><td>Fever is an emergency by default; hypothermia is as ominous as fever.</td></tr>
+      <tr><td><strong>Infant</strong></td><td class="mono">28 d – 1 y</td><td class="mono">100–160</td><td class="mono">25–50</td><td>Tachypnoea is the earliest reliable sign; BP is a very late one.</td></tr>
+      <tr><td><strong>Child</strong></td><td class="mono">1 – 12 y</td><td class="mono">70–140</td><td class="mono">18–30</td><td>Compensates well then decompensates abruptly — trend beats snapshot.</td></tr>
+      <tr><td><strong>Adolescent</strong></td><td class="mono">12 – 18 y</td><td class="mono">60–110</td><td class="mono">14–22</td><td>Adult thresholds mostly hold; pregnancy status becomes relevant.</td></tr>
+      <tr><td><strong>Adult</strong></td><td class="mono">18 – 65 y</td><td class="mono">60–100</td><td class="mono">12–20</td><td>The reference stratum the literature is written against.</td></tr>
+      <tr><td><strong>Geriatric</strong></td><td class="mono">65 y +</td><td class="mono">60–100</td><td class="mono">12–20</td><td>Same numbers, different meaning: normal vitals carry much weaker reassurance.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="tcap">Illustrative bands for the prototype; the shipped values come from the partner
+  hospital's own paediatric and geriatric protocols during calibration.</p>
+
+  <div class="note warn">
+    <span class="lbl">The demo case, built deliberately</span>
+    <p>
+      <code>P-03</code> and <code>P-04</code> both present at <strong>38.5 °C</strong>. The 3-year-old
+      with tachypnoea and poor feeding escalates; the 75-year-old with the same temperature and a
+      normal-looking heart rate <em>also</em> escalates, because in the geriatric stratum an unremarkable
+      pulse alongside fever is a weaker negative than it is at 30. A single adult model would have
+      sorted at least one of them wrong, and would have looked confident doing it.
+    </p>
+  </div>
+
+  <h3>Where age is unknown</h3>
+  <div class="prose">
+    <p>
+      Unaccompanied and unresponsive patients arrive without a stated age. The system estimates a
+      coarse stratum from what is available, applies the <strong>widest-safety</strong> configuration
+      across the plausible range, marks the stratum as <em>inferred</em>, and puts that on the card.
+      An inferred stratum is a standing reason for reduced confidence — it never silently resolves.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 07 ============ -->
+<section id="reliability">
+  <h2 class="sec"><span class="n">07</span>Self-report reliability</h2>
+  <div class="sec-rule"></div>
+  <div class="prose">
+    <p>
+      The brief notes that patients under-report pain and symptoms, and that presentation varies by
+      age and condition. The session notes reached the same place from the other direction — a
+      shorthand about discounting information from older patients.
+    </p>
+  </div>
+
+  <div class="note">
+    <span class="lbl">A deliberate rewording</span>
+    <p>
+      The session shorthand — <em>"for ≥ 60, consider information unreliable"</em> — is implemented,
+      but not as written. Encoded literally it is both indefensible and wrong in direction: it would
+      let the system discount a 70-year-old <em>reporting</em> chest pain. The clinically correct and
+      defensible form is asymmetric, and it is the form we build.
+    </p>
+  </div>
+
+  <div class="prose">
+    <h4>The rule</h4>
+    <p>
+      Reliability weighting reduces the evidential weight of a <strong>reassuring</strong> answer.
+      It never reduces the weight of an alarming one. "No chest pain" from a patient in a
+      low-reliability context is weak evidence of absence; "chest pain" from the same patient is
+      full-strength evidence of presence.
+    </p>
+    <p>
+      In model terms: these factors lower the negative predictive value of self-report. They do not
+      touch the positive predictive value. Practically, a reassuring answer under a reliability
+      discount widens the conformal set rather than lowering the score — which pushes toward
+      abstention and a human look, not toward Green.
+    </p>
+
+    <h4>Factors that lower reassurance weight</h4>
+    <ul>
+      <li><strong>Geriatric stratum</strong> — atypical presentation is well documented: silent MI, afebrile sepsis, shock presenting as confusion or as abdominal pain.</li>
+      <li><strong>Communication barrier</strong> — the interaction language is not the patient's first language, or the exchange is running through an attendant rather than the patient.</li>
+      <li><strong>Health-literacy signal</strong> — the patient's answers to the tree indicate unfamiliarity with the terms being used. Inferred from the interaction itself, never from an assumption about a demographic.</li>
+      <li><strong>Stoic-presentation flag</strong> — the nurse can set this in one tap when a patient's manner and their physiology disagree. Clinician-set, not model-guessed.</li>
+      <li><strong>Non-assisted arrival</strong> — nobody present to corroborate or contradict the history.</li>
+      <li><strong>Analgesia already given</strong> — pre-hospital pain relief masks the pain score outright.</li>
+    </ul>
+
+    <h4>What this is not</h4>
+    <p>
+      No factor here is a protected attribute used as a direct model input. Age enters through the
+      stratum, which is clinical. Language and literacy enter through observed interaction, not
+      through inferred background. Every applied discount appears on the nurse's card by name, so a
+      clinician can see and reject the reasoning — which is also how we detect it going wrong.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 08 ============ -->
+<section id="cadence">
+  <h2 class="sec"><span class="n">08</span>Recheck cadence — two clocks</h2>
+  <div class="sec-rule"></div>
+  <div class="prose">
+    <p>
+      Round 1 promised continuous re-triage every five minutes for everyone. The session notes said
+      Red 5, Yellow 30, Green 60. These are not in conflict once you separate the two things a
+      "recheck" can mean, and separating them is the more defensible design than either alone.
+    </p>
+    <ul>
+      <li><strong>Re-scoring</strong> is the model running again over whatever data exists. It costs
+      milliseconds of edge compute. There is no reason to ration it — every waiting patient is
+      re-scored every 5 minutes regardless of band.</li>
+      <li><strong>Re-measurement</strong> is a human or a station physically taking a fresh set of
+      vitals. It costs the scarcest resource in the department. It is rationed by band.</li>
+    </ul>
+    <p>
+      Re-scoring stale data does not create information, which is exactly why the freshness contract
+      (Invariant 4) matters: as a reading ages past its band's cadence, confidence decays and the
+      patient surfaces for re-measurement on that basis rather than on a fixed timer alone.
+    </p>
+  </div>
+
+  <div class="scroller">
+  <table>
+    <thead>
+      <tr><th>Band</th><th class="mono">Re-score</th><th class="mono">Re-measure</th><th class="mono">Wait ceiling</th><th>On breach of ceiling</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="chip red">Red</span></td>
+        <td class="mono">60 s</td><td class="mono">5 min</td><td class="mono">0 min</td>
+        <td>Should not be waiting at all. Any Red still queued at 5 min pages the senior clinician and is flagged on the board.</td>
+      </tr>
+      <tr>
+        <td><span class="chip amb">Yellow</span></td>
+        <td class="mono">5 min</td><td class="mono">30 min</td><td class="mono">60 min</td>
+        <td>Forced re-measurement task raised. If it cannot be completed within 15 min, the patient escalates to Red on time-in-queue alone.</td>
+      </tr>
+      <tr>
+        <td><span class="chip grn">Green</span></td>
+        <td class="mono">5 min</td><td class="mono">60 min</td><td class="mono">120 min</td>
+        <td>Forced re-measurement and a wellbeing contact. Two consecutive missed rechecks escalate to Yellow.</td>
+      </tr>
+      <tr>
+        <td><span class="chip keep">Abstained</span></td>
+        <td class="mono">5 min</td><td class="mono">on review</td><td class="mono">15 min</td>
+        <td>Holds at Yellow floor (Invariant 5). Unreviewed past 15 min, it is raised as an unmet-review breach, not left in the queue.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="tcap">The wait ceiling is the brief's requirement made concrete: re-assessment triggers
+  when wait time exceeds the safe threshold <em>for that severity level</em>, independently of
+  whether any vital has changed.</p>
+
+  <h3>Who performs the recheck</h3>
+  <div class="prose">
+    <p>
+      The session notes raised this and it turns out to matter twice — once for whether the recheck
+      happens at all, and once for how much the resulting number is trusted.
+    </p>
+  </div>
+
+  <div class="bands">
+    <div class="band r">
+      <h4>Recheck station — full trust</h4>
+      <p>Instrumented bay, device-reported, timestamped at source. The only path that produces a full-confidence reading. Red rechecks use this or a nurse; nothing else.</p>
+    </div>
+    <div class="band y">
+      <h4>Nurse or attendant — full trust, rationed</h4>
+      <p>Manual entry by trained staff. Trusted fully, but competes with everything else the nurse is doing, which is why the router tracks deadline breaches rather than assuming completion.</p>
+    </div>
+    <div class="band g">
+      <h4>Accompanying family — partial trust</h4>
+      <p>Can answer wellbeing prompts and report visible change on a Green patient. Cannot close a Yellow or Red recheck. Their input raises a flag for staff; it never satisfies the requirement itself.</p>
+    </div>
+    <div class="band a">
+      <h4>Patient self-service — signal only</h4>
+      <p>The patient's own "I feel worse" is treated as a symptom report, not a measurement. It can escalate; it can never satisfy a recheck or de-escalate.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 09 ============ -->
+<section id="intake">
+  <h2 class="sec"><span class="n">09</span>Assisted and non-assisted intake</h2>
+  <div class="sec-rule"></div>
+  <div class="prose">
+    <p>
+      Round 1 treated the unattended patient as an assistance button. The session made it an intake
+      branch, which is correct: whether anyone is with the patient changes what the system can ask,
+      what it can trust, and what it must do when the patient stops responding.
+    </p>
+
+    <h4>The sequence</h4>
+    <ol>
+      <li><strong>Is anyone with you?</strong> Asked plainly, answered by tap or voice. Recorded as a field, because it feeds reliability weighting (§7) and the recheck routing (§8).</li>
+      <li><strong>Would you prefer a person?</strong> The offer of human assistance comes <em>before</em> the system proceeds on its own, not after it fails. A patient who wants a person gets queued for one and the machine stops asking clinical questions.</li>
+      <li><strong>Consent to use your medical information.</strong> A yes/no gate, in the patient's language, distinct from consent to be treated. Declining is a supported state — the patient is still triaged, on observed and measured data only.</li>
+      <li><strong>Proceed, with the branch recorded.</strong> Everything downstream knows which path produced the data.</li>
+    </ol>
+  </div>
+
+  <div class="note warn">
+    <span class="lbl">Declining consent must not be a penalty</span>
+    <p>
+      A patient who declines to share history is triaged on vitals and observation. They may end up
+      with a wider conformal set and therefore a more cautious band — which under Invariant 1 means
+      more attention, not less. The system must never present declining as a reason for a worse
+      queue position, and the card must not display the refusal as a risk factor.
+    </p>
+  </div>
+
+  <div class="prose">
+    <h4>The non-clinical assistance path</h4>
+    <p>
+      Distinct from everything above and deliberately kept out of the risk model. A patient calling
+      for help with water, a toilet, a translator or a relative generates a staff task, not a risk
+      signal. Conflating the two would train the model that asking for help predicts deterioration,
+      and would teach patients that pressing the button re-triages them.
+    </p>
+    <p>
+      One exception, rule-based rather than learned: repeated assistance calls from the same patient
+      within a short window raise a wellbeing check. Someone pressing a button four times in ten
+      minutes is telling the department something.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 10 ============ -->
+<section id="redflag">
+  <h2 class="sec"><span class="n">10</span>The immediate red-flag pass</h2>
+  <div class="sec-rule"></div>
+  <div class="prose">
+    <p>
+      From the session notes: some presentations should never wait for a model. If a delay could
+      cost a life, the patient is Red now, and the reasoning can catch up afterwards.
+    </p>
+    <p>
+      This runs on the structured output of the intake conversation, <em>before</em> the risk model
+      is consulted, in parallel with the vitals rule engine. It is deterministic, it is auditable,
+      and it is short enough that a clinician can read the whole thing.
+    </p>
+  </div>
+
+  <div class="note warn">
+    <span class="lbl">The design constraint this had to satisfy</span>
+    <p>
+      Implemented naively — <em>"ask the model whether any delay might cost this person's life"</em> —
+      this is an LLM assigning acuity, which the architecture prohibits and which the literature says
+      it does badly, with a documented bias toward overestimating severity. The prohibition is worth
+      keeping, so the mechanism is split: <strong>the LLM extracts observations; a fixed table maps
+      observations to Red.</strong> The model reports what was said. It does not decide what it means.
+    </p>
+  </div>
+
+  <div class="scroller">
+  <table>
+    <thead><tr><th>Extracted observation</th><th>Maps to</th><th>Why it cannot wait</th></tr></thead>
+    <tbody>
+      <tr><td>Altered consciousness — patient not oriented, "not responding to me"</td><td><span class="chip red">Red</span></td><td>Airway risk and a large differential; every branch of it is time-critical.</td></tr>
+      <tr><td>Active labour, or bleeding in pregnancy</td><td><span class="chip red">Red</span></td><td>Two patients, and the deterioration curve is steep.</td></tr>
+      <tr><td>Chest pain with sweating, radiation or breathlessness</td><td><span class="chip red">Red</span></td><td>Time-to-cath is the outcome variable.</td></tr>
+      <tr><td>Difficulty speaking in full sentences</td><td><span class="chip red">Red</span></td><td>A respiratory-effort finding that a stated rate can miss entirely.</td></tr>
+      <tr><td>Sudden one-sided weakness, facial droop, speech change</td><td><span class="chip red">Red</span></td><td>Thrombolysis window.</td></tr>
+      <tr><td>Uncontrolled bleeding, or a penetrating injury</td><td><span class="chip red">Red</span></td><td>Self-evident, and frequently under-reported by the patient.</td></tr>
+      <tr><td>Poisoning, overdose, or a snakebite</td><td><span class="chip red">Red</span></td><td>Antidote timing dominates outcome.</td></tr>
+      <tr><td>Infant — not feeding, floppy, or inconsolable</td><td><span class="chip red">Red</span></td><td>The paediatric equivalent of the above, and the vitals often look fine.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="tcap">Illustrative table for the prototype. The shipped list is signed off by the partner
+  hospital's clinical lead and version-controlled with the model, since changing it changes device
+  behaviour.</p>
+
+  <div class="prose">
+    <p>
+      A red-flag Red is <strong>not overridable downward by the system</strong> under any subsequent
+      model output — only a clinician can move it, with a reason. The flag also displays as the
+      leading factor on the card, so nobody is left wondering why a patient with unremarkable vitals
+      went to the front.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 11 ============ -->
+<section id="surge">
+  <h2 class="sec"><span class="n">11</span>Surge behaviour</h2>
+  <div class="sec-rule"></div>
+  <div class="prose">
+    <p>
+      The brief asks how the system behaves differently during a surge versus a quiet shift, and the
+      prototype must demonstrate 3× volume. This is separate from mass-casualty mode: a surge is a
+      busy Tuesday, and the system enters it on its own. Mass casualty changes the ethical objective
+      and stays behind an authenticated senior clinician action.
+    </p>
+    <p>
+      At 3× our design point that is roughly 1,500 arrivals a day, one a minute, with 40–80 patients
+      waiting concurrently and possibly 40 patients per nurse. The compute is untroubled. The
+      <em>humans</em> are the constrained resource, so surge policy is entirely about how the system
+      spends their attention.
+    </p>
+  </div>
+
+  <div class="scroller">
+  <table>
+    <thead><tr><th>Under 3× load</th><th>Behaviour</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Red re-measurement</strong></td><td><span class="chip red">Holds at 5 min</span> — never stretches. This is the one cadence surge does not touch.</td></tr>
+      <tr><td><strong>Yellow re-measurement</strong></td><td><span class="chip amb">Stretches 30 → 45 min</span>, and the wait ceiling tightens rather than loosens, so time-in-queue does more of the work.</td></tr>
+      <tr><td><strong>Green re-measurement</strong></td><td><span class="chip grn">Stretches 60 → 90 min</span>, with wellbeing contact taking over part of the load.</td></tr>
+      <tr><td><strong>Alerts</strong></td><td>Ranked, never suppressed. A capped feed sorted by risk × time-waiting, so a fatigued nurse sees the worst first instead of a wall.</td></tr>
+      <tr><td><strong>Abstentions</strong></td><td>Still abstain — but the abstention queue is itself prioritised, because under surge "wait for a nurse" is a longer sentence than usual.</td></tr>
+      <tr><td><strong>Nurse interface</strong></td><td>Switches from card-detail to board-density: more patients visible, reasoning one tap away rather than on screen.</td></tr>
+      <tr><td><strong>Routing</strong></td><td>Bed and roster feeds carry more weight in the soft dimension. Hard clinical rules are untouched.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="invariant">
+    <span class="lbl">What surge mode is forbidden from doing</span>
+    <p>
+      It may not raise <code>R</code> to reduce alarm volume. It may not resolve abstentions by
+      guessing. It may not de-escalate anyone to free capacity. Every one of those makes the board
+      look calmer while making the department more dangerous, and each is the obvious temptation
+      under load — so each is blocked in code, not in policy.
+    </p>
+  </div>
+
+  <div class="prose">
+    <p>
+      Surge entry and exit are logged with their triggers, so the post-hoc question <em>"why did the
+      cadence change at 14:20"</em> has an answer.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 12 ============ -->
+<section id="explain">
+  <h2 class="sec"><span class="n">12</span>Explainability, three channels</h2>
+  <div class="sec-rule"></div>
+  <div class="prose">
+    <p>
+      Structure carried over from Round 1, with the third channel re-scoped. The brief's constraint
+      is severe — the explanation has to be absorbed <em>in seconds</em>, by someone already managing
+      several patients — so the card shows three things and hides the rest behind a tap.
+    </p>
+  </div>
+
+  <div class="bands">
+    <div class="band r">
+      <h4>Channel 1 — What drove this</h4>
+      <p>The two strongest contributing factors, with direction and magnitude, plus <strong>one factor
+      arguing the other way</strong>. The opposing factor is deliberate: it gives the clinician
+      something to falsify, which is the practical defence against nodding along.</p>
+    </div>
+    <div class="band y">
+      <h4>Channel 2 — What was considered and did not move it</h4>
+      <p>Normal and weakly-contributing parameters, so the nurse does not assume every available
+      number was decisive. This is also where an applied reliability discount is named (§7).</p>
+    </div>
+    <div class="band g">
+      <h4>Channel 3 — What was said, and what happened since</h4>
+      <p>Re-scoped from a generic event log. It now separates the <strong>narrative contribution</strong>
+      — the phrases the LLM extracted and what they triggered — from the timeline of band changes,
+      alarms, stale readings, missed rechecks and overrides. Narrative evidence is the least familiar
+      input a nurse will encounter, so it gets its own space rather than being folded into a feature list.</p>
+    </div>
+  </div>
+
+  <div class="prose">
+    <p>
+      Every card also carries the confidence indicator (Invariant 2) and, where relevant, the reason
+      confidence is low: missing field, stale reading, inferred age stratum, disagreeing sensors, or
+      a patient unlike the local distribution.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 13 ============ -->
+<section id="override">
+  <h2 class="sec"><span class="n">13</span>The override record</h2>
+  <div class="sec-rule"></div>
+  <div class="prose">
+    <p>
+      The brief ties audit-trail design to the stated jurisdiction and asks what a clinician override
+      must legally record. Under our stated jurisdiction — India, DPDP Act 2023 with CDSCO SaMD
+      obligations — an override is simultaneously a clinical act, a medico-legal record, and a
+      training signal. The schema below satisfies all three, and the prototype renders it verbatim
+      for <code>P-14</code>.
+    </p>
+  </div>
+
+  <div class="scroller">
+  <table>
+    <thead><tr><th>Field</th><th>Why it is required</th></tr></thead>
+    <tbody>
+      <tr><td class="id">patient_id</td><td>Links to the encounter record.</td></tr>
+      <tr><td class="id">timestamp_utc</td><td>Ordering against the deterioration timeline; disputes turn on sequence.</td></tr>
+      <tr><td class="id">clinician_id</td><td>Named accountability. The brief requires the recommendation be overridable <em>by a licensed clinician</em>, so the licence is part of the record.</td></tr>
+      <tr><td class="id">clinician_role</td><td>Distinguishes what the overrider was authorised to do.</td></tr>
+      <tr><td class="id">system_band</td><td>What was recommended.</td></tr>
+      <tr><td class="id">clinician_band</td><td>What was done instead.</td></tr>
+      <tr><td class="id">direction</td><td>Escalation or de-escalation. De-escalations are the reviewed set — they are the only way a patient moves down.</td></tr>
+      <tr><td class="id">reason_code</td><td>From a fixed list, so overrides are analysable in aggregate.</td></tr>
+      <tr><td class="id">reason_text</td><td>Free text, because the fixed list will not cover the interesting cases.</td></tr>
+      <tr><td class="id">score, confidence</td><td>What the system believed at the moment of the override — not what it believes now.</td></tr>
+      <tr><td class="id">factors_shown</td><td>The card as displayed. Establishes what the clinician was actually told.</td></tr>
+      <tr><td class="id">inputs_hash</td><td>Fixes the input state so the decision is reproducible.</td></tr>
+      <tr><td class="id">model_version</td><td>CDSCO change-control requires knowing which version produced a given output.</td></tr>
+      <tr><td class="id">calibration_version</td><td>Site and age-stratum calibration in force.</td></tr>
+      <tr><td class="id">consent_state</td><td>DPDP: which purposes the patient had consented to at that moment.</td></tr>
+      <tr><td class="id">outcome_ref</td><td>Back-filled when known. Turns the record into a training signal.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="note">
+    <span class="lbl">Log properties</span>
+    <p>
+      Append-only and cryptographically signed. Raw patient data stays at the institution; only
+      model updates leave. Retention follows the partner hospital's medico-legal retention period
+      rather than our convenience, and consent withdrawal is recorded as an event rather than by
+      deleting history — a deleted audit trail defeats the purpose of having one.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 14 ============ -->
+<section id="data">
+  <h2 class="sec"><span class="n">14</span>Data strategy and the synthetic corpus</h2>
+  <div class="sec-rule"></div>
+  <div class="prose">
+    <p>
+      The honest position: we have no real Indian ED dataset in hand, and we will not have one before
+      the Round 2 deadline. Public sources (MIMIC-IV-ED and similar) are US populations and are
+      useful for architecture validation but cannot support a claim about Indian EDs. Everything the
+      judges see runs on synthetic data, and the brief explicitly permits this — <em>realistic, even
+      if simplified or simulated</em>.
+    </p>
+    <p>
+      That makes the generator the critical path. It is the first thing built, because nothing else
+      can be tested until it exists.
+    </p>
+
+    <h3>Generating data that is not just noise</h3>
+    <p>
+      Sampling SpO₂, blood pressure and heart rate independently produces combinations no human has
+      ever presented with, and a model trained on them learns nothing transferable. The generator is
+      therefore built around a small number of clinical trajectories rather than around marginal
+      distributions.
+    </p>
+    <ul>
+      <li><strong>Condition first, vitals second.</strong> Pick a presentation, then sample vitals from that presentation's joint distribution, conditioned on age stratum.</li>
+      <li><strong>Trajectories, not snapshots.</strong> Each patient has a time series with a physiologically plausible path — compensation then decompensation, or gradual improvement — so the trend head has something real to learn.</li>
+      <li><strong>Correlations preserved.</strong> Rising heart rate with falling blood pressure; respiratory rate tracking hypoxia; fever with tachycardia at a stratum-appropriate ratio.</li>
+      <li><strong>Missingness modelled, not random.</strong> Missing data in an ED is structured — the zero-history patient, the failed sensor, the reading nobody had time to take. Each gets its own mechanism.</li>
+      <li><strong>Measurement error and device bias.</strong> Including the pulse-oximeter bias case, which is one of the few places a plausible-looking normal reading is actively dangerous.</li>
+    </ul>
+
+    <h3>Validating it before trusting it</h3>
+    <ul>
+      <li><strong>Statistical</strong> — marginals, correlation structure and missingness patterns compared against published ED reference distributions.</li>
+      <li><strong>Clinical</strong> — a clinician reviews a sample and answers one question: could this patient exist? Cheap, and it catches what the statistics miss.</li>
+      <li><strong>Temporal</strong> — trajectories checked for physiological plausibility over time, not only at each instant.</li>
+      <li><strong>Transfer</strong> — train on synthetic, test on the public real-data benchmark. Degradation is expected; the size of it is the number we report rather than hide.</li>
+    </ul>
+  </div>
+
+  <h3>The 20-record demonstration corpus</h3>
+  <div class="prose">
+    <p>
+      Separate from the training corpus, this is the hand-specified set the demo runs on. Each record
+      exists to make one behaviour visible.
+    </p>
+  </div>
+
+  <div class="scroller">
+  <table>
+    <thead><tr><th>ID</th><th>Presentation</th><th>Demonstrates</th></tr></thead>
+    <tbody>
+      <tr><td class="id">P-01</td><td>Adult, crushing chest pain, diaphoretic</td><td>Red at the door. Red-flag pass fires before the model returns.</td></tr>
+      <tr><td class="id">P-02</td><td>Adult, minor laceration, stable</td><td>Green that stays Green. The negative control.</td></tr>
+      <tr><td class="id">P-03</td><td>3-year-old, 38.5 °C, tachypnoeic, poor feeding</td><td class="mono">Age stratification — paediatric.</td></tr>
+      <tr><td class="id">P-04</td><td>75-year-old, 38.5 °C, unremarkable HR</td><td class="mono">Age stratification — geriatric. Same number, different meaning.</td></tr>
+      <tr><td class="id">P-05</td><td>Adult, mild chest discomfort, Yellow at arrival</td><td><strong>The hero case.</strong> Deteriorates while waiting; Loop A escalates autonomously at minute 18.</td></tr>
+      <tr><td class="id">P-06</td><td>Elderly, confusion, afebrile, no localising signs</td><td>Atypical presentation of sepsis. Phenotype upweighting.</td></tr>
+      <tr><td class="id">P-07</td><td>Adult, epigastric pain — gastritis or inferior MI</td><td class="mono">Required: ambiguous presentation.</td></tr>
+      <tr><td class="id">P-08</td><td>Adult, dark skin tone, SpO₂ reads 96%, distressed</td><td>Pulse-oximeter bias. Normal reading carries no de-escalation authority.</td></tr>
+      <tr><td class="id">P-09</td><td>Adult, last vitals 3 hours old</td><td>Freshness contract. Same numbers, decayed confidence, recheck raised.</td></tr>
+      <tr><td class="id">P-10</td><td>Adult, cardiac monitor drops out mid-wait</td><td>Sensor-loss rule fires independently of the model.</td></tr>
+      <tr><td class="id">P-11</td><td>Adult, first visit, no record, no ABHA link</td><td class="mono">Required: zero-history patient.</td></tr>
+      <tr><td class="id">P-12</td><td>Adult, rich prior history via ABHA</td><td>The other half of the 50/50 split. History embedding contributes.</td></tr>
+      <tr><td class="id">P-13</td><td>Adult, speaks neither Hindi nor English</td><td>Multilingual question tree; communication barrier lowers reassurance weight.</td></tr>
+      <tr><td class="id">P-14</td><td>Adult, Yellow, nurse finds rigid abdomen</td><td class="mono">Required: clinician override, with the full record rendered.</td></tr>
+      <tr><td class="id">P-15</td><td>Patient unlike any in the local distribution</td><td>OOD gate. Abstains out loud; holds at Yellow, never Green.</td></tr>
+      <tr><td class="id">P-16</td><td>Unaccompanied, non-responsive, age unknown</td><td>Inferred age stratum; non-assisted branch; widest-safety configuration.</td></tr>
+      <tr><td class="id">P-17</td><td>Adult who declines to share medical history</td><td>Consent gate. Triaged on observation alone without penalty.</td></tr>
+      <tr><td class="id">P-18</td><td>Woman in active labour</td><td>Red-flag pass on narrative alone. Vitals unremarkable.</td></tr>
+      <tr><td class="id">P-19</td><td>Stoic patient, denies pain, vitals disagree</td><td>Reliability weighting. Reassuring self-report loses evidential weight; alarming physiology does not.</td></tr>
+      <tr><td class="id">P-20</td><td>Green patient, two rechecks missed under load</td><td>Wait-ceiling breach escalates on time alone. Feeds the surge scenario.</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="tcap">The 3× surge run replays this corpus at triple arrival rate with additional
+  filler patients, so the judges see the same familiar cases behave differently under load.</p>
+</section>
+
+<!-- ============ 15 ============ -->
+<section id="build">
+  <h2 class="sec"><span class="n">15</span>Prototype build</h2>
+  <div class="sec-rule"></div>
+
+  <h3>Scope discipline</h3>
+  <div class="prose">
+    <p>
+      The plan describes a hospital system. The prototype demonstrates a subset of it convincingly.
+      Confusing the two is the standard way these submissions fail — a broad shallow demo where
+      nothing works properly.
+    </p>
+  </div>
+
+  <div class="scroller">
+  <table>
+    <thead><tr><th>Built and demonstrated</th><th>Described, not built</th></tr></thead>
+    <tbody>
+      <tr><td>Band engine with cost-sensitive threshold and the live <code>R</code> control</td><td>Federated learning across sites</td></tr>
+      <tr><td>Two-clock recheck scheduler with wait ceilings and breach escalation</td><td>Real HIS / FHIR / CDS Hooks integration</td></tr>
+      <tr><td>Age stratification across all six strata</td><td>Production hardware and edge deployment tiers</td></tr>
+      <tr><td>Uncertainty, conformal sets and the abstention gate</td><td>Self-supervised pretraining at scale</td></tr>
+      <tr><td>Red-flag pass over structured narrative</td><td>Diffusion-based rare-event augmentation</td></tr>
+      <tr><td>Nurse card, board, and the override capture path</td><td>ABHA live record retrieval</td></tr>
+      <tr><td>Surge controller at 3×</td><td>Ambient camera and microphone sensing</td></tr>
+      <tr><td>Audit log with the full override schema</td><td>Mass-casualty mode</td></tr>
+      <tr><td>Synthetic generator and the 20-record corpus</td><td>Multi-site calibration</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>Stack</h3>
+  <div class="prose">
+    <p>
+      Chosen to be defensible under questioning and buildable in the time available. The session
+      flagged LLM and speech-transformer integration as an open feasibility question (§16); the
+      stack below keeps that on a path where failure is survivable.
+    </p>
+    <ul>
+      <li><strong>Risk model</strong> — gradient-boosted trees on tabular features, plus a small
+      sequence model for the trend head. Fast, interpretable, handles missing values natively, and
+      trains on a laptop.</li>
+      <li><strong>Narrative</strong> — a small instruction-following model with constrained decoding
+      to a fixed schema. Constrained decoding is what makes the perception-only guarantee real
+      rather than aspirational.</li>
+      <li><strong>Speech</strong> — Whisper-class ASR, quantised, evaluated on Indian-accented and
+      code-mixed speech before we depend on it.</li>
+      <li><strong>Backend</strong> — a single service holding the pipeline, scheduler and audit log.
+      Simulated clock so a 3-hour ED shift demos in three minutes.</li>
+      <li><strong>Frontend</strong> — the nurse board and card, the patient intake flow, and a
+      judge-facing control panel exposing <code>R</code>, surge rate and simulation speed.</li>
+    </ul>
+  </div>
+
+  <h3>Sequence</h3>
+  <div class="prose">
+    <ol>
+      <li><strong>Generator and corpus.</strong> Nothing downstream is testable without it. Ends when the 20 records exist and pass clinical review.</li>
+      <li><strong>Pipeline spine.</strong> Ingestion → validation → freshness → model → threshold → band. Headless, tested against the corpus.</li>
+      <li><strong>Safety layers.</strong> Age stratification, red-flag pass, emergency rules, abstention gate. The invariant tests land here.</li>
+      <li><strong>Scheduler.</strong> Two clocks, wait ceilings, breach escalation, recheck ownership.</li>
+      <li><strong>Interface.</strong> Board, card, override capture, audit rendering.</li>
+      <li><strong>Surge controller.</strong> Cheapest step once the scheduler exists, and it exercises everything before it.</li>
+      <li><strong>Intake conversation.</strong> Question tree, then voice, then additional languages. Staged so the demo survives the speech layer not landing.</li>
+      <li><strong>Demo rehearsal.</strong> Treated as a build step, not an afterthought.</li>
+    </ol>
+  </div>
+
+  <h3>Demo narrative</h3>
+  <div class="prose">
+    <p>
+      The story is one patient, then the system around them. <code>P-05</code> arrives with mild
+      chest discomfort and is correctly assigned Yellow — the nurse did nothing wrong. Eighteen
+      minutes later, with the nurse registering three new arrivals, the queue re-orders itself and
+      <code>P-05</code> moves to the front, with the reasoning visible and one factor arguing
+      against. Then: the same department at 3× load, and what the system refuses to do to cope.
+      Then: a nurse overriding it, and exactly what that leaves behind in the record.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 16 ============ -->
+<section id="risks">
+  <h2 class="sec"><span class="n">16</span>Open risks</h2>
+  <div class="sec-rule"></div>
+  <div class="prose">
+    <p>Carried forward from the session, stated plainly so they are tracked rather than discovered.</p>
+  </div>
+
+  <div class="scroller">
+  <table>
+    <thead><tr><th>Risk</th><th>Exposure</th><th>Response</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>No real dataset</strong></td>
+        <td>High — everything shown is synthetic.</td>
+        <td>Say so, first and clearly. Report the synthetic-to-real transfer gap as a number. A team that states this openly is more credible than one that lets a judge find it.</td>
+      </tr>
+      <tr>
+        <td><strong>Speech integration slips</strong></td>
+        <td>Medium — ASR on code-mixed Indian speech is genuinely hard.</td>
+        <td>Sequenced last with a typed fallback that is complete on its own. The demo must not depend on it.</td>
+      </tr>
+      <tr>
+        <td><strong>Constrained decoding underperforms</strong></td>
+        <td>Medium — schema-locked extraction can be brittle on messy input.</td>
+        <td>Evaluate early on deliberately messy transcripts. The red-flag table is the safety net: it runs on whatever fields were extracted, and missing fields mean abstention, not silence.</td>
+      </tr>
+      <tr>
+        <td><strong>Clinical review capacity</strong></td>
+        <td>Medium — the corpus, the red-flag list and the age bands all need a clinician's eye.</td>
+        <td>Bundle everything needing review into one package and one sitting. Identify the reviewer now, not when the package is ready.</td>
+      </tr>
+      <tr>
+        <td><strong>Demo breadth beats demo depth</strong></td>
+        <td>Medium — the standard failure mode.</td>
+        <td>The scope table in §15 is a commitment. Anything not in the left column is described, not built, and saying so out loud is a strength.</td>
+      </tr>
+      <tr>
+        <td><strong>Frontend polish absorbs the schedule</strong></td>
+        <td>Low but real — the session wanted heavy animation.</td>
+        <td>The interface must be legible, fast and honest. Motion earns its place only where it shows a queue re-ordering, which is the one thing worth animating.</td>
+      </tr>
+      <tr>
+        <td><strong>Routing is combinatorial</strong></td>
+        <td>Low at prototype scale.</td>
+        <td>Constrained assignment is hard in general; at 80 patients a greedy assignment under hard rules is optimal enough. Note the relaxation rather than pretending it is exact.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ============ 17 ============ -->
+<section id="ladder">
+  <h2 class="sec"><span class="n">17</span>Maturity ladder</h2>
+  <div class="sec-rule"></div>
+  <div class="prose">
+    <p>
+      From the session's practical plan: a basic module first, then versions that mature as real data
+      arrives. Each rung is gated on data and evidence, not on calendar time — the gate is what makes
+      it a ladder rather than a wish list.
+    </p>
+  </div>
+
+  <div class="scroller">
+  <table>
+    <thead><tr><th>Rung</th><th>Runs on</th><th>Adds</th><th>Gate to the next rung</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="id">Prototype</td><td>Synthetic only</td>
+        <td>Full safety architecture, 20-record corpus, surge, override capture.</td>
+        <td>A partner hospital agrees to a retrospective data export.</td>
+      </tr>
+      <tr>
+        <td class="id">V1</td><td>One site, retrospective</td>
+        <td>Real backbone, site calibration, measured under-triage at fixed over-triage.</td>
+        <td>Shadow-mode agreement and ethics clearance.</td>
+      </tr>
+      <tr>
+        <td class="id">V2</td><td>One site, shadow mode</td>
+        <td>Live data, zero clinical exposure, real abstention-rate curve.</td>
+        <td>ECE &lt; 0.05 across every stratum and subgroup.</td>
+      </tr>
+      <tr>
+        <td class="id">V3</td><td>One site, live, supervised</td>
+        <td>Stepped-wedge rollout. First causal claims about door-to-doctor time.</td>
+        <td>Trial results hold, and CDSCO pathway confirmed.</td>
+      </tr>
+      <tr>
+        <td class="id">V4</td><td>Two or three sites</td>
+        <td>Cross-site generalisation; per-site calibration proven necessary or not.</td>
+        <td>Federated infrastructure and DPDP consent architecture in place.</td>
+      </tr>
+      <tr>
+        <td class="id">V5</td><td>Federated network</td>
+        <td>Weight updates without moving raw data. The compounding advantage begins here.</td>
+        <td>—</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="note">
+    <span class="lbl">Where Round 2 sits</span>
+    <p>
+      Everything above is the Prototype rung. The value of naming the ladder is that it lets us say
+      plainly what the prototype does <em>not</em> establish — no clinical claim, no performance claim
+      against Indian patients, no causal claim about outcomes — while showing that we know exactly
+      what each of those would require.
+    </p>
+  </div>
+</section>
+
+<footer>
+  <span>MediPilot · Round 2 Implementation Plan · Revision R2 draft 1</span>
+  <span>Team 01 BIT · IIT Patna</span>
+</footer>
+
+</main>
+</div>
+</div>
+
+<script>
+(function(){
+  var d = document.getElementById('toc-d');
+  var m = document.getElementById('toc-m');
+  if (d && m) { m.innerHTML = d.innerHTML; }
+})();
+</script>
